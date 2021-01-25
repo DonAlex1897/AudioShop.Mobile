@@ -1,9 +1,12 @@
 import 'dart:ui' as ui;
+import 'package:aes_crypt/aes_crypt.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/store/course_store.dart';
+import 'package:provider/provider.dart';
 
 class NowPlaying extends StatefulWidget {
   NowPlaying(this.episodeDetails, this.courseCoverUrl);
@@ -19,6 +22,10 @@ class _NowPlayingState extends State<NowPlaying> {
   //we will need some variables
   bool playing = false; // at the begining we are not playing any song
   IconData playBtn = Icons.play_arrow; // the main state of the play button icon
+  var crypt;
+  var audioFile;
+  var decFilepath;
+  CourseStore courseStore;
 
   //Now let's start by creating our music player
   //first let's declare some object
@@ -27,6 +34,8 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Duration position = new Duration();
   Duration musicLength = new Duration();
+  AudioPlayerState playerState;
+
 
   //we will create a custom slider
 
@@ -56,17 +65,41 @@ class _NowPlayingState extends State<NowPlaying> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _player = AudioPlayer();
-    cache = AudioCache(fixedPlayer: _player);
+    // cache = AudioCache(fixedPlayer: _player);
+    // Creates an instance of AesCrypt class.
+    crypt = AesCrypt();
+    // Sets encryption password.
+    crypt.setPassword('1qaz2wsX');
+    crypt.setOverwriteMode(AesCryptOwMode.on);
+
+    setAudioFile();
+  }
+
+  Future setAudioFile() async{
+    audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
+    if(courseStore != null &&
+        courseStore.playingFile != null &&
+        courseStore.playingFile.path == audioFile.path){
+      _player = courseStore.player;
+      playBtn = Icons.pause;
+    }
+    else{
+      if(courseStore != null && courseStore.player != null)
+        courseStore.player.stop();
+      _player = AudioPlayer();
+      courseStore.setPlayingFile(audioFile, _player);
+      playBtn = Icons.play_arrow;
+    }
 
     //now let's handle the audioplayer time
-
     //this function will allow you to get the music duration
     _player.onDurationChanged.listen((d) {
       setState(() {
         musicLength = d;
       });
     });
+
+
 
     //this function will allow us to move the cursor of the slider while we are playing the song
     _player.onAudioPositionChanged.listen((p) {
@@ -82,10 +115,27 @@ class _NowPlayingState extends State<NowPlaying> {
         playing = false;
       });
     });
+
+    _player.onPlayerStateChanged.listen((AudioPlayerState s) {
+      setState(() {
+        playerState = s;
+        if(playerState == AudioPlayerState.COMPLETED){
+          courseStore.playingFile(null, null);
+          playBtn = Icons.play_arrow;
+        }
+        else if(playerState == AudioPlayerState.PLAYING){
+          playBtn = Icons.pause;
+        }
+        else{
+          playBtn = Icons.play_arrow;
+        }
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    courseStore = Provider.of<CourseStore>(context);
     CourseEpisode episode = widget.episodeDetails;
     String courseCover = widget.courseCoverUrl;
 
@@ -234,21 +284,38 @@ class _NowPlayingState extends State<NowPlaying> {
                                       iconSize: 45.0,
                                       color: Colors.white,
                                       onPressed: () async {
-                                        //here we will add the functionality of the play button
-                                        var audioFile = await DefaultCacheManager().getSingleFile(episode.fileUrl);
-                                        if (!playing) {
+                                        if (playerState != AudioPlayerState.PLAYING) {
+                                          if(/*decFilepath == null*/audioFile == null){
+                                            audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
+
+                                            courseStore.setPlayingFile(audioFile, _player);
+                                            // try {
+                                            //   // Decrypts the file which has been just encrypted.
+                                            //   // It returns a path to decrypted file.
+                                            //   decFilepath = crypt.decryptFileSync(audioFile.path);
+                                            //   print('The decryption has been completed successfully.');
+                                            //   print('Decrypted file 1: $decFilepath');
+                                            // } on AesCryptException catch (e) {
+                                            //   // It goes here if the file naming mode set as AesCryptFnMode.warn
+                                            //   // and decrypted file already exists.
+                                            //   if (e.type == AesCryptExceptionType.destFileExists) {
+                                            //     print('The decryption has been completed unsuccessfully.');
+                                            //     print(e.message);
+                                            //   }
+                                            // }
+                                          }
                                           //now let's play the song
                                           _player.play(audioFile.path, isLocal: true);
-                                          setState(() {
-                                            playBtn = Icons.pause;
-                                            playing = true;
-                                          });
+                                          // setState(() {
+                                          //   playBtn = Icons.pause;
+                                          //   playing = true;
+                                          // });
                                         } else {
                                           _player.pause();
-                                          setState(() {
-                                            playBtn = Icons.play_arrow;
-                                            playing = false;
-                                          });
+                                          // setState(() {
+                                          //   playBtn = Icons.play_arrow;
+                                          //   playing = false;
+                                          // });
                                         }
                                       },
                                       icon: Icon(

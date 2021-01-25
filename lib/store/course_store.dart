@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/course.dart';
@@ -10,6 +11,8 @@ class CourseStore extends ChangeNotifier{
   Course _currentCourse;
   int _totalBasketPrice = 0;
   List<Course> _userCourses =[];
+  dynamic _playingFile;
+  AudioPlayer _player;
 
   String _userId;
   String _userName;
@@ -26,6 +29,8 @@ class CourseStore extends ChangeNotifier{
   Course get currentCourse => _currentCourse;
   int get totalBasketPrice => _totalBasketPrice;
   List<Course> get userCourses => _userCourses;
+  dynamic get playingFile => _playingFile;
+  AudioPlayer get player => _player;
 
   String get userId => _userId;
   String get userName => _userName;
@@ -93,5 +98,10 @@ class CourseStore extends ChangeNotifier{
       this._basket = refinedBasket;
     else
       this._basket.clear();
+  }
+
+  setPlayingFile(dynamic audio, AudioPlayer nowPlaying){
+    this._player = nowPlaying;
+    this._playingFile = audio;
   }
 }
