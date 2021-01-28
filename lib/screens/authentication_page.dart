@@ -42,6 +42,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   String passwordError = '';
 
   @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     formName = widget.baseForm;

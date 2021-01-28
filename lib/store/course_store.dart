@@ -12,6 +12,7 @@ class CourseStore extends ChangeNotifier{
   int _totalBasketPrice = 0;
   List<Course> _userCourses =[];
   dynamic _playingFile;
+  dynamic _decryptedPlayingFile;
   AudioPlayer _player;
 
   String _userId;
@@ -30,6 +31,7 @@ class CourseStore extends ChangeNotifier{
   int get totalBasketPrice => _totalBasketPrice;
   List<Course> get userCourses => _userCourses;
   dynamic get playingFile => _playingFile;
+  dynamic get decryptedPlayingFile => _decryptedPlayingFile;
   AudioPlayer get player => _player;
 
   String get userId => _userId;
@@ -100,8 +102,9 @@ class CourseStore extends ChangeNotifier{
       this._basket.clear();
   }
 
-  setPlayingFile(dynamic audio, AudioPlayer nowPlaying){
+  setPlayingFile(dynamic audio, dynamic decryptedAudio, AudioPlayer nowPlaying){
     this._player = nowPlaying;
     this._playingFile = audio;
+    this._decryptedPlayingFile = decryptedAudio;
   }
 }

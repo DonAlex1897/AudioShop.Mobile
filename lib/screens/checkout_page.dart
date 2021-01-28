@@ -19,6 +19,13 @@ class _CheckOutPageState extends State<CheckOutPage> {
   PaymentService orderService = PaymentService();
   String orderJson = '';
 
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
   Future<String> createOrder() async{
     return await orderService.createOrder(
         courseStore.basket,

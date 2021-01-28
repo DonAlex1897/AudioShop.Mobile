@@ -29,6 +29,12 @@ class _CoursePageState extends State<CoursePage> {
   CourseStore courseStore;
   bool isCoursePurchasedBefore = false;
 
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {

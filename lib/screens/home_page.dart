@@ -43,6 +43,13 @@ class _HomePageState extends State<HomePage> {
   bool alertReturn = false;
 
   @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     courses = getCourses();
