@@ -11,8 +11,10 @@ class CourseStore extends ChangeNotifier{
   Course _currentCourse;
   int _totalBasketPrice = 0;
   List<Course> _userCourses =[];
-  dynamic _playingFile;
-  dynamic _decryptedPlayingFile;
+  List<dynamic> _encryptedPlayingFiles = List<dynamic>();
+  List<dynamic> _decryptedPlayingFiles = List<dynamic>();
+  int _countOfFilesPlaying = 0;
+  int _currentPlayingFileIndex = 0;
   AudioPlayer _player;
 
   String _userId;
@@ -30,8 +32,10 @@ class CourseStore extends ChangeNotifier{
   Course get currentCourse => _currentCourse;
   int get totalBasketPrice => _totalBasketPrice;
   List<Course> get userCourses => _userCourses;
-  dynamic get playingFile => _playingFile;
-  dynamic get decryptedPlayingFile => _decryptedPlayingFile;
+  List<dynamic> get encryptedPlayingFiles => _encryptedPlayingFiles;
+  List<dynamic> get decryptedPlayingFiles => _decryptedPlayingFiles;
+  int get countOfFilesPlaying => _countOfFilesPlaying;
+  int get currentPlayingFileIndex => _currentPlayingFileIndex;
   AudioPlayer get player => _player;
 
   String get userId => _userId;
@@ -102,9 +106,31 @@ class CourseStore extends ChangeNotifier{
       this._basket.clear();
   }
 
-  setPlayingFile(dynamic audio, dynamic decryptedAudio, AudioPlayer nowPlaying){
+  setPlayingFile(
+      List<dynamic> audio,
+      List<dynamic> decryptedAudio,
+      AudioPlayer nowPlaying,
+      int playingFilesCount,
+      int currentFileIndex)
+  {
     this._player = nowPlaying;
-    this._playingFile = audio;
-    this._decryptedPlayingFile = decryptedAudio;
+    this._encryptedPlayingFiles = audio;
+    this._decryptedPlayingFiles = decryptedAudio;
+    this._countOfFilesPlaying = playingFilesCount;
+    this._currentPlayingFileIndex = currentFileIndex;
+  }
+
+  incrementPlayingFileIndex(){
+    if(this._currentPlayingFileIndex != this._countOfFilesPlaying - 1)
+      this._currentPlayingFileIndex++;
+    else
+      this._currentPlayingFileIndex = 0;
+  }
+
+  incrementTotalCountOfPlayingFiles(int incrementer){
+    if(incrementer == 1)
+      this._countOfFilesPlaying++;
+    else
+      this._countOfFilesPlaying = 0;
   }
 }

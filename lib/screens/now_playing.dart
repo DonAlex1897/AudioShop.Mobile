@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:aes_crypt/aes_crypt.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -20,19 +22,38 @@ class NowPlaying extends StatefulWidget {
   _NowPlayingState createState() => _NowPlayingState();
 }
 
-class _NowPlayingState extends State<NowPlaying> {
-  //we will need some variables
-  bool playing = false; // at the begining we are not playing any song
-  IconData playBtn = Icons.play_arrow; // the main state of the play button icon
-  var crypt;
-  var audioFile;
-  var decFilepath;
-  CourseStore courseStore;
-  Future<dynamic> decryptedFile;
+var crypt;
+List<dynamic> encryptedAudioFiles = List<dynamic>();
+List<dynamic> decryptedAudioPaths = List<dynamic>();
+CourseStore courseStore;
+Future<dynamic> firstDecryptedFileFuture;
+dynamic firstDecryptedFilePath;
+int countOfFiles = 0;
+int currentPlayingFileIndex = 0;
+AudioPlayer _player;
 
-  //Now let's start by creating our music player
-  //first let's declare some object
-  AudioPlayer _player;
+FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
+  List<dynamic> result = List<dynamic>();
+  if(crypt == null){
+    crypt = AesCrypt();
+    crypt.setPassword('1qaz2wsX1qaz2wsX1qaz2wsX1qaz2wsX');
+    crypt.setOverwriteMode(AesCryptOwMode.on);
+  }
+  for(int i = 0; i < encryptedAudios.length; i++)
+  {
+    countOfFiles++;
+    dynamic tempDecryptedAudioPath = await crypt
+        .decryptFileSync(encryptedAudios[i].path);
+    decryptedAudioPaths.add(tempDecryptedAudioPath);
+  }
+  result.add(countOfFiles);
+  result.add(decryptedAudioPaths);
+  return result;
+}
+
+class _NowPlayingState extends State<NowPlaying> {
+  IconData playBtn = Icons.play_arrow;
+
   AudioCache cache;
 
   Duration position = new Duration();
@@ -79,39 +100,78 @@ class _NowPlayingState extends State<NowPlaying> {
     crypt.setPassword('1qaz2wsX1qaz2wsX1qaz2wsX1qaz2wsX');
     crypt.setOverwriteMode(AesCryptOwMode.on);
 
-    decryptedFile = setAudioFile();
+    firstDecryptedFileFuture = setAudioFile();
+  }
+
+  Future<List<dynamic>> getEncryptedAudioFiles(String episodeUrl) async{
+    List<String> fileUrls = episodeUrl.split(',');
+    if(fileUrls.length > 1){
+      for(int i = 1; i < fileUrls.length; i++)
+        fileUrls[i] = 'https://audioshoppp.ir/' + fileUrls[i];
+    }
+    List<dynamic> audioFiles = List<dynamic>();
+    for(String url in fileUrls){
+      dynamic audioFile = await DefaultCacheManager().getSingleFile(url);
+      audioFiles.add(audioFile);
+    }
+    countOfFiles = audioFiles.length;
+
+    return audioFiles;
+  }
+
+  Future<bool> isCurrentEpisodePlaying(List<dynamic> encryptedFiles) async
+  {
+    if(courseStore.encryptedPlayingFiles.length != encryptedAudioFiles.length)
+      return false;
+    else
+    {
+      for(int i = 0; i < encryptedAudioFiles.length; i++)
+      {
+        if(courseStore.encryptedPlayingFiles[i].path != encryptedAudioFiles[i].path)
+          return false;
+      }
+    }
+    return true;
   }
 
   Future<dynamic> setAudioFile() async{
-    audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
+    encryptedAudioFiles = await getEncryptedAudioFiles(widget.episodeDetails.fileUrl);
+    // audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
     if(courseStore != null &&
-        courseStore.playingFile != null &&
-        courseStore.playingFile.path == audioFile.path){
+       courseStore.encryptedPlayingFiles != null &&
+        await isCurrentEpisodePlaying(encryptedAudioFiles))
+    {
       _player = courseStore.player;
-      decFilepath = courseStore.decryptedPlayingFile;
+      currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
+      firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
       playBtn = Icons.pause;
     }
     else{
       if(courseStore != null && courseStore.player != null){
         courseStore.player.stop();
-        var file = File(courseStore.decryptedPlayingFile);
-        if(await file.exists())
-          file.delete();
+        for(var decryptedFile in courseStore.decryptedPlayingFiles){
+          var file = File(decryptedFile);
+          if(await file.exists())
+            file.delete();
+        }
       }
       _player = AudioPlayer();
       playBtn = Icons.play_arrow;
-      await decryptCachedFile();
+      await decryptCachedFiles();
     }
 
-    //now let's handle the audioplayer time
-    //this function will allow you to get the music duration
+    setAudioPlayerEvents();
+
+    return firstDecryptedFilePath;
+  }
+
+  void setAudioPlayerEvents(){
     _player.onDurationChanged.listen((d) {
       setState(() {
         musicLength = d;
       });
     });
 
-    //this function will allow us to move the cursor of the slider while we are playing the song
     _player.onAudioPositionChanged.listen((p) {
       setState(() {
         position = p;
@@ -122,15 +182,22 @@ class _NowPlayingState extends State<NowPlaying> {
       setState(() {
         position = musicLength;
         playBtn = Icons.play_arrow;
-        playing = false;
       });
+      if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
+        courseStore.incrementPlayingFileIndex();
+        position = new Duration();
+        playNextTrack();
+      }
+      else{
+        courseStore.incrementPlayingFileIndex();
+      }
     });
 
     _player.onPlayerStateChanged.listen((AudioPlayerState s) {
       setState(() {
         playerState = s;
         if(playerState == AudioPlayerState.COMPLETED){
-          courseStore.playingFile(null, null);
+          // courseStore.playingFile(null, null);
           playBtn = Icons.play_arrow;
         }
         else if(playerState == AudioPlayerState.PLAYING){
@@ -141,26 +208,37 @@ class _NowPlayingState extends State<NowPlaying> {
         }
       });
     });
-
-    return decFilepath;
   }
 
-  Future decryptCachedFile() async{
+  Future decryptCachedFiles() async{
     try {
-      // Decrypts the file which has been just encrypted.
-      // It returns a path to decrypted file.
-      decFilepath = await crypt.decryptFileSync(audioFile.path);
-      courseStore.setPlayingFile(audioFile, decFilepath, _player);
+      firstDecryptedFilePath = await crypt
+          .decryptFileSync(encryptedAudioFiles[currentPlayingFileIndex].path);
+
+      compute(decryptAllFiles, encryptedAudioFiles).then((result) => {
+        courseStore.setPlayingFile(
+            encryptedAudioFiles,
+            result[1],
+            _player,
+            result[0],
+            0)
+      });
+
       print('The decryption has been completed successfully.');
-      print('Decrypted file 1: $decFilepath');
+      print('Decrypted file 1: $firstDecryptedFilePath');
     } on AesCryptException catch (e) {
-      // It goes here if the file naming mode set as AesCryptFnMode.warn
-      // and decrypted file already exists.
       if (e.type == AesCryptExceptionType.destFileExists) {
         print('The decryption has been completed unsuccessfully.');
         print(e.message);
       }
     }
+  }
+
+  void playNextTrack(){
+    _player = AudioPlayer();
+    setAudioPlayerEvents();
+    _player.play(courseStore
+        .decryptedPlayingFiles[courseStore.currentPlayingFileIndex], isLocal: true);
   }
 
   @override
@@ -170,7 +248,7 @@ class _NowPlayingState extends State<NowPlaying> {
     String courseCover = widget.courseCoverUrl;
 
     return FutureBuilder(
-      future: decryptedFile,
+      future: firstDecryptedFileFuture,
       builder: (context, data){
         if(data.hasData){
           return Scaffold(
@@ -318,27 +396,15 @@ class _NowPlayingState extends State<NowPlaying> {
                                             color: Colors.white,
                                             onPressed: () async {
                                               if (playerState != AudioPlayerState.PLAYING) {
-                                                if(/*decFilepath == null*/audioFile == null){
-                                                  audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
-                                                  print('The file has been downloaded successfully.');
-
-                                                  await decryptCachedFile();
-                                                }
-                                                //now let's play the song
-                                                _player.play(decFilepath, isLocal: true);
-                                                var file = File(decFilepath);
-                                                // if(await file.exists())
-                                                //   file.delete();
-                                                // setState(() {
-                                                //   playBtn = Icons.pause;
-                                                //   playing = true;
-                                                // });
+                                                // if(/*decFilepath == null*/audioFile == null){
+                                                //   audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
+                                                //   print('The file has been downloaded successfully.');
+                                                //
+                                                //   await decryptCachedFile();
+                                                // }
+                                                _player.play(firstDecryptedFilePath, isLocal: true);
                                               } else {
                                                 _player.pause();
-                                                // setState(() {
-                                                //   playBtn = Icons.play_arrow;
-                                                //   playing = false;
-                                                // });
                                               }
                                             },
                                             icon: Icon(
