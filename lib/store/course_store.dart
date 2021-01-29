@@ -107,21 +107,19 @@ class CourseStore extends ChangeNotifier{
   }
 
   setPlayingFile(
-      List<dynamic> audio,
-      List<dynamic> decryptedAudio,
-      AudioPlayer nowPlaying,
+      List<dynamic> encryptedAudios,
+      List<dynamic> decryptedAudios,
       int playingFilesCount,
       int currentFileIndex)
   {
-    this._player = nowPlaying;
-    this._encryptedPlayingFiles = audio;
-    this._decryptedPlayingFiles = decryptedAudio;
+    this._encryptedPlayingFiles = encryptedAudios;
+    this._decryptedPlayingFiles = decryptedAudios;
     this._countOfFilesPlaying = playingFilesCount;
     this._currentPlayingFileIndex = currentFileIndex;
   }
 
-  incrementPlayingFileIndex(){
-    if(this._currentPlayingFileIndex != this._countOfFilesPlaying - 1)
+  incrementPlayingFileIndex(int incrementer){
+    if(incrementer == 1)
       this._currentPlayingFileIndex++;
     else
       this._currentPlayingFileIndex = 0;
@@ -132,5 +130,10 @@ class CourseStore extends ChangeNotifier{
       this._countOfFilesPlaying++;
     else
       this._countOfFilesPlaying = 0;
+  }
+
+  setPlayer(AudioPlayer currentPlayer){
+    this._player = null;
+    this._player = currentPlayer;
   }
 }

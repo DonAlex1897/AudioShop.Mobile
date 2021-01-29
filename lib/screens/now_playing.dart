@@ -72,31 +72,27 @@ class _NowPlayingState extends State<NowPlaying> {
         child: Slider(
             activeColor: Color(0xFF20BFA9),
             inactiveColor: Colors.grey[350],
-            value: position.inSeconds.toDouble(),
-            max: musicLength.inSeconds.toDouble(),
+            value: position.inMilliseconds.toDouble(),
+            max: musicLength.inMilliseconds.toDouble(),
             onChanged: (value) {
               seekToSec(value.toInt());
               setState(() {
-                position = Duration(seconds: value.toInt());
+                position = Duration(milliseconds: value.toInt());
               });
             }));
   }
 
   //let's create the seek function that will allow us to go to a certain position of the music
   void seekToSec(int sec) {
-    Duration newPos = Duration(seconds: sec);
+    Duration newPos = Duration(milliseconds: sec);
     _player.seek(newPos);
   }
 
-  //Now let's initialize our player
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // cache = AudioCache(fixedPlayer: _player);
-    // Creates an instance of AesCrypt class.
     crypt = AesCrypt();
-    // Sets encryption password.
     crypt.setPassword('1qaz2wsX1qaz2wsX1qaz2wsX1qaz2wsX');
     crypt.setOverwriteMode(AesCryptOwMode.on);
 
@@ -139,12 +135,22 @@ class _NowPlayingState extends State<NowPlaying> {
     // audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
-        await isCurrentEpisodePlaying(encryptedAudioFiles))
+       await isCurrentEpisodePlaying(encryptedAudioFiles))
     {
-      _player = courseStore.player;
+      // _player = courseStore.player;
+      var currentPosition = await courseStore.player.getCurrentPosition();
+      courseStore.player.stop();
       currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
       firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
       playBtn = Icons.pause;
+      _player = AudioPlayer();
+      setAudioPlayerEvents();
+      courseStore.setPlayer(_player);
+      seekToSec(currentPosition);
+      setState(() {
+        position = Duration(milliseconds: currentPosition);
+      });
+      _player.play(firstDecryptedFilePath, isLocal: true);
     }
     else{
       if(courseStore != null && courseStore.player != null){
@@ -158,14 +164,15 @@ class _NowPlayingState extends State<NowPlaying> {
       _player = AudioPlayer();
       playBtn = Icons.play_arrow;
       await decryptCachedFiles();
+      setAudioPlayerEvents();
     }
 
-    setAudioPlayerEvents();
 
     return firstDecryptedFilePath;
   }
 
-  void setAudioPlayerEvents(){
+  void setAudioPlayerEvents()
+  {
     _player.onDurationChanged.listen((d) {
       setState(() {
         musicLength = d;
@@ -184,18 +191,19 @@ class _NowPlayingState extends State<NowPlaying> {
         playBtn = Icons.play_arrow;
       });
       if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
-        courseStore.incrementPlayingFileIndex();
+        courseStore.incrementPlayingFileIndex(1);
         position = new Duration();
+        musicLength = new Duration();
         playNextTrack();
       }
       else{
-        courseStore.incrementPlayingFileIndex();
+        courseStore.incrementPlayingFileIndex(0);
       }
     });
 
     _player.onPlayerStateChanged.listen((AudioPlayerState s) {
+      playerState = s;
       setState(() {
-        playerState = s;
         if(playerState == AudioPlayerState.COMPLETED){
           // courseStore.playingFile(null, null);
           playBtn = Icons.play_arrow;
@@ -219,10 +227,11 @@ class _NowPlayingState extends State<NowPlaying> {
         courseStore.setPlayingFile(
             encryptedAudioFiles,
             result[1],
-            _player,
             result[0],
             0)
       });
+
+      courseStore.setPlayer(_player);
 
       print('The decryption has been completed successfully.');
       print('Decrypted file 1: $firstDecryptedFilePath');
@@ -237,8 +246,10 @@ class _NowPlayingState extends State<NowPlaying> {
   void playNextTrack(){
     _player = AudioPlayer();
     setAudioPlayerEvents();
-    _player.play(courseStore
-        .decryptedPlayingFiles[courseStore.currentPlayingFileIndex], isLocal: true);
+    courseStore.setPlayer(_player);
+    var nextDecryptedFilePath = courseStore
+        .decryptedPlayingFiles[courseStore.currentPlayingFileIndex];
+    _player.play(nextDecryptedFilePath, isLocal: true);
   }
 
   @override
