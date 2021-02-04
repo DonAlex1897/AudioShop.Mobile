@@ -135,22 +135,22 @@ class _NowPlayingState extends State<NowPlaying> {
     // audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
-       await isCurrentEpisodePlaying(encryptedAudioFiles))
+       await isCurrentEpisodePlaying(encryptedAudioFiles) &&
+       courseStore.player.state != AudioPlayerState.COMPLETED)
     {
-      // _player = courseStore.player;
-      var currentPosition = await courseStore.player.getCurrentPosition();
-      courseStore.player.stop();
-      currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
-      firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
-      playBtn = Icons.pause;
-      _player = AudioPlayer();
-      setAudioPlayerEvents();
-      courseStore.setPlayer(_player);
-      seekToSec(currentPosition);
-      setState(() {
-        position = Duration(milliseconds: currentPosition);
-      });
-      _player.play(firstDecryptedFilePath, isLocal: true);
+        var currentPosition = await courseStore.player.getCurrentPosition();
+        currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
+        firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
+        playBtn = Icons.pause;
+        _player = AudioPlayer();
+        setAudioPlayerEvents();
+        seekToSec(currentPosition);
+        setState(() {
+          position = Duration(milliseconds: currentPosition);
+        });
+        _player.play(firstDecryptedFilePath, isLocal: true);
+        courseStore.player.stop();
+        courseStore.setPlayer(_player);
     }
     else{
       if(courseStore != null && courseStore.player != null){
@@ -181,7 +181,10 @@ class _NowPlayingState extends State<NowPlaying> {
 
     _player.onAudioPositionChanged.listen((p) {
       setState(() {
-        position = p;
+        if(p < musicLength)
+          position = p;
+        else
+          position = musicLength;
       });
     }) ;
 
