@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/services/authentication_service.dart';
+import 'package:audio_manager/audio_manager.dart';
 
+
+var audioManagerInstance = AudioManager.instance;
 class CourseStore extends ChangeNotifier{
 
   List<Course> _courses = [];

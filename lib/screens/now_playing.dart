@@ -3,10 +3,12 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:aes_crypt/aes_crypt.dart';
+import 'package:audio_manager/audio_manager.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/models/course_episode.dart';
@@ -31,12 +33,13 @@ dynamic firstDecryptedFilePath;
 int countOfFiles = 0;
 int currentPlayingFileIndex = 0;
 AudioPlayer _player;
+const platform = const MethodChannel("audioshoppp.ir.mobile/nowplaying");
 
 FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
   List<dynamic> result = List<dynamic>();
   if(crypt == null){
     crypt = AesCrypt();
-    crypt.setPassword('1qaz2wsX1qaz2wsX1qaz2wsX1qaz2wsX');
+    crypt.setPassword('1qaz2wsx');
     crypt.setOverwriteMode(AesCryptOwMode.on);
   }
   for(int i = 0; i < encryptedAudios.length; i++)
@@ -73,7 +76,7 @@ class _NowPlayingState extends State<NowPlaying> {
             activeColor: Color(0xFF20BFA9),
             inactiveColor: Colors.grey[350],
             value: position.inMilliseconds.toDouble(),
-            max: musicLength.inMilliseconds.toDouble(),
+            max: audioManagerInstance.duration.inMilliseconds.toDouble(),
             onChanged: (value) {
               seekToSec(value.toInt());
               setState(() {
@@ -83,9 +86,10 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   //let's create the seek function that will allow us to go to a certain position of the music
-  void seekToSec(int sec) {
-    Duration newPos = Duration(milliseconds: sec);
-    _player.seek(newPos);
+  void seekToSec(int milliSec) {
+    Duration newPos = Duration(milliseconds: milliSec);
+    // _player.seek(newPos);
+    audioManagerInstance.seekTo(newPos);
   }
 
   @override
@@ -93,7 +97,7 @@ class _NowPlayingState extends State<NowPlaying> {
     // TODO: implement initState
     super.initState();
     crypt = AesCrypt();
-    crypt.setPassword('1qaz2wsX1qaz2wsX1qaz2wsX1qaz2wsX');
+    crypt.setPassword('1qaz2wsx');
     crypt.setOverwriteMode(AesCryptOwMode.on);
 
     firstDecryptedFileFuture = setAudioFile();
@@ -136,35 +140,47 @@ class _NowPlayingState extends State<NowPlaying> {
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
        await isCurrentEpisodePlaying(encryptedAudioFiles) &&
-       courseStore.player.state != AudioPlayerState.COMPLETED)
+       /*courseStore.player.state != AudioPlayerState.COMPLETED*/
+       audioManagerInstance.audioList != null && audioManagerInstance.isPlaying)
     {
-        var currentPosition = await courseStore.player.getCurrentPosition();
+        var currentPosition = audioManagerInstance.position.inMilliseconds; //await courseStore.player.getCurrentPosition();
         currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
         firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
         playBtn = Icons.pause;
-        _player = AudioPlayer();
-        setAudioPlayerEvents();
+        // _player = AudioPlayer();
+        //setAudioPlayerEvents();
+        await setAudioManager();
         seekToSec(currentPosition);
         setState(() {
           position = Duration(milliseconds: currentPosition);
         });
-        _player.play(firstDecryptedFilePath, isLocal: true);
-        courseStore.player.stop();
-        courseStore.setPlayer(_player);
+        audioManagerInstance
+            .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
+            desc: widget.episodeDetails.description,
+            auto: true,
+            cover: widget.courseCoverUrl)
+            .then((err) {
+          print(err);
+        });
+        //_player.play(firstDecryptedFilePath, isLocal: true);
+
+        // await AudioManager.instance.playOrPause();
+        // courseStore.player.stop();
+        // courseStore.setPlayer(_player);
     }
     else{
-      if(courseStore != null && courseStore.player != null){
-        courseStore.player.stop();
+      if(courseStore != null /* && courseStore.player != null*/ ){
+        //courseStore.player.stop();
         for(var decryptedFile in courseStore.decryptedPlayingFiles){
           var file = File(decryptedFile);
           if(await file.exists())
             file.delete();
         }
       }
-      _player = AudioPlayer();
+      //_player = AudioPlayer();
       playBtn = Icons.play_arrow;
       await decryptCachedFiles();
-      setAudioPlayerEvents();
+      // setAudioPlayerEvents();
     }
 
 
@@ -221,20 +237,111 @@ class _NowPlayingState extends State<NowPlaying> {
     });
   }
 
+  void setAudioList(List<dynamic> decryptedFilesPaths){
+    List<AudioInfo> _list = [];
+    decryptedFilesPaths.forEach((item) => _list.add(AudioInfo("file://$item",
+        title: widget.episodeDetails.name, desc: widget.episodeDetails.description, coverUrl: widget.courseCoverUrl)));
+
+    audioManagerInstance.audioList = _list;
+  }
+
+  Future setAudioManager() async{
+
+    audioManagerInstance.intercepter = true;
+    audioManagerInstance.play(auto: false);
+
+    audioManagerInstance.onEvents((events, args) {
+      print("$events, $args");
+      switch (events) {
+        case AudioManagerEvents.start:
+          print(
+              "start load data callback, curIndex is ${AudioManager.instance.curIndex}");
+          setState(() {
+          });
+          break;
+        case AudioManagerEvents.timeupdate:
+          // audioManagerInstance.updateLrc(args["position"].toString());
+          setState(() {
+            position = audioManagerInstance.position;
+          });
+          break;
+        case AudioManagerEvents.ready:
+          print("ready to play");
+          setState(() {
+            musicLength = audioManagerInstance.duration;
+          });
+          // if you need to seek times, must after AudioManagerEvents.ready event invoked
+          // AudioManager.instance.seekTo(Duration(seconds: 10));
+          break;
+        case AudioManagerEvents.seekComplete:
+          setState(() {});
+          print("seek event is completed. position is [$args]/ms");
+          break;
+        case AudioManagerEvents.buffering:
+          print("buffering $args");
+          break;
+        case AudioManagerEvents.playstatus:
+          setState(() {});
+          break;
+        case AudioManagerEvents.timeupdate:
+          setState(() {});
+          break;
+        case AudioManagerEvents.error:
+          setState(() {});
+          break;
+        case AudioManagerEvents.ended:
+          setState(() {
+            position = musicLength;
+            playBtn = Icons.play_arrow;
+          });
+          if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
+            courseStore.incrementPlayingFileIndex(1);
+            position = new Duration();
+            musicLength = new Duration();
+            playNextTrack();
+            // audioManagerInstance.next();
+            setState(() {
+              playBtn = Icons.pause;
+            });
+          }
+          else{
+            courseStore.incrementPlayingFileIndex(0);
+          }
+          break;
+        case AudioManagerEvents.volumeChange:
+          setState(() {});
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
+    dynamic decryptedFilePath = await platform
+        .invokeMethod("decryptFileInJava", {"encryptedFilePath": encryptedFilePath});
+    return decryptedFilePath;
+  }
+
   Future decryptCachedFiles() async{
     try {
-      firstDecryptedFilePath = await crypt
+      firstDecryptedFilePath = crypt
           .decryptFileSync(encryptedAudioFiles[currentPlayingFileIndex].path);
+
+      // firstDecryptedFilePath = await decryptFileInJava(encryptedAudioFiles[currentPlayingFileIndex].path);
+
+      await setAudioManager();
 
       compute(decryptAllFiles, encryptedAudioFiles).then((result) => {
         courseStore.setPlayingFile(
             encryptedAudioFiles,
             result[1],
             result[0],
-            0)
+            0),
+        setAudioList(result[1])
       });
 
-      courseStore.setPlayer(_player);
+      // courseStore.setPlayer(_player);
 
       print('The decryption has been completed successfully.');
       print('Decrypted file 1: $firstDecryptedFilePath');
@@ -246,13 +353,22 @@ class _NowPlayingState extends State<NowPlaying> {
     }
   }
 
-  void playNextTrack(){
-    _player = AudioPlayer();
-    setAudioPlayerEvents();
-    courseStore.setPlayer(_player);
+  void playNextTrack() async{
+    //_player = AudioPlayer();
+    // setAudioPlayerEvents();
+    // courseStore.setPlayer(_player);
     var nextDecryptedFilePath = courseStore
         .decryptedPlayingFiles[courseStore.currentPlayingFileIndex];
-    _player.play(nextDecryptedFilePath, isLocal: true);
+    // _player.play(nextDecryptedFilePath, isLocal: true);
+    audioManagerInstance
+        .start("file://$nextDecryptedFilePath", widget.episodeDetails.name,
+        desc: widget.episodeDetails.description,
+        auto: true,
+        cover: widget.courseCoverUrl)
+        .then((err) {
+      print(err);
+    });
+    // await AudioManager.instance.playOrPause();
   }
 
   @override
@@ -367,7 +483,7 @@ class _NowPlayingState extends State<NowPlaying> {
                                           children: [
                                             Padding(
                                               padding:
-                                              const EdgeInsets.only(right: 14.0),
+                                              const EdgeInsets.only(left: 14.0),
                                               child: Text(
                                                 "${position.inMinutes}:${position.inSeconds.remainder(60)}",
                                                 style: TextStyle(
@@ -377,9 +493,9 @@ class _NowPlayingState extends State<NowPlaying> {
                                             ),
                                             Padding(
                                               padding:
-                                              const EdgeInsets.only(left: 14.0),
+                                              const EdgeInsets.only(right: 14.0),
                                               child: Text(
-                                                "${musicLength.inMinutes}:${musicLength.inSeconds.remainder(60)}",
+                                                "${audioManagerInstance.duration.inMinutes}:${audioManagerInstance.duration.inSeconds.remainder(60)}",
                                                 style: TextStyle(
                                                     fontSize: 14.0,
                                                     color: Colors.white),
@@ -400,25 +516,46 @@ class _NowPlayingState extends State<NowPlaying> {
                                           IconButton(
                                             iconSize: 35.0,
                                             color: Colors.white,
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              int tempPosition = 0;
+                                              if(position.inSeconds < 30){
+                                                tempPosition = 0;
+                                              }
+                                              else{
+                                                tempPosition = position.inSeconds - 30;
+                                              }
+                                              setState(() {
+                                                position = new Duration(seconds: tempPosition);
+                                                seekToSec(position.inMilliseconds);
+                                              });
+                                            },
                                             icon: Icon(
-                                              Icons.skip_next,
+                                              Icons.replay_30,
                                             ),
                                           ),
                                           IconButton(
                                             iconSize: 45.0,
                                             color: Colors.white,
                                             onPressed: () async {
-                                              if (playerState != AudioPlayerState.PLAYING) {
-                                                // if(/*decFilepath == null*/audioFile == null){
-                                                //   audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
-                                                //   print('The file has been downloaded successfully.');
-                                                //
-                                                //   await decryptCachedFile();
-                                                // }
-                                                _player.play(firstDecryptedFilePath, isLocal: true);
+                                              if (!audioManagerInstance.isPlaying /*playerState != AudioPlayerState.PLAYING*/) {
+                                                // _player.play(firstDecryptedFilePath, isLocal: true);
+                                                audioManagerInstance
+                                                    .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
+                                                    desc: widget.episodeDetails.description,
+                                                    auto: true,
+                                                    cover: widget.courseCoverUrl)
+                                                    .then((err) {
+                                                  print(err);
+                                                });
+                                                setState(() {
+                                                  playBtn = Icons.pause;
+                                                });
                                               } else {
-                                                _player.pause();
+                                                // _player.pause();
+                                                await AudioManager.instance.playOrPause();
+                                                setState(() {
+                                                  playBtn = Icons.play_arrow;
+                                                });
                                               }
                                             },
                                             icon: Icon(
@@ -428,9 +565,18 @@ class _NowPlayingState extends State<NowPlaying> {
                                           IconButton(
                                             iconSize: 35.0,
                                             color: Colors.white,
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              int tempPosition = position.inSeconds + 30;
+                                              if(tempPosition > audioManagerInstance.duration.inSeconds){
+                                                tempPosition = audioManagerInstance.duration.inSeconds;
+                                              }
+                                              setState(() {
+                                                position = new Duration(seconds: tempPosition);
+                                                seekToSec(position.inMilliseconds);
+                                              });
+                                            },
                                             icon: Icon(
-                                              Icons.skip_previous,
+                                              Icons.forward_30,
                                             ),
                                           ),
                                         ],
