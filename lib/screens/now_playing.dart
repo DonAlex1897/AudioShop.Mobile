@@ -325,10 +325,10 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Future decryptCachedFiles() async{
     try {
-      firstDecryptedFilePath = crypt
-          .decryptFileSync(encryptedAudioFiles[currentPlayingFileIndex].path);
+      // firstDecryptedFilePath = crypt
+      //     .decryptFileSync(encryptedAudioFiles[currentPlayingFileIndex].path);
 
-      // firstDecryptedFilePath = await decryptFileInJava(encryptedAudioFiles[currentPlayingFileIndex].path);
+      firstDecryptedFilePath = await decryptFileInJava(encryptedAudioFiles[currentPlayingFileIndex].path);
 
       await setAudioManager();
 
