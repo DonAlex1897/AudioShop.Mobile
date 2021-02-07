@@ -54,6 +54,12 @@ FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
   return result;
 }
 
+Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
+  dynamic decryptedFilePath = await platform
+      .invokeMethod("decryptFileInJava", {'encryptedFilePath': encryptedFilePath});
+  return decryptedFilePath;
+}
+
 class _NowPlayingState extends State<NowPlaying> {
   IconData playBtn = Icons.play_arrow;
 
@@ -317,11 +323,7 @@ class _NowPlayingState extends State<NowPlaying> {
     });
   }
 
-  Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
-    dynamic decryptedFilePath = await platform
-        .invokeMethod("decryptFileInJava", {"encryptedFilePath": encryptedFilePath});
-    return decryptedFilePath;
-  }
+
 
   Future decryptCachedFiles() async{
     try {
