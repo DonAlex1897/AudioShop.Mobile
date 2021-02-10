@@ -1,14 +1,7 @@
 package audioshoppp.ir.mobile;
 
-import android.widget.Toast;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -23,6 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import androidx.annotation.NonNull;
 import audioshoppp.ir.mobile.Utilities.MyEncrypter;
+import audioshoppp.ir.mobile.Utilities.RandomStringGenerator;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
@@ -50,17 +44,19 @@ public class MainActivity extends FlutterActivity {
 
                                     String password = "1qaz2wsx";
                                     String salt = "12345678";
+                                    String decryptedFileName = RandomStringGenerator.generateString();
                                     IvParameterSpec ivParameterSpec = MyEncrypter.generateIv();
                                     SecretKey key = MyEncrypter.getKeyFromPassword(password,salt);
                                     String algorithm = "AES/CBC/PKCS5Padding";
                                     File inputFile = new File(encryptedFilePath);
                                     File encryptedFile = new File(newPath, "music.encrypted");
-                                    File decryptedFile = new File(newPath, "music.decrypted");
-                                    MyEncrypter.encryptFile(algorithm, key, ivParameterSpec, inputFile, encryptedFile);
+                                    File decryptedFile = new File(newPath, decryptedFileName + ".mp3");
+                                    //MyEncrypter.encryptFile(algorithm, key, ivParameterSpec, inputFile, encryptedFile);
                                     MyEncrypter.decryptFile(
-                                            algorithm, key, ivParameterSpec, encryptedFile, decryptedFile);
+                                            algorithm, key, ivParameterSpec, inputFile, decryptedFile);
 
                                     result.success(decryptedFile.getPath());
+
                                 } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IOException e) {
                                     e.printStackTrace();
                                 } catch (InvalidKeySpecException e) {

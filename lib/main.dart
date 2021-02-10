@@ -5,6 +5,7 @@ import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
       create: (context) => CourseStore(),

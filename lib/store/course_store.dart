@@ -19,6 +19,7 @@ class CourseStore extends ChangeNotifier{
   int _countOfFilesPlaying = 0;
   int _currentPlayingFileIndex = 0;
   AudioPlayer _player;
+  int _playingEpisodeId = 0;
 
   String _userId;
   String _userName;
@@ -40,6 +41,7 @@ class CourseStore extends ChangeNotifier{
   int get countOfFilesPlaying => _countOfFilesPlaying;
   int get currentPlayingFileIndex => _currentPlayingFileIndex;
   AudioPlayer get player => _player;
+  int get playingEpisodeId => _playingEpisodeId;
 
   String get userId => _userId;
   String get userName => _userName;
@@ -138,5 +140,9 @@ class CourseStore extends ChangeNotifier{
   setPlayer(AudioPlayer currentPlayer){
     this._player = null;
     this._player = currentPlayer;
+  }
+
+  setPlayingEpisode(int episodeId){
+    this._playingEpisodeId = episodeId;
   }
 }

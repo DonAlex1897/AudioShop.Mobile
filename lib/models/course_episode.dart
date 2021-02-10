@@ -1,30 +1,27 @@
 class CourseEpisode {
   int id;
+  int courseId;
   String name;
-  int price;
-  String fileUrl;
+  double price;
   String description;
   int sort;
-  String course;
 
-  CourseEpisode({this.id, this.name, this.price, this.fileUrl, this.description, this.sort, this.course});
+  CourseEpisode({this.id, this.name, this.price, this.courseId, this.description, this.sort});
 
   CourseEpisode.fromJson(Map<String, dynamic> json)
       : id = json['id'],
+        courseId = json['courseId'],
         name = json['name'],
         price = json['price'],
-        fileUrl = json['fileUrl'],
         description = json['description'],
-        sort = json['sort'],
-        course = json['course'];
+        sort = json['sort'];
 
   Map<String, dynamic> toJson() => {
         'id': id,
+    'courseId': courseId,
         'name': name,
         'price': price,
-        'fileUrl': fileUrl,
         'description': description,
-        'sort': sort,
-        'course': course
+        'sort': sort
       };
 }

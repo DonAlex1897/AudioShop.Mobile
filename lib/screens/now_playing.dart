@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:aes_crypt/aes_crypt.dart';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -12,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/episode_audios.dart';
+import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +24,7 @@ class NowPlaying extends StatefulWidget {
   _NowPlayingState createState() => _NowPlayingState();
 }
 
-var crypt;
+List<AudioInfo> decryptedAudioFiles = [];
 List<dynamic> encryptedAudioFiles = List<dynamic>();
 List<dynamic> decryptedAudioPaths = List<dynamic>();
 CourseStore courseStore;
@@ -37,21 +37,28 @@ const platform = const MethodChannel("audioshoppp.ir.mobile/nowplaying");
 
 FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
   List<dynamic> result = List<dynamic>();
-  if(crypt == null){
-    crypt = AesCrypt();
-    crypt.setPassword('1qaz2wsx');
-    crypt.setOverwriteMode(AesCryptOwMode.on);
-  }
-  for(int i = 0; i < encryptedAudios.length; i++)
-  {
-    countOfFiles++;
-    dynamic tempDecryptedAudioPath = await crypt
-        .decryptFileSync(encryptedAudios[i].path);
-    decryptedAudioPaths.add(tempDecryptedAudioPath);
-  }
-  result.add(countOfFiles);
-  result.add(decryptedAudioPaths);
+  // for(int i = 0; i < encryptedAudios.length; i++)
+  // {
+  //   countOfFiles++;
+  //   dynamic tempDecryptedAudioPath = await crypt
+  //       .decryptFileSync(encryptedAudios[i].path);
+  //   decryptedAudioPaths.add(tempDecryptedAudioPath);
+  // }
+  // result.add(countOfFiles);
+  // result.add(decryptedAudioPaths);
   return result;
+}
+
+FutureOr downloadAndDecryptFiles(List<EpisodeAudios> episodeAudios) async{
+  WidgetsFlutterBinding.ensureInitialized();
+  for(int i = 1; i < episodeAudios.length; i++){
+    dynamic audioFile = await DefaultCacheManager()
+        .getSingleFile(episodeAudios[i].audioAddress);
+
+    dynamic decryptedFilePath = await decryptFileInJava(audioFile.path);
+
+    audioManagerInstance.audioList.add(AudioInfo("file://$decryptedFilePath"));
+  }
 }
 
 Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
@@ -62,8 +69,7 @@ Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
 
 class _NowPlayingState extends State<NowPlaying> {
   IconData playBtn = Icons.play_arrow;
-
-  AudioCache cache;
+  CourseEpisodeData courseEpisodeData;
 
   Duration position = new Duration();
   Duration musicLength = new Duration();
@@ -102,89 +108,79 @@ class _NowPlayingState extends State<NowPlaying> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    crypt = AesCrypt();
-    crypt.setPassword('1qaz2wsx');
-    crypt.setOverwriteMode(AesCryptOwMode.on);
-
+    courseEpisodeData = CourseEpisodeData();
     firstDecryptedFileFuture = setAudioFile();
   }
 
-  Future<List<dynamic>> getEncryptedAudioFiles(String episodeUrl) async{
-    List<String> fileUrls = episodeUrl.split(',');
-    if(fileUrls.length > 1){
-      for(int i = 1; i < fileUrls.length; i++)
-        fileUrls[i] = 'https://audioshoppp.ir/' + fileUrls[i];
-    }
-    List<dynamic> audioFiles = List<dynamic>();
-    for(String url in fileUrls){
-      dynamic audioFile = await DefaultCacheManager().getSingleFile(url);
-      audioFiles.add(audioFile);
-    }
-    countOfFiles = audioFiles.length;
+  Future<dynamic> createAudioManagerList(List<EpisodeAudios> episodeAudios) async{
+    dynamic firstEncryptedFile = await DefaultCacheManager()
+        .getSingleFile(episodeAudios[0].audioAddress);
 
-    return audioFiles;
+    dynamic decryptedFilePath = await decryptFileInJava(firstEncryptedFile.path);
+
+    await setAudioManager();
+
+    audioManagerInstance.audioList.add(AudioInfo("file://$decryptedFilePath",
+        title: widget.episodeDetails.name, desc: widget.episodeDetails.description));
+
+    compute(downloadAndDecryptFiles, episodeAudios);
+
+    return decryptedFilePath;
   }
 
-  Future<bool> isCurrentEpisodePlaying(List<dynamic> encryptedFiles) async
-  {
-    if(courseStore.encryptedPlayingFiles.length != encryptedAudioFiles.length)
-      return false;
-    else
-    {
-      for(int i = 0; i < encryptedAudioFiles.length; i++)
-      {
-        if(courseStore.encryptedPlayingFiles[i].path != encryptedAudioFiles[i].path)
-          return false;
-      }
-    }
-    return true;
+  Future<bool> isCurrentEpisodePlaying(int episodeId) async {
+    return episodeId == courseStore.playingEpisodeId;
   }
 
   Future<dynamic> setAudioFile() async{
-    encryptedAudioFiles = await getEncryptedAudioFiles(widget.episodeDetails.fileUrl);
+    // List<EpisodeAudios> episodeAudios = await courseEpisodeData
+    //     .getEpisodeAudios(widget.episodeDetails.id);
+    //
+    // firstEncryptedAudioFile = await getEncryptedAudioFiles(episodeAudios);
+
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
-       await isCurrentEpisodePlaying(encryptedAudioFiles) &&
-       audioManagerInstance.audioList != null && audioManagerInstance.isPlaying)
+       await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
+       audioManagerInstance.audioList != null
+        // && audioManagerInstance.isPlaying TODO check if this condition is necessary
+    )
     {
-        var currentPosition = audioManagerInstance.position.inMilliseconds; //await courseStore.player.getCurrentPosition();
-        currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
-        firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
-        playBtn = Icons.pause;
-        // _player = AudioPlayer();
-        //setAudioPlayerEvents();
-        await setAudioManager();
+        var currentPosition = audioManagerInstance.position.inMilliseconds;
+        // currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
+        // firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
+        // await setAudioManager();
+        firstDecryptedFilePath = audioManagerInstance.audioList[audioManagerInstance.curIndex];
         seekToSec(currentPosition);
         setState(() {
+          playBtn = Icons.pause;
           position = Duration(milliseconds: currentPosition);
         });
-        audioManagerInstance
-            .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
-            desc: widget.episodeDetails.description,
-            auto: true,
-            cover: widget.courseCoverUrl)
-            .then((err) {
-          print(err);
-        });
-        //_player.play(firstDecryptedFilePath, isLocal: true);
-
-        // await AudioManager.instance.playOrPause();
-        // courseStore.player.stop();
-        // courseStore.setPlayer(_player);
+        // audioManagerInstance
+        //     .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
+        //     desc: widget.episodeDetails.description,
+        //     auto: true,
+        //     cover: widget.courseCoverUrl)
+        //     .then((err) {
+        //   print(err);
+        // });
     }
     else{
-      if(courseStore != null /* && courseStore.player != null*/ ){
-        //courseStore.player.stop();
+      audioManagerInstance.audioList.clear();
+
+      List<EpisodeAudios> episodeAudios = await courseEpisodeData
+          .getEpisodeAudios(widget.episodeDetails.id);
+
+      firstDecryptedFilePath = await createAudioManagerList(episodeAudios);
+
+      if(courseStore != null){
         for(var decryptedFile in courseStore.decryptedPlayingFiles){
           var file = File(decryptedFile);
           if(await file.exists())
             file.delete();
         }
       }
-      //_player = AudioPlayer();
-      playBtn = Icons.play_arrow;
-      await decryptCachedFiles();
-      // setAudioPlayerEvents();
+      // playBtn = Icons.play_arrow;
+      //await decryptCachedFiles();
     }
 
 
@@ -242,11 +238,10 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   void setAudioList(List<dynamic> decryptedFilesPaths){
-    List<AudioInfo> _list = [];
-    decryptedFilesPaths.forEach((item) => _list.add(AudioInfo("file://$item",
+    decryptedFilesPaths.forEach((item) => audioManagerInstance.audioList.add(AudioInfo("file://$item",
         title: widget.episodeDetails.name, desc: widget.episodeDetails.description, coverUrl: widget.courseCoverUrl)));
 
-    audioManagerInstance.audioList = _list;
+    audioManagerInstance.audioList = decryptedAudioFiles;
   }
 
   Future setAudioManager() async{
@@ -302,8 +297,8 @@ class _NowPlayingState extends State<NowPlaying> {
             courseStore.incrementPlayingFileIndex(1);
             position = new Duration();
             musicLength = new Duration();
-            playNextTrack();
-            // audioManagerInstance.next();
+            // playNextTrack();
+            audioManagerInstance.next();
             setState(() {
               playBtn = Icons.pause;
             });
@@ -324,10 +319,7 @@ class _NowPlayingState extends State<NowPlaying> {
 
 
   Future decryptCachedFiles() async{
-    try {
-      // firstDecryptedFilePath = crypt
-      //     .decryptFileSync(encryptedAudioFiles[currentPlayingFileIndex].path);
-
+    // try {
       firstDecryptedFilePath = await decryptFileInJava(encryptedAudioFiles[currentPlayingFileIndex].path);
 
       await setAudioManager();
@@ -345,12 +337,12 @@ class _NowPlayingState extends State<NowPlaying> {
 
       print('The decryption has been completed successfully.');
       print('Decrypted file 1: $firstDecryptedFilePath');
-    } on AesCryptException catch (e) {
-      if (e.type == AesCryptExceptionType.destFileExists) {
-        print('The decryption has been completed unsuccessfully.');
-        print(e.message);
-      }
-    }
+    // } on AesCryptException catch (e) {
+    //   if (e.type == AesCryptExceptionType.destFileExists) {
+    //     print('The decryption has been completed unsuccessfully.');
+    //     print(e.message);
+    //   }
+    // }
   }
 
   void playNextTrack() async{
@@ -385,7 +377,7 @@ class _NowPlayingState extends State<NowPlaying> {
             appBar: AppBar(
               backgroundColor: Color(0xFF202028),
               title: Text(
-                episode.course,
+                episode.name,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24.0,
@@ -539,11 +531,7 @@ class _NowPlayingState extends State<NowPlaying> {
                                             onPressed: () async {
                                               if (!audioManagerInstance.isPlaying /*playerState != AudioPlayerState.PLAYING*/) {
                                                 // _player.play(firstDecryptedFilePath, isLocal: true);
-                                                audioManagerInstance
-                                                    .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
-                                                    desc: widget.episodeDetails.description,
-                                                    auto: true,
-                                                    cover: widget.courseCoverUrl)
+                                                audioManagerInstance.play(index: 0)
                                                     .then((err) {
                                                   print(err);
                                                 });
