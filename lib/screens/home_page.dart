@@ -27,11 +27,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final secureStorage = FlutterSecureStorage();
+  CourseData courseData;
   double width = 0;
   double height = 0;
   List<Widget> coursesList = List<Widget>();
   List<Widget> carouselSlider = List<Widget>();
-  final String url = 'https://audioshoppp.ir/api/course/';
+  // final String url = 'http://10.0.2.2:5000/api/courses/';
   DateTime currentBackPressTime;
   Future<dynamic> courses;
   CourseStore courseStore;
@@ -52,12 +53,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    courseData = CourseData();
     courses = getCourses();
     loginStatement();
   }
 
   Future<List<Course>> getCourses() async {
-    CourseData courseData = CourseData(url);
     courseList = await courseData.getCourses();
 
     if (courseList != null)
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
 
   Future updateUI(List<Course> coursesData) async {
     for (var course in coursesData) {
-      String picUrl = course.pictureUrl;
+      String picUrl = course.photoAddress;
       String courseName = course.name;
       String courseDescription = course.description;
       var pictureFile = await DefaultCacheManager().getSingleFile(picUrl);
@@ -229,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(15),
                                         child: Image.network(
-                                            courseStore.basket[index].pictureUrl),
+                                            courseStore.basket[index].photoAddress),
                                       )),
                                   Expanded(
                                     flex: 6,
@@ -543,7 +544,7 @@ class _HomePageState extends State<HomePage> {
           return TextButton(
             onPressed: () async {
               var picFile = await DefaultCacheManager().getSingleFile(
-                  courseStore.userCourses[index].pictureUrl);
+                  courseStore.userCourses[index].photoAddress);
               goToCoursePage(courseStore.userCourses[index], picFile);
             },
             child: Card(
@@ -561,7 +562,7 @@ class _HomePageState extends State<HomePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.network(
-                              courseStore.userCourses[index].pictureUrl),
+                              courseStore.userCourses[index].photoAddress),
                         )),
                     Expanded(
                       flex: 6,

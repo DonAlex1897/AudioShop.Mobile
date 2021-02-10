@@ -142,11 +142,9 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Future<dynamic> setAudioFile() async{
     encryptedAudioFiles = await getEncryptedAudioFiles(widget.episodeDetails.fileUrl);
-    // audioFile = await DefaultCacheManager().getSingleFile(widget.episodeDetails.fileUrl);
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
        await isCurrentEpisodePlaying(encryptedAudioFiles) &&
-       /*courseStore.player.state != AudioPlayerState.COMPLETED*/
        audioManagerInstance.audioList != null && audioManagerInstance.isPlaying)
     {
         var currentPosition = audioManagerInstance.position.inMilliseconds; //await courseStore.player.getCurrentPosition();

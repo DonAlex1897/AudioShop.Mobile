@@ -25,7 +25,7 @@ class _CoursePageState extends State<CoursePage> {
   double height;
   List<Widget> episodesList = List<Widget>();
   Future<dynamic> episodesFuture;
-  String url = 'https://audioshoppp.ir/api/course/episodes/';
+  // String url = 'https://audioshoppp.ir/api/course/episodes/';
   CourseStore courseStore;
   bool isCoursePurchasedBefore = false;
 
@@ -43,9 +43,9 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future<List<CourseEpisode>> getCourseEpisodes() async{
-    url += widget.courseDetails.id.toString();
-    CourseEpisodeData courseEpisodeData = CourseEpisodeData(url);
-    List<CourseEpisode> courseEpisodes = await courseEpisodeData.getCourseEpisodes();
+    CourseEpisodeData courseEpisodeData = CourseEpisodeData();
+    List<CourseEpisode> courseEpisodes =
+      await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
 
     if(courseEpisodes != null)
       await updateUI(widget.courseDetails, courseEpisodes);
@@ -56,7 +56,7 @@ class _CoursePageState extends State<CoursePage> {
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
-      String picUrl = course.pictureUrl;
+      String picUrl = course.photoAddress;
       String episodeName = episode.name;
       String episodeDescription = episode.description;
       var picFile = widget.courseCover;

@@ -17,6 +17,7 @@ class AuthenticationService {
   String refineUserBasketUrl = 'https://audioshoppp.ir/api/user/RefineRepetitiveCourses';
   String getUserCoursesUrl = 'https://audioshoppp.ir/api/user/courses/';
   String verifyPhoneUrl = 'https://audioshoppp.ir/api/auth/verifyphone';
+  String basePhotoUrl = 'http://10.0.2.2:5000/files/';
 
   Future<bool> isPhoneNumberRegistered(String phoneNumber) async {
     http.Response response = await http.get(phoneNumberCheckUrl + phoneNumber);
@@ -149,7 +150,7 @@ class AuthenticationService {
       var courseMap = jsonDecode(data);
       List<Course> coursesList = List<Course>();
       for(var course in courseMap){
-        coursesList.add(Course.fromJson(course));
+        coursesList.add(Course.fromJson(course, basePhotoUrl));
       }
       return coursesList;
     }
@@ -174,7 +175,7 @@ class AuthenticationService {
       var courseMap = jsonDecode(data);
       List<Course> userCoursesList = List<Course>();
       for(var course in courseMap){
-        userCoursesList.add(Course.fromJson(course));
+        userCoursesList.add(Course.fromJson(course, basePhotoUrl));
       }
       return userCoursesList;
     }

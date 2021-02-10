@@ -3,24 +3,31 @@ import 'dart:convert';
 import 'package:mobile/models/course_episode.dart';
 
 class CourseEpisodeData{
+  final String baseUrl = 'http://10.0.2.2:5000/';
 
-  CourseEpisodeData(this.url);
+  CourseEpisodeData();
 
-  final String url;
 
-  Future<List<CourseEpisode>> getCourseEpisodes() async{
-    http.Response response = await http.get(url);
-    if(response.statusCode == 200){
-      String data = response.body;
-      var courseEpisodeMap = jsonDecode(data);
-      List<CourseEpisode> courseEpisodesList = List<CourseEpisode>();
-      for(var courseEpisode in courseEpisodeMap){
-        courseEpisodesList.add(CourseEpisode.fromJson(courseEpisode));
+  Future<List<CourseEpisode>> getCourseEpisodes(int courseId) async{
+    try{
+      String episodesUrl = baseUrl + 'api/courses/' + courseId.toString() + '/episodes';
+      http.Response response = await http.get(episodesUrl);
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseEpisodeMap = jsonDecode(data);
+        List<CourseEpisode> courseEpisodesList = List<CourseEpisode>();
+        for(var courseEpisode in courseEpisodeMap){
+          courseEpisodesList.add(CourseEpisode.fromJson(courseEpisode));
+        }
+        return courseEpisodesList;
       }
-      return courseEpisodesList;
+      else{
+        print(response.statusCode);
+        return null;
+      }
     }
-    else{
-      print(response.statusCode);
+    catch(e){
+      print(e.toString());
       return null;
     }
   }
