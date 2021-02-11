@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:dio/dio.dart';
 import 'package:audio_manager/audio_manager.dart';
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +13,9 @@ import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/episode_audios.dart';
 import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class NowPlaying extends StatefulWidget {
   NowPlaying(this.episodeDetails, this.courseCoverUrl);
@@ -29,10 +31,13 @@ List<dynamic> encryptedAudioFiles = List<dynamic>();
 List<dynamic> decryptedAudioPaths = List<dynamic>();
 CourseStore courseStore;
 Future<dynamic> firstDecryptedFileFuture;
+Future<List<AudioInfo>> audioFilesList;
 dynamic firstDecryptedFilePath;
 int countOfFiles = 0;
 int currentPlayingFileIndex = 0;
-AudioPlayer _player;
+String appCacheDirectory;
+List<EpisodeAudios> episodeAudios;
+// AudioPlayer _player;
 const platform = const MethodChannel("audioshoppp.ir.mobile/nowplaying");
 
 FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
@@ -49,18 +54,6 @@ FutureOr<List<dynamic>> decryptAllFiles(List<dynamic> encryptedAudios) async{
   return result;
 }
 
-FutureOr downloadAndDecryptFiles(List<EpisodeAudios> episodeAudios) async{
-  WidgetsFlutterBinding.ensureInitialized();
-  for(int i = 1; i < episodeAudios.length; i++){
-    dynamic audioFile = await DefaultCacheManager()
-        .getSingleFile(episodeAudios[i].audioAddress);
-
-    dynamic decryptedFilePath = await decryptFileInJava(audioFile.path);
-
-    audioManagerInstance.audioList.add(AudioInfo("file://$decryptedFilePath"));
-  }
-}
-
 Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
   dynamic decryptedFilePath = await platform
       .invokeMethod("decryptFileInJava", {'encryptedFilePath': encryptedFilePath});
@@ -73,7 +66,7 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Duration position = new Duration();
   Duration musicLength = new Duration();
-  AudioPlayerState playerState;
+
 
   @override
   void setState(fn) {
@@ -110,6 +103,7 @@ class _NowPlayingState extends State<NowPlaying> {
     super.initState();
     courseEpisodeData = CourseEpisodeData();
     firstDecryptedFileFuture = setAudioFile();
+    //audioFilesList = downloadAndDecryptFiles(episodeAudios);
   }
 
   Future<dynamic> createAudioManagerList(List<EpisodeAudios> episodeAudios) async{
@@ -118,12 +112,17 @@ class _NowPlayingState extends State<NowPlaying> {
 
     dynamic decryptedFilePath = await decryptFileInJava(firstEncryptedFile.path);
 
+    String coverUrl = (await DefaultCacheManager().getSingleFile(widget.courseCoverUrl)).path;
+    List<AudioInfo> tempList = List<AudioInfo>();
+    tempList.add(AudioInfo(
+        "file://$decryptedFilePath",
+        title: widget.episodeDetails.name,
+        desc: widget.episodeDetails.description,
+        coverUrl: "assets/images/dummy.jpg"));
+
+    audioManagerInstance.audioList = tempList;
+
     await setAudioManager();
-
-    audioManagerInstance.audioList.add(AudioInfo("file://$decryptedFilePath",
-        title: widget.episodeDetails.name, desc: widget.episodeDetails.description));
-
-    compute(downloadAndDecryptFiles, episodeAudios);
 
     return decryptedFilePath;
   }
@@ -133,10 +132,6 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Future<dynamic> setAudioFile() async{
-    // List<EpisodeAudios> episodeAudios = await courseEpisodeData
-    //     .getEpisodeAudios(widget.episodeDetails.id);
-    //
-    // firstEncryptedAudioFile = await getEncryptedAudioFiles(episodeAudios);
 
     if(courseStore != null &&
        courseStore.encryptedPlayingFiles != null &&
@@ -146,28 +141,17 @@ class _NowPlayingState extends State<NowPlaying> {
     )
     {
         var currentPosition = audioManagerInstance.position.inMilliseconds;
-        // currentPlayingFileIndex = courseStore.currentPlayingFileIndex;
-        // firstDecryptedFilePath = courseStore.decryptedPlayingFiles[currentPlayingFileIndex];
-        // await setAudioManager();
         firstDecryptedFilePath = audioManagerInstance.audioList[audioManagerInstance.curIndex];
         seekToSec(currentPosition);
         setState(() {
           playBtn = Icons.pause;
           position = Duration(milliseconds: currentPosition);
         });
-        // audioManagerInstance
-        //     .start("file://$firstDecryptedFilePath", widget.episodeDetails.name,
-        //     desc: widget.episodeDetails.description,
-        //     auto: true,
-        //     cover: widget.courseCoverUrl)
-        //     .then((err) {
-        //   print(err);
-        // });
     }
     else{
       audioManagerInstance.audioList.clear();
 
-      List<EpisodeAudios> episodeAudios = await courseEpisodeData
+      episodeAudios = await courseEpisodeData
           .getEpisodeAudios(widget.episodeDetails.id);
 
       firstDecryptedFilePath = await createAudioManagerList(episodeAudios);
@@ -179,63 +163,79 @@ class _NowPlayingState extends State<NowPlaying> {
             file.delete();
         }
       }
-      // playBtn = Icons.play_arrow;
-      //await decryptCachedFiles();
     }
-
 
     return firstDecryptedFilePath;
   }
 
-  void setAudioPlayerEvents()
+  Future downloadAndDecryptFiles(List<EpisodeAudios> episodes) async
   {
-    _player.onDurationChanged.listen((d) {
-      setState(() {
-        musicLength = d;
-      });
-    });
+    for(int i = 1; i < episodes.length; i++)
+    {
+      dynamic audioFile = await DefaultCacheManager()
+          .getSingleFile(episodes[i].audioAddress);
 
-    _player.onAudioPositionChanged.listen((p) {
-      setState(() {
-        if(p < musicLength)
-          position = p;
-        else
-          position = musicLength;
-      });
-    }) ;
+      dynamic decryptedFilePath = await decryptFileInJava(audioFile.path);
 
-    _player.onPlayerCompletion.listen((event) {
-      setState(() {
-        position = musicLength;
-        playBtn = Icons.play_arrow;
-      });
-      if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
-        courseStore.incrementPlayingFileIndex(1);
-        position = new Duration();
-        musicLength = new Duration();
-        playNextTrack();
-      }
-      else{
-        courseStore.incrementPlayingFileIndex(0);
-      }
-    });
+      audioManagerInstance.audioList.add(AudioInfo(
+          "file://$decryptedFilePath",
+          title: widget.episodeDetails.name,
+          desc: widget.episodeDetails.description,
+          coverUrl: "assets/images/dummy.jpg"));
 
-    _player.onPlayerStateChanged.listen((AudioPlayerState s) {
-      playerState = s;
-      setState(() {
-        if(playerState == AudioPlayerState.COMPLETED){
-          // courseStore.playingFile(null, null);
-          playBtn = Icons.play_arrow;
-        }
-        else if(playerState == AudioPlayerState.PLAYING){
-          playBtn = Icons.pause;
-        }
-        else{
-          playBtn = Icons.play_arrow;
-        }
-      });
-    });
+    }
   }
+
+
+  // void setAudioPlayerEvents()
+  // {
+  //   _player.onDurationChanged.listen((d) {
+  //     setState(() {
+  //       musicLength = d;
+  //     });
+  //   });
+  //
+  //   _player.onAudioPositionChanged.listen((p) {
+  //     setState(() {
+  //       if(p < musicLength)
+  //         position = p;
+  //       else
+  //         position = musicLength;
+  //     });
+  //   }) ;
+  //
+  //   _player.onPlayerCompletion.listen((event) {
+  //     setState(() {
+  //       position = musicLength;
+  //       playBtn = Icons.play_arrow;
+  //     });
+  //     if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
+  //       courseStore.incrementPlayingFileIndex(1);
+  //       position = new Duration();
+  //       musicLength = new Duration();
+  //       playNextTrack();
+  //     }
+  //     else{
+  //       courseStore.incrementPlayingFileIndex(0);
+  //     }
+  //   });
+  //
+  //   _player.onPlayerStateChanged.listen((AudioPlayerState s) {
+  //     playerState = s;
+  //     setState(() {
+  //       if(playerState == AudioPlayerState.COMPLETED){
+  //         // courseStore.playingFile(null, null);
+  //         playBtn = Icons.play_arrow;
+  //       }
+  //       else if(playerState == AudioPlayerState.PLAYING){
+  //         playBtn = Icons.pause;
+  //       }
+  //       else{
+  //         playBtn = Icons.play_arrow;
+  //       }
+  //     });
+  //   });
+  // }
 
   void setAudioList(List<dynamic> decryptedFilesPaths){
     decryptedFilesPaths.forEach((item) => audioManagerInstance.audioList.add(AudioInfo("file://$item",
@@ -249,71 +249,63 @@ class _NowPlayingState extends State<NowPlaying> {
     audioManagerInstance.intercepter = true;
     audioManagerInstance.play(auto: false);
 
-    audioManagerInstance.onEvents((events, args) {
-      print("$events, $args");
-      switch (events) {
-        case AudioManagerEvents.start:
-          print(
-              "start load data callback, curIndex is ${AudioManager.instance.curIndex}");
-          setState(() {
-          });
-          break;
-        case AudioManagerEvents.timeupdate:
+    try{
+      audioManagerInstance.onEvents((events, args) {
+        switch (events) {
+          case AudioManagerEvents.start:
+            print(
+                "start load data callback, curIndex is ${AudioManager.instance.curIndex}");
+            setState(() {
+            });
+            break;
+          case AudioManagerEvents.ready:
+            print("ready to play");
+            setState(() {
+              musicLength = audioManagerInstance.duration;
+            });
+            // if you need to seek times, must after AudioManagerEvents.ready event invoked
+            // AudioManager.instance.seekTo(Duration(seconds: 10));
+            break;
+          case AudioManagerEvents.seekComplete:
+            setState(() {});
+            print("seek event is completed. position is [$args]/ms");
+            break;
+          case AudioManagerEvents.buffering:
+            print("buffering $args");
+            break;
+          case AudioManagerEvents.playstatus:
+            setState(() {});
+            break;
+          case AudioManagerEvents.timeupdate:
           // audioManagerInstance.updateLrc(args["position"].toString());
-          setState(() {
-            position = audioManagerInstance.position;
-          });
-          break;
-        case AudioManagerEvents.ready:
-          print("ready to play");
-          setState(() {
-            musicLength = audioManagerInstance.duration;
-          });
-          // if you need to seek times, must after AudioManagerEvents.ready event invoked
-          // AudioManager.instance.seekTo(Duration(seconds: 10));
-          break;
-        case AudioManagerEvents.seekComplete:
-          setState(() {});
-          print("seek event is completed. position is [$args]/ms");
-          break;
-        case AudioManagerEvents.buffering:
-          print("buffering $args");
-          break;
-        case AudioManagerEvents.playstatus:
-          setState(() {});
-          break;
-        case AudioManagerEvents.timeupdate:
-          setState(() {});
-          break;
-        case AudioManagerEvents.error:
-          setState(() {});
-          break;
-        case AudioManagerEvents.ended:
-          setState(() {
-            position = musicLength;
-            playBtn = Icons.play_arrow;
-          });
-          if(courseStore.currentPlayingFileIndex < courseStore.countOfFilesPlaying - 1){
-            courseStore.incrementPlayingFileIndex(1);
+            setState(() {
+              position = audioManagerInstance.position;
+            });
+            break;
+          case AudioManagerEvents.ended:
+            setState(() {
+              position = musicLength;
+              playBtn = Icons.play_arrow;
+            });
             position = new Duration();
             musicLength = new Duration();
-            // playNextTrack();
             audioManagerInstance.next();
             setState(() {
               playBtn = Icons.pause;
             });
-          }
-          else{
-            courseStore.incrementPlayingFileIndex(0);
-          }
-          break;
-        case AudioManagerEvents.volumeChange:
-          setState(() {});
-          break;
-        default:
-          break;
-      }
-    });
+
+            break;
+          case AudioManagerEvents.volumeChange:
+            setState(() {});
+            break;
+          default:
+            break;
+        }
+      });
+    }
+    catch(e){
+      print(e.toString());
+    }
   }
 
 
@@ -531,13 +523,12 @@ class _NowPlayingState extends State<NowPlaying> {
                                             onPressed: () async {
                                               if (!audioManagerInstance.isPlaying /*playerState != AudioPlayerState.PLAYING*/) {
                                                 // _player.play(firstDecryptedFilePath, isLocal: true);
-                                                audioManagerInstance.play(index: 0)
-                                                    .then((err) {
-                                                  print(err);
-                                                });
+                                                await audioManagerInstance.playOrPause();
                                                 setState(() {
                                                   playBtn = Icons.pause;
                                                 });
+                                                if(episodeAudios.length > audioManagerInstance.audioList.length)
+                                                  await downloadAndDecryptFiles(episodeAudios);
                                               } else {
                                                 // _player.pause();
                                                 await AudioManager.instance.playOrPause();

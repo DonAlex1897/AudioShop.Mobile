@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -7,6 +10,7 @@ import 'package:audio_manager/audio_manager.dart';
 
 
 var audioManagerInstance = AudioManager.instance;
+HashMap<String, String> audioCache;
 class CourseStore extends ChangeNotifier{
 
   List<Course> _courses = [];
