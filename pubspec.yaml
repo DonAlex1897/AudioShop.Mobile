@@ -10,7 +10,6 @@ environment:
 
 dependencies:
   dio: ^3.0.10
-  path_provider: ^1.6.27
   audio_manager: ^0.7.3
   url_launcher: ^5.7.10
   jwt_decoder: ^1.0.3
@@ -20,7 +19,6 @@ dependencies:
   flutter_cache_manager: ^2.1.0
   curved_navigation_bar: ^0.3.7
   fluttertoast: ^7.1.6
-  audioplayers: ^0.15.1
   flutter_localizations:
     sdk: flutter
   http: ^0.12.2

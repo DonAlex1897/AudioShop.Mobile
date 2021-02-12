@@ -104,9 +104,7 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Future<dynamic> setAudioFile() async{
 
-    if(courseStore != null &&
-       courseStore.encryptedPlayingFiles != null &&
-       await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
+    if(await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
        audioManagerInstance.audioList != null
     )
     {
@@ -118,21 +116,23 @@ class _NowPlayingState extends State<NowPlaying> {
         });
         await setAudioManager();
     }
-    else{
+    else
+      {
+      if(audioManagerInstance.audioList != null &&
+          audioManagerInstance.audioList.length > 0){
+        for(var decryptedFile in audioManagerInstance.audioList){
+          var file = File(decryptedFile.url.replaceRange(0, 6, ''));
+          if(await file.exists())
+            file.delete();
+        }
+      }
+      audioManagerInstance.stop();
       audioManagerInstance.audioList.clear();
 
       episodeAudios = await courseEpisodeData
           .getEpisodeAudios(widget.episodeDetails.id);
 
       firstDecryptedFilePath = await createAudioManagerList(episodeAudios);
-
-      if(courseStore != null){
-        for(var decryptedFile in courseStore.decryptedPlayingFiles){
-          var file = File(decryptedFile);
-          if(await file.exists())
-            file.delete();
-        }
-      }
     }
 
     return firstDecryptedFilePath;

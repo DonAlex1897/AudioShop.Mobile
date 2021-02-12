@@ -1,7 +1,4 @@
 import 'dart:collection';
-import 'dart:io';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/course.dart';
@@ -18,11 +15,6 @@ class CourseStore extends ChangeNotifier{
   Course _currentCourse;
   int _totalBasketPrice = 0;
   List<Course> _userCourses =[];
-  List<dynamic> _encryptedPlayingFiles = List<dynamic>();
-  List<dynamic> _decryptedPlayingFiles = List<dynamic>();
-  int _countOfFilesPlaying = 0;
-  int _currentPlayingFileIndex = 0;
-  AudioPlayer _player;
   int _playingEpisodeId = 0;
 
   String _userId;
@@ -40,11 +32,6 @@ class CourseStore extends ChangeNotifier{
   Course get currentCourse => _currentCourse;
   int get totalBasketPrice => _totalBasketPrice;
   List<Course> get userCourses => _userCourses;
-  List<dynamic> get encryptedPlayingFiles => _encryptedPlayingFiles;
-  List<dynamic> get decryptedPlayingFiles => _decryptedPlayingFiles;
-  int get countOfFilesPlaying => _countOfFilesPlaying;
-  int get currentPlayingFileIndex => _currentPlayingFileIndex;
-  AudioPlayer get player => _player;
   int get playingEpisodeId => _playingEpisodeId;
 
   String get userId => _userId;
@@ -113,37 +100,6 @@ class CourseStore extends ChangeNotifier{
       this._basket = refinedBasket;
     else
       this._basket.clear();
-  }
-
-  setPlayingFile(
-      List<dynamic> encryptedAudios,
-      List<dynamic> decryptedAudios,
-      int playingFilesCount,
-      int currentFileIndex)
-  {
-    this._encryptedPlayingFiles = encryptedAudios;
-    this._decryptedPlayingFiles = decryptedAudios;
-    this._countOfFilesPlaying = playingFilesCount;
-    this._currentPlayingFileIndex = currentFileIndex;
-  }
-
-  incrementPlayingFileIndex(int incrementer){
-    if(incrementer == 1)
-      this._currentPlayingFileIndex++;
-    else
-      this._currentPlayingFileIndex = 0;
-  }
-
-  incrementTotalCountOfPlayingFiles(int incrementer){
-    if(incrementer == 1)
-      this._countOfFilesPlaying++;
-    else
-      this._countOfFilesPlaying = 0;
-  }
-
-  setPlayer(AudioPlayer currentPlayer){
-    this._player = null;
-    this._player = currentPlayer;
   }
 
   setPlayingEpisode(int episodeId){

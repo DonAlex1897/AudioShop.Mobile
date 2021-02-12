@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
@@ -25,7 +26,6 @@ class _CoursePageState extends State<CoursePage> {
   double height;
   List<Widget> episodesList = List<Widget>();
   Future<dynamic> episodesFuture;
-  // String url = 'https://audioshoppp.ir/api/course/episodes/';
   CourseStore courseStore;
   bool isCoursePurchasedBefore = false;
 
@@ -141,10 +141,12 @@ class _CoursePageState extends State<CoursePage> {
     scrollView = CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
-          // floating: false, pinned: false, snap: false,
+          automaticallyImplyLeading: false,
+          titleSpacing: 0.0,
+          //floating: false, pinned: false, snap: false,
           backgroundColor: Colors.transparent,
           //title: Text(course['name']),
-          expandedHeight: height / 5,
+          expandedHeight: 150,
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
               decoration: BoxDecoration(
@@ -154,69 +156,85 @@ class _CoursePageState extends State<CoursePage> {
                 ),
               ),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 17.0, sigmaY: 16.0),
+                filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
                 child: Container(
                   color: Colors.black12.withOpacity(0.3),
                 ),
               ),
             ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              textBaseline: TextBaseline.alphabetic,
-              children: <Widget>[
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0, 0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: Image.file(
-                        widget.courseCover,
-                        width: width / 6,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-                    child: Text(
-                      course.name + '  -  ' + course.description,
-                      style: TextStyle(fontSize: 11),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                    child: TextButton(
-                      onPressed: (){
-                        if(courseStore.userCourses != null){
-                          for(Course tempCourse in courseStore.userCourses){
-                            if(tempCourse.id == course.id)
-                            {
-                              isCoursePurchasedBefore = true;
-                              break;
-                            }
-                          }
-                        }
-                        if(!isCoursePurchasedBefore &&
-                            courseStore.addCourseToBasket(course))
-                          Fluttertoast.showToast(msg: 'دوره با موفقیت به سبد خرید اضافه شد');
-                        else if (!isCoursePurchasedBefore)
-                          Fluttertoast.showToast(msg: 'این دوره در سبد خرید شما موجود است');
-                        else
-                          Fluttertoast.showToast(msg: 'این دوره را قبلا خریداری کرده اید');
-                      },
-                      child: Icon(
-                        Icons.add_shopping_cart,
-                        size: 22,
-                        color: Colors.white,
-                      ),
-                    ),)
-              ],
+            title:
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: Image.file(
+                widget.courseCover,
+              ),
             ),
+            titlePadding: EdgeInsetsDirectional.fromSTEB(10, 80, 0, 10),
+          ),
+          title: Row(
+            textBaseline: TextBaseline.ideographic,
+            children: <Widget>[
+              Expanded(
+                flex: 9,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: Text(
+                    course.name,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: TextButton(
+                  onPressed: () async {
+                    AlertDialog alert = AlertDialog(
+                      title: Text(widget.courseDetails.name),
+                      content: Text(widget.courseDetails.description),
+                    );
+                    await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return alert;
+                      },
+                    );
+                  },
+                  child: Icon(
+                    Icons.preview,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: TextButton(
+                  onPressed: (){
+                    if(courseStore.userCourses != null){
+                      for(Course tempCourse in courseStore.userCourses){
+                        if(tempCourse.id == course.id)
+                        {
+                          isCoursePurchasedBefore = true;
+                          break;
+                        }
+                      }
+                    }
+                    if(!isCoursePurchasedBefore &&
+                        courseStore.addCourseToBasket(course))
+                      Fluttertoast.showToast(msg: 'دوره با موفقیت به سبد خرید اضافه شد');
+                    else if (!isCoursePurchasedBefore)
+                      Fluttertoast.showToast(msg: 'این دوره در سبد خرید شما موجود است');
+                    else
+                      Fluttertoast.showToast(msg: 'این دوره را قبلا خریداری کرده اید');
+                  },
+                  child: Icon(
+                    Icons.add_shopping_cart,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
         SliverList(
@@ -241,7 +259,11 @@ class _CoursePageState extends State<CoursePage> {
         future: episodesFuture,
         builder: (context, data){
           if(data.hasData){
-            return Scaffold(body: scrollView);
+            return SafeArea(
+                child: Scaffold(
+                    body: scrollView,
+                ),
+            );
           }
           else{
             return SpinKitWave(
