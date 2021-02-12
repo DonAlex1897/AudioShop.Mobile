@@ -66,9 +66,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     if (formName == FormName.SignIn) {
       if (isRepetitiveUser) {
-        sentCode = await authService.sendVerificationCode(
-            'https://audioshoppp.ir/api/auth/login',
-            phoneNumberController.text);
+        sentCode = await authService.sendVerificationCode(phoneNumberController.text);
       } else {
         Fluttertoast.showToast(
             msg: 'کاربری با این شماره تلفن یافت نشد. لطفا ثبت نام کنید.');

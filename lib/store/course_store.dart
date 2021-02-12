@@ -87,7 +87,7 @@ class CourseStore extends ChangeNotifier{
     else{
       _userId = '';
       _userName = '';
-      _userCourses.clear();
+      _userCourses != null ?? _userCourses.clear();
     }
 
     _hasPhoneNumber = hasPhoneNumber;

@@ -9,15 +9,16 @@ class AuthenticationService {
   AuthenticationService();
 
   String phoneNumberCheckUrl =
-      'https://audioshoppp.ir/api/auth/phoneexists?phoneNumber=';
+      'http://10.0.2.2:5000/api/auth/phoneexists?phoneNumber=';
   String usernameCheckUrl =
-      'https://audioshoppp.ir/api/auth/userexists?username=';
-  String signUpUrl = 'https://audioshoppp.ir/api/auth/register?role=member';
-  String verifyTokenUrl = 'https://audioshoppp.ir/api/auth/verifytoken';
-  String refineUserBasketUrl = 'https://audioshoppp.ir/api/user/RefineRepetitiveCourses';
-  String getUserCoursesUrl = 'https://audioshoppp.ir/api/user/courses/';
-  String verifyPhoneUrl = 'https://audioshoppp.ir/api/auth/verifyphone';
+      'http://10.0.2.2:5000/api/auth/userexists?username=';
+  String signUpUrl = 'http://10.0.2.2:5000/api/auth/register?role=member';
+  String verifyTokenUrl = 'http://10.0.2.2:5000/api/auth/verifytoken';
+  String refineUserBasketUrl = 'http://10.0.2.2:5000/api/user/RefineRepetitiveCourses';
+  String getUserCoursesUrl = 'http://10.0.2.2:5000/api/user/courses/';
+  String verifyPhoneUrl = 'http://10.0.2.2:5000/api/auth/verifyphone';
   String basePhotoUrl = 'http://10.0.2.2:5000/files/';
+  String sendLoginVerificationCode = 'http://10.0.2.2:5000/api/auth/login?usingphone=true';
 
   Future<bool> isPhoneNumberRegistered(String phoneNumber) async {
     http.Response response = await http.get(phoneNumberCheckUrl + phoneNumber);
@@ -40,10 +41,10 @@ class AuthenticationService {
     }
   }
 
-  Future<bool> sendVerificationCode(String url, String phoneNumber) async {
+  Future<bool> sendVerificationCode(String phoneNumber) async {
     var body = jsonEncode({'phoneNumber': phoneNumber});
 
-    http.Response response = await http.post(Uri.encodeFull(url),
+    http.Response response = await http.post(Uri.encodeFull(sendLoginVerificationCode),
         body: body,
         headers: {
           "Accept": "application/json",

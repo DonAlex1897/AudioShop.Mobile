@@ -481,7 +481,7 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(courseStore.userCourses.length > 0 ?
+                            Text((courseStore.userCourses != null && courseStore.userCourses.length > 0) ?
                               'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
                               style: TextStyle(fontSize: 18),
                             ),
@@ -492,7 +492,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   flex: 15,
-                  child: userCourses(),
+                  child: courseStore.userCourses != null ? userCourses() : Container(),
                 )
               ],
             ),
