@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-02-13T12:32:53.082Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36" etag="nFX9QegpmutCEAfUb3f_" version="14.3.1" type="github">
+<mxfile host="app.diagrams.net" modified="2021-02-13T12:38:04.648Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36" etag="Q4_2mFjfq0sGRobPE-zj" version="14.3.1" type="github">
   <diagram name="Page-1" id="74e2e168-ea6b-b213-b513-2b3c1d86103e">
     <mxGraphModel dx="1221" dy="682" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="#ffffff" math="0" shadow="0">
       <root>
@@ -9,9 +9,6 @@
         </mxCell>
         <mxCell id="77e6c97f196da883-2" value="Lane 1" style="swimlane;html=1;startSize=20;" parent="77e6c97f196da883-1" vertex="1">
           <mxGeometry y="20" width="330" height="730" as="geometry" />
-        </mxCell>
-        <mxCell id="EoP-CabOvIcJNyfvbNzR-2" value="click episode basket" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="77e6c97f196da883-2">
-          <mxGeometry x="10" y="30" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-5" value="exists in&lt;br&gt;basket&lt;br&gt;or user&lt;br&gt;episodes" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="77e6c97f196da883-2">
           <mxGeometry x="10" y="140" width="120" height="120" as="geometry" />
@@ -37,11 +34,11 @@
         <mxCell id="EoP-CabOvIcJNyfvbNzR-23" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="77e6c97f196da883-2">
           <mxGeometry x="70" y="270" width="40" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-53" value="&lt;span&gt;click episode basket&lt;/span&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" vertex="1" parent="77e6c97f196da883-2">
+          <mxGeometry x="20" y="30" width="100" height="60" as="geometry" />
+        </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-11" value="lane 2" style="swimlane;html=1;startSize=20;" vertex="1" parent="77e6c97f196da883-1">
           <mxGeometry x="330" y="20" width="360" height="730" as="geometry" />
-        </mxCell>
-        <mxCell id="EoP-CabOvIcJNyfvbNzR-12" value="click course basket" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
-          <mxGeometry x="10" y="30" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-13" value="is any of&lt;br&gt;course episodes&lt;br&gt;in the user&lt;br&gt;purchased&lt;br&gt;episodes?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="10" y="140" width="120" height="120" as="geometry" />
@@ -105,9 +102,12 @@
         <mxCell id="EoP-CabOvIcJNyfvbNzR-49" value="set&amp;nbsp; totalCourse false" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="170" y="300" width="120" height="45" as="geometry" />
         </mxCell>
-        <mxCell id="EoP-CabOvIcJNyfvbNzR-4" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="EoP-CabOvIcJNyfvbNzR-2">
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-54" value="click course basket" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
+          <mxGeometry x="20" y="30" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-4" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="150" y="170" as="sourcePoint" />
+            <mxPoint x="140" y="149.9999999999999" as="sourcePoint" />
             <mxPoint x="140" y="200" as="targetPoint" />
           </mxGeometry>
         </mxCell>
