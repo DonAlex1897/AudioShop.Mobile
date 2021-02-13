@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-02-13T12:31:06.358Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36" etag="9einJ3wslXa_xOegO2Mk" version="14.3.1" type="github">
+<mxfile host="app.diagrams.net" modified="2021-02-13T12:32:53.082Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36" etag="nFX9QegpmutCEAfUb3f_" version="14.3.1" type="github">
   <diagram name="Page-1" id="74e2e168-ea6b-b213-b513-2b3c1d86103e">
     <mxGraphModel dx="1221" dy="682" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="#ffffff" math="0" shadow="0">
       <root>
@@ -46,13 +46,16 @@
         <mxCell id="EoP-CabOvIcJNyfvbNzR-13" value="is any of&lt;br&gt;course episodes&lt;br&gt;in the user&lt;br&gt;purchased&lt;br&gt;episodes?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="10" y="140" width="120" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="EoP-CabOvIcJNyfvbNzR-14" value="add to user basket" style="whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-14" value="add all unpurchased episodes&amp;nbsp;to user basket" style="whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="10" y="390" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="EoP-CabOvIcJNyfvbNzR-11" source="EoP-CabOvIcJNyfvbNzR-13" target="EoP-CabOvIcJNyfvbNzR-47">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="70" y="310" as="targetPoint" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="EoP-CabOvIcJNyfvbNzR-11" source="EoP-CabOvIcJNyfvbNzR-16" target="EoP-CabOvIcJNyfvbNzR-49">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-16" value="tell user that it will be&amp;nbsp;&lt;br&gt;calculated by the&lt;br&gt;each episodes price. not the total price of the course" style="whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="170" y="160" width="120" height="80" as="geometry" />
@@ -78,9 +81,6 @@
         <mxCell id="EoP-CabOvIcJNyfvbNzR-26" value="verify?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="190" y="380" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="EoP-CabOvIcJNyfvbNzR-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="EoP-CabOvIcJNyfvbNzR-11" source="EoP-CabOvIcJNyfvbNzR-16" target="EoP-CabOvIcJNyfvbNzR-26">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-28" value="" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="EoP-CabOvIcJNyfvbNzR-11" source="EoP-CabOvIcJNyfvbNzR-26" target="EoP-CabOvIcJNyfvbNzR-14">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="30" y="250" as="sourcePoint" />
@@ -88,7 +88,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-43" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
-          <mxGeometry x="150" y="300" width="40" height="20" as="geometry" />
+          <mxGeometry x="140" y="390" width="40" height="20" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-47" value="set&amp;nbsp; totalCourse true" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
           <mxGeometry x="10" y="300" width="120" height="45" as="geometry" />
@@ -98,6 +98,12 @@
             <mxPoint x="30" y="250" as="sourcePoint" />
             <mxPoint x="80" y="200" as="targetPoint" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="EoP-CabOvIcJNyfvbNzR-11" source="EoP-CabOvIcJNyfvbNzR-49" target="EoP-CabOvIcJNyfvbNzR-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EoP-CabOvIcJNyfvbNzR-49" value="set&amp;nbsp; totalCourse false" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="EoP-CabOvIcJNyfvbNzR-11">
+          <mxGeometry x="170" y="300" width="120" height="45" as="geometry" />
         </mxCell>
         <mxCell id="EoP-CabOvIcJNyfvbNzR-4" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="EoP-CabOvIcJNyfvbNzR-2">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
