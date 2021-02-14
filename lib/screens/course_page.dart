@@ -6,9 +6,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/now_playing.dart';
+import 'package:mobile/services/authentication_service.dart';
 import 'package:mobile/services/course_episode_service.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
+
+import 'authentication_page.dart';
+import 'checkout_page.dart';
 
 class CoursePage extends StatefulWidget {
   CoursePage(this.courseDetails, this.courseCover);
@@ -28,6 +33,7 @@ class _CoursePageState extends State<CoursePage> {
   Future<dynamic> episodesFuture;
   CourseStore courseStore;
   bool isCoursePurchasedBefore = false;
+  AuthenticationService authService = AuthenticationService();
 
   @override
   void setState(fn) {
@@ -53,6 +59,28 @@ class _CoursePageState extends State<CoursePage> {
     return courseEpisodes;
   }
 
+  Future checkItemsToBePurchased(PurchaseType purchaseType, List<CourseEpisode> episodeIds) async{
+    if(purchaseType == PurchaseType.SingleEpisode) {
+      List<CourseEpisode> userEpisodes = await authService.getUserEpisodes(
+          courseStore.userId, courseStore.token);
+
+      List<Course> tempBasket = List.from(courseStore.basket);
+
+      for (Course basketItem in courseStore.basket) {
+        for (CourseEpisode course in userCourses) {
+          if (basketItem.id == course.id) {
+            tempBasket.remove(basketItem);
+          }
+        }
+      }
+
+      courseStore.refineUserBasket(tempBasket);
+    }
+    else {
+
+    }
+  }
+
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
@@ -61,8 +89,8 @@ class _CoursePageState extends State<CoursePage> {
       String episodeDescription = episode.description;
       var picFile = widget.courseCover;
 
-      if(courseStore.userCourses != null){
-        for(Course tempCourse in courseStore.userCourses){
+      if(courseStore.userEpisodes != null){
+        for(Course tempCourse in courseStore.userEpisodes){
           if(tempCourse.id == course.id)
           {
             isCoursePurchasedBefore = true;
@@ -107,15 +135,29 @@ class _CoursePageState extends State<CoursePage> {
                 Expanded(
                   flex: 4,
                   child: TextButton(
-                    onPressed: (){
-                      if(isCoursePurchasedBefore ||
-                          (episode.price == 0 || episode.price == null)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context){
-                          return NowPlaying(episode, picUrl);
-                        }));
+                    onPressed: () async{
+                      if (courseStore.token != null && courseStore.token != '')
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                              return CheckOutPage();
+                            }));
+                      else {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                              return AuthenticationPage(FormName.SignUp);
+                            }));
+
+                        if(courseStore.userEpisodes.contains(episode))
+                          Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
+                        else{
+
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return CheckOutPage();
+                              })
+                          );
+                        }
                       }
-                      else
-                        Fluttertoast.showToast(msg: 'جهت حمایت از صاحب اثر، لطفا دوره را خریداری کنید');
                     },
                     child: Icon((isCoursePurchasedBefore ||
                           (episode.price == 0 || episode.price == null)) ?
@@ -209,23 +251,24 @@ class _CoursePageState extends State<CoursePage> {
               Expanded(
                 flex: 1,
                 child: TextButton(
-                  onPressed: (){
-                    if(courseStore.userCourses != null){
-                      for(Course tempCourse in courseStore.userCourses){
-                        if(tempCourse.id == course.id)
-                        {
-                          isCoursePurchasedBefore = true;
-                          break;
-                        }
+                  onPressed: () async{
+                    if (courseStore.token != null && courseStore.token != '')
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return CheckOutPage();
+                          }));
+                    else {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return AuthenticationPage(FormName.SignUp);
+                          }));
+                      List<int> episodeIds = [];
+                      for(var episode in episodes){
+                        if(episode.price != null || episode.price != 0)
+                          episodeIds.add(episode.id);
                       }
+                      await checkItemsToBePurchased(PurchaseType.WholeCourse, episodeIds);
                     }
-                    if(!isCoursePurchasedBefore &&
-                        courseStore.addCourseToBasket(course))
-                      Fluttertoast.showToast(msg: 'دوره با موفقیت به سبد خرید اضافه شد');
-                    else if (!isCoursePurchasedBefore)
-                      Fluttertoast.showToast(msg: 'این دوره در سبد خرید شما موجود است');
-                    else
-                      Fluttertoast.showToast(msg: 'این دوره را قبلا خریداری کرده اید');
                   },
                   child: Icon(
                     Icons.add_shopping_cart,

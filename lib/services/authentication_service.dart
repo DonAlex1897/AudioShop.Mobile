@@ -1,6 +1,7 @@
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/course.dart';
+import 'package:mobile/models/course_episode.dart';
 import 'dart:convert';
 
 import 'package:mobile/models/user.dart';
@@ -15,7 +16,7 @@ class AuthenticationService {
   String signUpUrl = 'http://10.0.2.2:5000/api/auth/register?role=member';
   String verifyTokenUrl = 'http://10.0.2.2:5000/api/auth/verifytoken';
   String refineUserBasketUrl = 'http://10.0.2.2:5000/api/user/RefineRepetitiveCourses';
-  String getUserCoursesUrl = 'http://10.0.2.2:5000/api/user/courses/';
+  String getUserEpisodesUrl = 'http://10.0.2.2:5000/api/member/episodes/';
   String verifyPhoneUrl = 'http://10.0.2.2:5000/api/auth/verifyphone';
   String basePhotoUrl = 'http://10.0.2.2:5000/files/';
   String sendLoginVerificationCode = 'http://10.0.2.2:5000/api/auth/login?usingphone=true';
@@ -162,9 +163,9 @@ class AuthenticationService {
 
   }
 
-  Future<List<Course>> getUserCourses(String userId, String token) async {
+  Future<List<CourseEpisode>> getUserEpisodes(String userId, String token) async {
     http.Response response = await http.get(
-        Uri.encodeFull(getUserCoursesUrl + userId),
+        Uri.encodeFull(getUserEpisodesUrl + userId),
         headers: {
           "Accept": "application/json",
           "content-type": "application/json",
@@ -174,11 +175,11 @@ class AuthenticationService {
     if(response.statusCode == 200){
       String data = response.body;
       var courseMap = jsonDecode(data);
-      List<Course> userCoursesList = List<Course>();
+      List<CourseEpisode> userEpisodesList = List<CourseEpisode>();
       for(var course in courseMap){
-        userCoursesList.add(Course.fromJson(course, basePhotoUrl));
+        userEpisodesList.add(CourseEpisode.fromJson(course));
       }
-      return userCoursesList;
+      return userEpisodesList;
     }
     else{
       print(response.statusCode);

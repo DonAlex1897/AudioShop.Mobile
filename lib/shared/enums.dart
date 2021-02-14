@@ -9,3 +9,8 @@ enum Alert {
   DeleteFromBasket,
   RegisterPhoneNumber,
 }
+
+enum PurchaseType {
+  WholeCourse,
+  SingleEpisode,
+}

@@ -20,6 +20,7 @@ class AuthenticationPage extends StatefulWidget {
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
   var formName = FormName.SignUp;
+  var purchaseType = PurchaseType.SingleEpisode;
   AuthenticationService authService = AuthenticationService();
   TextEditingController phoneNumberController = new TextEditingController();
   TextEditingController nameController = new TextEditingController();
@@ -29,7 +30,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   TextEditingController verificationCodeController =
       new TextEditingController();
   TextEditingController presenterController = new TextEditingController();
-  final secureStorage = FlutterSecureStorage();
+  FlutterSecureStorage secureStorage;
   CourseStore courseStore;
   Duration _timerDuration = new Duration(seconds: 60);
   RestartableTimer _timer;
@@ -52,6 +53,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   void initState() {
     super.initState();
     formName = widget.baseForm;
+    secureStorage = FlutterSecureStorage();
   }
 
   Future receiveCode() async {
@@ -146,7 +148,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       await secureStorage.write(
           key: 'hasPhoneNumber', value: true.toString());
 
-      await courseStore.setUserDetails(courseStore.token, true);
+      await courseStore.setUserDetails(courseStore.token, true, courseStore.salespersonCouponCode);
 
       Navigator.pop(context);
     }
@@ -161,27 +163,32 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         Fluttertoast.showToast(
             msg: 'ثبت نام با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
       else {
-        await secureStorage.write(key: 'token', value: registeredUser.token);
+        await secureStorage.write(
+            key: 'token',
+            value: registeredUser.token);
         await secureStorage.write(
             key: 'hasPhoneNumber',
             value: registeredUser.hasPhoneNumber.toString());
+        await secureStorage.write(
+            key: 'salespersonCouponCode',
+            value: registeredUser.salespersonCouponCode);
 
-        await courseStore.setUserDetails(registeredUser.token, registeredUser.hasPhoneNumber);
+        await courseStore.setUserDetails(registeredUser.token, registeredUser.hasPhoneNumber, registeredUser.salespersonCouponCode);
 
-        List<Course> userCourses = await authService.getUserCourses(
-            courseStore.userId, courseStore.token);
-
-        List<Course> tempBasket = List.from(courseStore.basket);
-
-        for (Course basketItem in courseStore.basket) {
-          for (Course course in userCourses) {
-            if (basketItem.id == course.id) {
-              tempBasket.remove(basketItem);
-            }
-          }
-        }
-
-        courseStore.refineUserBasket(tempBasket);
+        // List<Course> userCourses = await authService.getUserEpisodes(
+        //     courseStore.userId, courseStore.token);
+        //
+        // List<Course> tempBasket = List.from(courseStore.basket);
+        //
+        // for (Course basketItem in courseStore.basket) {
+        //   for (Course course in userCourses) {
+        //     if (basketItem.id == course.id) {
+        //       tempBasket.remove(basketItem);
+        //     }
+        //   }
+        // }
+        //
+        // courseStore.refineUserBasket(tempBasket);
 
         Navigator.pop(context);
       }
@@ -195,26 +202,32 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       Fluttertoast.showToast(
           msg: 'ثبت نام با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
     else {
-      await secureStorage.write(key: 'token', value: loggedInUser.token);
       await secureStorage.write(
-          key: 'hasPhoneNumber', value: loggedInUser.hasPhoneNumber.toString());
+          key: 'token',
+          value: loggedInUser.token);
+      await secureStorage.write(
+          key: 'hasPhoneNumber',
+          value: loggedInUser.hasPhoneNumber.toString());
+      await secureStorage.write(
+          key: 'salespersonCouponCode',
+          value: loggedInUser.salespersonCouponCode);
 
-      await courseStore.setUserDetails(loggedInUser.token, loggedInUser.hasPhoneNumber);
+      await courseStore.setUserDetails(loggedInUser.token, loggedInUser.hasPhoneNumber, loggedInUser.salespersonCouponCode);
 
-      List<Course> userCourses = await authService.getUserCourses(
-          courseStore.userId, courseStore.token);
-
-      List<Course> tempBasket = List.from(courseStore.basket);
-
-      for (Course basketItem in courseStore.basket) {
-        for (Course course in userCourses) {
-          if (basketItem.id == course.id) {
-            tempBasket.remove(basketItem);
-          }
-        }
-      }
-
-      courseStore.refineUserBasket(tempBasket);
+      // List<Course> userCourses = await authService.getUserEpisodes(
+      //     courseStore.userId, courseStore.token);
+      //
+      // List<Course> tempBasket = List.from(courseStore.basket);
+      //
+      // for (Course basketItem in courseStore.basket) {
+      //   for (Course course in userCourses) {
+      //     if (basketItem.id == course.id) {
+      //       tempBasket.remove(basketItem);
+      //     }
+      //   }
+      // }
+      //
+      // courseStore.refineUserBasket(tempBasket);
 
       Navigator.pop(context);
     }

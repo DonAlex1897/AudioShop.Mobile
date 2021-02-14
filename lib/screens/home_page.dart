@@ -481,7 +481,7 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text((courseStore.userCourses != null && courseStore.userCourses.length > 0) ?
+                            Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
                               'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
                               style: TextStyle(fontSize: 18),
                             ),
@@ -492,7 +492,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   flex: 15,
-                  child: courseStore.userCourses != null ? userCourses() : Container(),
+                  child: courseStore.userEpisodes != null ? userCourses() : Container(),
                 )
               ],
             ),
@@ -586,7 +586,8 @@ class _HomePageState extends State<HomePage> {
 
   Future logOut() async{
     await secureStorage.write(key: 'token', value: '');
-    await courseStore.setUserDetails('', false);
+    await secureStorage.write(key: 'hasPhoneNumber', value: 'false');
+    await courseStore.setUserDetails('', false, '');
   }
 
   Widget cancelButton(String cancelText){
@@ -638,16 +639,22 @@ class _HomePageState extends State<HomePage> {
   Future loginStatement() async {
     String token = await secureStorage.read(key: 'token');
     String hasPhoneNumber = await secureStorage.read(key: 'hasPhoneNumber');
+    String salespersonCouponCode = await secureStorage.read(key: 'salespersonCouponCode');
     if (token != null && token.isNotEmpty && !courseStore.isTokenExpired(token))
-      await courseStore.setUserDetails(token, hasPhoneNumber.toLowerCase() == 'true');
+      await courseStore.setUserDetails(token, hasPhoneNumber.toLowerCase() == 'true', salespersonCouponCode);
+    else if(courseStore.isTokenExpired(token)){
+      await secureStorage.write(key: 'token', value: '');
+      await secureStorage.write(key: 'hasPhoneNumber', value: 'false');
+      await courseStore.setUserDetails('', false, '');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
     courseStore.setAllCourses(courseList);
-    if(courseStore.token != null)
-      courseStore.setUserDetails(courseStore.token, courseStore.hasPhoneNumber);
+    // if(courseStore.token != null)
+    //   courseStore.setUserDetails(courseStore.token, courseStore.hasPhoneNumber, );
     // FirebaseAdMob.instance
     //     .initialize(appId: "ca-app-pub-6716792328957551~1144830596")
     //     .then((value) => myBanner

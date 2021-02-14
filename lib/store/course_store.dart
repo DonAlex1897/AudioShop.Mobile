@@ -1,9 +1,13 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:mobile/models/basket.dart';
+import 'package:mobile/models/config.dart';
 import 'package:mobile/models/course.dart';
+import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:audio_manager/audio_manager.dart';
+import 'package:mobile/shared/enums.dart';
 
 
 var audioManagerInstance = AudioManager.instance;
@@ -11,10 +15,10 @@ HashMap<String, String> audioCache;
 class CourseStore extends ChangeNotifier{
 
   List<Course> _courses = [];
-  List<Course> _basket = [];
+  Basket _basket;
   Course _currentCourse;
   int _totalBasketPrice = 0;
-  List<Course> _userCourses =[];
+  List<CourseEpisode> _userEpisodes =[];
   int _playingEpisodeId = 0;
 
   String _userId;
@@ -22,16 +26,19 @@ class CourseStore extends ChangeNotifier{
   String _token;
   bool _isLoggedIn = false;
   bool _hasPhoneNumber = false;
+  String _salespersonCouponCode;
+
+  double _defaultSalespersonDiscountPercentage = 0;
 
   CourseStore(){
     notifyListeners();
   }
 
   List<Course> get courses => _courses;
-  List<Course> get basket => _basket;
+  Basket get basket => _basket;
   Course get currentCourse => _currentCourse;
   int get totalBasketPrice => _totalBasketPrice;
-  List<Course> get userCourses => _userCourses;
+  List<CourseEpisode> get userEpisodes => _userEpisodes;
   int get playingEpisodeId => _playingEpisodeId;
 
   String get userId => _userId;
@@ -39,6 +46,9 @@ class CourseStore extends ChangeNotifier{
   String get token => _token;
   bool get isLoggedIn => _isLoggedIn;
   bool get hasPhoneNumber => _hasPhoneNumber;
+  String get salespersonCouponCode => _salespersonCouponCode;
+
+  double get defaultSalespersonDiscountPercentage => _defaultSalespersonDiscountPercentage;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -74,7 +84,7 @@ class CourseStore extends ChangeNotifier{
     return _isLoggedIn;
   }
 
-  Future setUserDetails(String receivedToken, bool hasPhoneNumber) async{
+  Future setUserDetails(String receivedToken, bool hasPhoneNumber, String salespersonCouponCode) async{
 
     Map<String, dynamic> decodedToken = JwtDecoder.decode(receivedToken);
 
@@ -82,14 +92,15 @@ class CourseStore extends ChangeNotifier{
       _userId = decodedToken['nameid'];
       _userName = decodedToken['unique_name'];
       AuthenticationService authService = AuthenticationService();
-      _userCourses = await authService.getUserCourses(_userId, receivedToken);
+      _userEpisodes = await authService.getUserEpisodes(_userId, receivedToken);
     }
     else{
       _userId = '';
       _userName = '';
-      _userCourses != null ?? _userCourses.clear();
+      _userEpisodes != null ?? _userEpisodes.clear();
     }
 
+    _salespersonCouponCode = salespersonCouponCode;
     _hasPhoneNumber = hasPhoneNumber;
     _token = receivedToken;
 
@@ -104,5 +115,22 @@ class CourseStore extends ChangeNotifier{
 
   setPlayingEpisode(int episodeId){
     this._playingEpisodeId = episodeId;
+  }
+
+  setUserBasket(List<CourseEpisode> episodes, Course course, String salespersonCouponCode){
+    if(course != null){
+      _basket.totalPrice = course.price;
+      _basket.
+    }
+    else{
+
+    }
+  }
+
+  setConfigs(List<Config> configs){
+    var config = configs.firstWhere((x) => x.titleEn == 'DefaultSalespersonDiscountPercentage');
+    if(config != null)
+      this._defaultSalespersonDiscountPercentage = double.parse(config.value);
+
   }
 }
