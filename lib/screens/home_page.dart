@@ -157,10 +157,10 @@ class _HomePageState extends State<HomePage> {
   Widget navigationSelect(int tab) {
     if (tab == 0)
       return library();
-    else if (tab == 1)
+    else //if (tab == 1)
       return home();
-    else
-      return basket();
+    // else
+    //   return basket();
   }
 
   Widget home() {
@@ -201,177 +201,177 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget basket() {
-    totalBasketPrice = 0;
-    return courseStore.basket.length > 0
-        ? Column(
-            children: <Widget>[
-              Expanded(
-                flex: 8,
-                child: SafeArea (
-                  child: ListView.builder(
-                      itemCount: courseStore.basket.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 8),
-                          child: Card(
-                            color: Color(0xFF403F44),
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  Expanded(
-                                      flex: 2,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: Image.network(
-                                            courseStore.basket[index].photoAddress),
-                                      )),
-                                  Expanded(
-                                    flex: 6,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          courseStore.basket[index].name,
-                                          style: TextStyle(fontSize: 19),
-                                        ),
-                                        Text(
-                                          NumberFormat('#,###').format(courseStore
-                                                  .basket[index].price) +
-                                              ' تومان',
-                                          style: TextStyle(fontSize: 15),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        bottomLeft: Radius.circular(15),
-                                      ),
-                                      child: Container(
-                                        color: Colors.red,
-                                        child: TextButton(
-                                          child: Icon(Icons.delete_outline_sharp,
-                                              size: 25, color: Colors.white),
-                                          onPressed: () async {
-                                            Widget cancelB = cancelButton('خیر');
-                                            Widget continueB =
-                                              continueButton('بله', Alert.DeleteFromBasket, index);
-                                            AlertDialog alertD = alert('هشدار',
-                                                'آیا از حذف دوره از سبد خرید مطمئنید؟',
-                                                [cancelB, continueB]);
+  // Widget basket() {
+  //   totalBasketPrice = 0;
+  //   return courseStore.basket.length > 0
+  //       ? Column(
+  //           children: <Widget>[
+  //             Expanded(
+  //               flex: 8,
+  //               child: SafeArea (
+  //                 child: ListView.builder(
+  //                     itemCount: courseStore.basket.length,
+  //                     itemBuilder: (BuildContext context, int index) {
+  //                       return Padding(
+  //                         padding: const EdgeInsets.symmetric(
+  //                             vertical: 2, horizontal: 8),
+  //                         child: Card(
+  //                           color: Color(0xFF403F44),
+  //                           elevation: 8,
+  //                           shape: RoundedRectangleBorder(
+  //                             borderRadius: BorderRadius.circular(15.0),
+  //                           ),
+  //                           child: IntrinsicHeight(
+  //                             child: Row(
+  //                               crossAxisAlignment: CrossAxisAlignment.stretch,
+  //                               children: <Widget>[
+  //                                 Expanded(
+  //                                     flex: 2,
+  //                                     child: ClipRRect(
+  //                                       borderRadius: BorderRadius.circular(15),
+  //                                       child: Image.network(
+  //                                           courseStore.basket[index].photoAddress),
+  //                                     )),
+  //                                 Expanded(
+  //                                   flex: 6,
+  //                                   child: Column(
+  //                                     mainAxisAlignment:
+  //                                         MainAxisAlignment.spaceEvenly,
+  //                                     children: [
+  //                                       Text(
+  //                                         courseStore.basket[index].name,
+  //                                         style: TextStyle(fontSize: 19),
+  //                                       ),
+  //                                       Text(
+  //                                         NumberFormat('#,###').format(courseStore
+  //                                                 .basket[index].price) +
+  //                                             ' تومان',
+  //                                         style: TextStyle(fontSize: 15),
+  //                                       ),
+  //                                     ],
+  //                                   ),
+  //                                 ),
+  //                                 Expanded(
+  //                                   flex: 1,
+  //                                   child: ClipRRect(
+  //                                     borderRadius: BorderRadius.only(
+  //                                       topLeft: Radius.circular(15),
+  //                                       bottomLeft: Radius.circular(15),
+  //                                     ),
+  //                                     child: Container(
+  //                                       color: Colors.red,
+  //                                       child: TextButton(
+  //                                         child: Icon(Icons.delete_outline_sharp,
+  //                                             size: 25, color: Colors.white),
+  //                                         onPressed: () async {
+  //                                           Widget cancelB = cancelButton('خیر');
+  //                                           Widget continueB =
+  //                                             continueButton('بله', Alert.DeleteFromBasket, index);
+  //                                           AlertDialog alertD = alert('هشدار',
+  //                                               'آیا از حذف دوره از سبد خرید مطمئنید؟',
+  //                                               [cancelB, continueB]);
+  //
+  //                                           showBasketAlertDialog(context, alertD);
+  //
+  //                                         },
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                 )
+  //                               ],
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       );
+  //                     }),
+  //               ),
+  //             ),
+  //             Expanded(
+  //               flex: 3,
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.stretch,
+  //                 children: <Widget>[
+  //                   Expanded(
+  //                     flex: 2,
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.symmetric(
+  //                           vertical: 0, horizontal: 15.0),
+  //                       child: Row(
+  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                         children: <Widget>[
+  //                           Padding(
+  //                             padding: const EdgeInsets.only(right: 5),
+  //                             child: Text('مجموع دوره های انتخاب شده: '),
+  //                           ),
+  //                           Card(
+  //                               color: Color(0xFF202028),
+  //                               shape: RoundedRectangleBorder(
+  //                                 borderRadius: BorderRadius.circular(15.0),
+  //                               ),
+  //                               child: Padding(
+  //                                 padding:
+  //                                     const EdgeInsets.fromLTRB(8, 8, 8, 8),
+  //                                 child: Text(
+  //                                   basketPrice(),
+  //                                 ),
+  //                               )),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   Expanded(
+  //                     flex: 3,
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
+  //                       child: Card(
+  //                         color: Color(0xFF20BFA9),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(15.0),
+  //                         ),
+  //                         child: TextButton(
+  //                           onPressed: () {
+  //                             if (courseStore.token != null && courseStore.token != '')
+  //                               Navigator.push(context,
+  //                                   MaterialPageRoute(builder: (context) {
+  //                                 return CheckOutPage();
+  //                               }));
+  //                             else {
+  //                               Navigator.push(context,
+  //                                   MaterialPageRoute(builder: (context) {
+  //                                 return AuthenticationPage(FormName.SignUp);
+  //                               }));
+  //                             }
+  //                           },
+  //                           child: Center(
+  //                             child: Text(
+  //                               'ادامه خرید',
+  //                               style: TextStyle(
+  //                                 fontSize: 23,
+  //                                 color: Colors.white,
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             )
+  //           ],
+  //         )
+  //       : Center(
+  //           child: Text('دوره ای در سبد خرید شما موجود نمی باشد'),
+  //         );
+  // }
 
-                                            showBasketAlertDialog(context, alertD);
-
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 15.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: Text('مجموع دوره های انتخاب شده: '),
-                            ),
-                            Card(
-                                color: Color(0xFF202028),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                  child: Text(
-                                    basketPrice(),
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
-                        child: Card(
-                          color: Color(0xFF20BFA9),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              if (courseStore.token != null && courseStore.token != '')
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return CheckOutPage();
-                                }));
-                              else {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return AuthenticationPage(FormName.SignUp);
-                                }));
-                              }
-                            },
-                            child: Center(
-                              child: Text(
-                                'ادامه خرید',
-                                style: TextStyle(
-                                  fontSize: 23,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          )
-        : Center(
-            child: Text('دوره ای در سبد خرید شما موجود نمی باشد'),
-          );
-  }
-
-  String basketPrice() {
-    for (var course in courseStore.basket) totalBasketPrice += course.price;
-
-    courseStore.setTotalBasketPrice(totalBasketPrice.toInt());
-
-    return NumberFormat('#,###').format(totalBasketPrice) + ' تومان';
-  }
+  // String basketPrice() {
+  //   for (var course in courseStore.basket) totalBasketPrice += course.price;
+  //
+  //   courseStore.setTotalBasketPrice(totalBasketPrice.toInt());
+  //
+  //   return NumberFormat('#,###').format(totalBasketPrice) + ' تومان';
+  // }
 
   Widget library() {
     return (courseStore.token == null || courseStore.token == '')
@@ -537,15 +537,27 @@ class _HomePageState extends State<HomePage> {
     return SizedBox();
   }
 
+  List<Course> getUserCourses() {
+    List<Course> userCourses = [];
+    courseStore.userEpisodes.forEach((episode) {
+      var tempCourse = courseStore.courses
+          .firstWhere((course) => course.id == episode.courseId);
+      if(!userCourses.contains(tempCourse))
+        userCourses.add(tempCourse);
+    });
+    return userCourses;
+  }
+
   Widget userCourses(){
+    List<Course> userCourses = getUserCourses();
     return ListView.builder(
-        itemCount: courseStore.userCourses.length,
+        itemCount: userCourses.length,
         itemBuilder: (BuildContext context, int index) {
           return TextButton(
             onPressed: () async {
               var picFile = await DefaultCacheManager().getSingleFile(
-                  courseStore.userCourses[index].photoAddress);
-              goToCoursePage(courseStore.userCourses[index], picFile);
+                  userCourses[index].photoAddress);
+              goToCoursePage(userCourses[index], picFile);
             },
             child: Card(
               color: Color(0xFF403F44),
@@ -562,7 +574,7 @@ class _HomePageState extends State<HomePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.network(
-                              courseStore.userCourses[index].photoAddress),
+                              userCourses[index].photoAddress),
                         )),
                     Expanded(
                       flex: 6,
@@ -570,7 +582,7 @@ class _HomePageState extends State<HomePage> {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(8,0,8,0),
                           child: Text(
-                            courseStore.userCourses[index].name,
+                            userCourses[index].name,
                             style: TextStyle(fontSize: 19),
                           ),
                         ),
@@ -605,9 +617,10 @@ class _HomePageState extends State<HomePage> {
       child: Text(continueText),
       onPressed: () async {
         Navigator.of(context).pop();
-        if(alert == Alert.DeleteFromBasket)
-          courseStore.deleteCourseFromBasket(courseStore.basket[index]);
-        else if(alert == Alert.LogOut){
+        // if(alert == Alert.DeleteFromBasket)
+        //   courseStore.deleteCourseFromBasket(courseStore.basket[index]);
+        // else 
+        if(alert == Alert.LogOut){
           alertReturn = true;
         }
         else if(alert == Alert.RegisterPhoneNumber){

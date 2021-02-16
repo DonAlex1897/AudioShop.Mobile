@@ -71,10 +71,15 @@ class _NowPlayingState extends State<NowPlaying> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies(){
+    courseStore = Provider.of<CourseStore>(context);
     courseEpisodeData = CourseEpisodeData();
     firstDecryptedFileFuture = setAudioFile();
+    super.didChangeDependencies();
   }
 
   Future<dynamic> createAudioManagerList(List<EpisodeAudios> episodeAudios) async{
@@ -103,11 +108,12 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Future<dynamic> setAudioFile() async{
+    try{
 
-    if(await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
-       audioManagerInstance.audioList != null
-    )
-    {
+      if(await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
+          audioManagerInstance.audioList != null && audioManagerInstance.audioList.length > 0
+      )
+      {
         var currentPosition = audioManagerInstance.position.inMilliseconds;
         firstDecryptedFilePath = audioManagerInstance.audioList[audioManagerInstance.curIndex];
         seekToSec(currentPosition);
@@ -115,27 +121,32 @@ class _NowPlayingState extends State<NowPlaying> {
           playBtn = Icons.pause;
         });
         await setAudioManager();
-    }
-    else
-      {
-      if(audioManagerInstance.audioList != null &&
-          audioManagerInstance.audioList.length > 0){
-        for(var decryptedFile in audioManagerInstance.audioList){
-          var file = File(decryptedFile.url.replaceRange(0, 6, ''));
-          if(await file.exists())
-            file.delete();
-        }
       }
-      audioManagerInstance.stop();
-      audioManagerInstance.audioList.clear();
+      else
+      {
+        if(audioManagerInstance.audioList != null &&
+            audioManagerInstance.audioList.length > 0){
+          for(var decryptedFile in audioManagerInstance.audioList){
+            var file = File(decryptedFile.url.replaceRange(0, 6, ''));
+            if(await file.exists())
+              file.delete();
+          }
+        }
+        audioManagerInstance.stop();
+        audioManagerInstance.audioList.clear();
 
-      episodeAudios = await courseEpisodeData
-          .getEpisodeAudios(widget.episodeDetails.id);
+        episodeAudios = await courseEpisodeData
+            .getEpisodeAudios(widget.episodeDetails.id);
 
-      firstDecryptedFilePath = await createAudioManagerList(episodeAudios);
+        firstDecryptedFilePath = await createAudioManagerList(episodeAudios);
+      }
+
+      return firstDecryptedFilePath;
     }
-
-    return firstDecryptedFilePath;
+    catch(e){
+      print(e.toString());
+      return null;
+    }
   }
 
   Future downloadAndDecryptFiles(List<EpisodeAudios> episodes) async
@@ -231,7 +242,7 @@ class _NowPlayingState extends State<NowPlaying> {
 
   @override
   Widget build(BuildContext context) {
-    courseStore = Provider.of<CourseStore>(context);
+    // courseStore = Provider.of<CourseStore>(context);
     CourseEpisode episode = widget.episodeDetails;
     String courseCover = widget.courseCoverUrl;
 
@@ -388,14 +399,17 @@ class _NowPlayingState extends State<NowPlaying> {
                                             iconSize: 45.0,
                                             color: Colors.white,
                                             onPressed: () async {
-                                              if (!audioManagerInstance.isPlaying /*playerState != AudioPlayerState.PLAYING*/) {
-                                                // _player.play(firstDecryptedFilePath, isLocal: true);
-                                                await audioManagerInstance.playOrPause();
+                                              if (!audioManagerInstance.isPlaying) {
                                                 setState(() {
                                                   playBtn = Icons.pause;
                                                 });
+
                                                 if(episodeAudios.length > audioManagerInstance.audioList.length)
                                                   await downloadAndDecryptFiles(episodeAudios);
+
+                                                await AudioManager.instance.play(index: audioManagerInstance.curIndex);
+
+
                                               } else {
                                                 // _player.pause();
                                                 await AudioManager.instance.playOrPause();

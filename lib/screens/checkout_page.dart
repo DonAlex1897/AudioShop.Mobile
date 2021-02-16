@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/store/course_store.dart';
@@ -30,7 +31,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
     return await orderService.createOrder(
         courseStore.basket,
         courseStore.userId,
-        courseStore.totalBasketPrice,
         courseStore.token
     );
   }
@@ -64,10 +64,60 @@ class _CheckOutPageState extends State<CheckOutPage> {
             ),
         ),
       ],
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Center(child: Text('توضیحات در مورد درگاه پرداخت')),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              flex: 3,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                        child: Text('توضیحات در مورد درگاه پرداخت'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Card(
+                color: Color(0xFF403F44),
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Text('مبلغ اصلی (بدون تخفیف)'),
+                          Text(courseStore.basket.totalPrice.toString()),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Text('تخفیف شما از این خرید'),
+                          Text(courseStore.basket.discount.toString()),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Text('مبلغ قابل پرداخت'),
+                          Text(courseStore.basket.priceToPay.toString()),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );

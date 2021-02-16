@@ -7,6 +7,7 @@ import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:audio_manager/audio_manager.dart';
+import 'package:mobile/services/discount_service.dart';
 import 'package:mobile/shared/enums.dart';
 
 
@@ -28,7 +29,7 @@ class CourseStore extends ChangeNotifier{
   bool _hasPhoneNumber = false;
   String _salespersonCouponCode;
 
-  double _defaultSalespersonDiscountPercentage = 0;
+  int _salespersonDefaultDiscountPercent = 0;
 
   CourseStore(){
     notifyListeners();
@@ -48,7 +49,7 @@ class CourseStore extends ChangeNotifier{
   bool get hasPhoneNumber => _hasPhoneNumber;
   String get salespersonCouponCode => _salespersonCouponCode;
 
-  double get defaultSalespersonDiscountPercentage => _defaultSalespersonDiscountPercentage;
+  int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -58,22 +59,22 @@ class CourseStore extends ChangeNotifier{
     this._currentCourse = tapedCourse;
   }
 
-  bool addCourseToBasket(Course toBeAddedCourse){
-    Course similarCourse = _basket
-        .firstWhere((x) => x.id == toBeAddedCourse.id, orElse: () => null);
+  // bool addCourseToBasket(Course toBeAddedCourse){
+  //   Course similarCourse = _basket
+  //       .firstWhere((x) => x.id == toBeAddedCourse.id, orElse: () => null);
+  //
+  //   if(similarCourse == null) {
+  //     _basket.add(toBeAddedCourse);
+  //     notifyListeners();
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-    if(similarCourse == null) {
-      _basket.add(toBeAddedCourse);
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  deleteCourseFromBasket(Course toBeDeletedCourse){
-    _basket.remove(toBeDeletedCourse);
-    notifyListeners();
-  }
+  // deleteCourseFromBasket(Course toBeDeletedCourse){
+  //   _basket.remove(toBeDeletedCourse);
+  //   notifyListeners();
+  // }
 
   setTotalBasketPrice(int totalPrice){
     this._totalBasketPrice = totalPrice;
@@ -106,31 +107,54 @@ class CourseStore extends ChangeNotifier{
 
   }
 
-  refineUserBasket(List<Course> refinedBasket) {
-    if(refinedBasket.isNotEmpty && refinedBasket.length > 0)
-      this._basket = refinedBasket;
-    else
-      this._basket.clear();
-  }
+  // refineUserBasket(List<Course> refinedBasket) {
+  //   if(refinedBasket.isNotEmpty && refinedBasket.length > 0)
+  //     this._basket = refinedBasket;
+  //   else
+  //     this._basket.clear();
+  // }
 
   setPlayingEpisode(int episodeId){
     this._playingEpisodeId = episodeId;
   }
 
-  setUserBasket(List<CourseEpisode> episodes, Course course, String salespersonCouponCode){
+  Future setUserBasket(List<CourseEpisode> episodes, Course course) async{
+    if(this._basket == null)
+      this._basket = Basket();
+
+    DiscountService discountService = DiscountService();
+    this._basket.userId = this.userId;
+    this._basket.salespersonCouponCode = this._salespersonCouponCode;
+    List<int> episodesIds = [];
+    for(var episode in episodes){
+      episodesIds.add(episode.id);
+    }
+    this._basket.episodeIds = episodesIds;
+    int salespersonDiscountPercent = await discountService.salespersonDiscountPercent(this._salespersonCouponCode);
+    if(salespersonDiscountPercent > 0)
+      this._salespersonDefaultDiscountPercent = salespersonDiscountPercent;
+
     if(course != null){
-      _basket.totalPrice = course.price;
-      _basket.
+      this._basket.totalPrice = course.price;
+      this._basket.discount = course.price * this._salespersonDefaultDiscountPercent;
+      this._basket.priceToPay = course.price - this._basket.discount;
     }
     else{
+      double price = 0;
+      episodes.forEach((episode) {
+        price += episode.price;
+      });
 
+      this._basket.totalPrice = price;
+      this._basket.discount = price * this._salespersonDefaultDiscountPercent;
+      this._basket.priceToPay = price - this._basket.discount;
     }
   }
 
   setConfigs(List<Config> configs){
-    var config = configs.firstWhere((x) => x.titleEn == 'DefaultSalespersonDiscountPercentage');
+    var config = configs.firstWhere((x) => x.titleEn == 'SalespersonDefaultDiscountPercent');
     if(config != null)
-      this._defaultSalespersonDiscountPercentage = double.parse(config.value);
+      this._salespersonDefaultDiscountPercent = int.parse(config.value);
 
   }
 }

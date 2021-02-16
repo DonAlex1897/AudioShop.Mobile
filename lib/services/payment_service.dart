@@ -1,22 +1,25 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:mobile/models/course.dart';
-import 'package:mobile/models/order.dart';
-import 'package:mobile/models/user.dart';
+import 'package:mobile/models/basket.dart';
 
 class PaymentService{
 
   PaymentService();
 
-  String createOrderUrl = 'https://audioshoppp.ir/api/order';
-  String payOrderUrl = 'https://audioshoppp.ir/api/payment/payorder';
+  String createOrderUrl = 'http://10.0.2.2:5000/api/orders';
+  String payOrderUrl = 'http://10.0.2.2:5000/api/payment/payorder';
 
-  Future<String> createOrder(List<Course> basket, String userId, int totalPrice, String token) async {
+  Future<String> createOrder(Basket basket, String userId, String token) async {
     var body = jsonEncode({
       'userId': userId,
-      'totalPrice': totalPrice,
-      'courseDtos': basket});
+      'totalPrice': basket.totalPrice,
+      'discount': basket.discount,
+      'priceToPay': basket.priceToPay,
+      'otherCouponCode': basket.otherCouponCode,
+      'episodeIds': basket.episodeIds,
+      'SalespersonCouponCode': basket.salespersonCouponCode,
+    });
 
     http.Response response = await http.post(Uri.encodeFull(createOrderUrl),
         body: body,

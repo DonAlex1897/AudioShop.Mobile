@@ -32,8 +32,10 @@ class _CoursePageState extends State<CoursePage> {
   List<Widget> episodesList = List<Widget>();
   Future<dynamic> episodesFuture;
   CourseStore courseStore;
-  bool isCoursePurchasedBefore = false;
+  bool isEpisodePurchasedBefore = false;
+  bool isWholeCourseAvailable = true;
   AuthenticationService authService = AuthenticationService();
+  bool alertReturn = false;
 
   @override
   void setState(fn) {
@@ -59,26 +61,18 @@ class _CoursePageState extends State<CoursePage> {
     return courseEpisodes;
   }
 
-  Future checkItemsToBePurchased(PurchaseType purchaseType, List<CourseEpisode> episodeIds) async{
-    if(purchaseType == PurchaseType.SingleEpisode) {
-      List<CourseEpisode> userEpisodes = await authService.getUserEpisodes(
-          courseStore.userId, courseStore.token);
+  Future<List<CourseEpisode>> eliminateRepetitiveEpisodes(List<CourseEpisode> episodes) async{
 
-      List<Course> tempBasket = List.from(courseStore.basket);
+      List<CourseEpisode> basketEpisodes = List.from(episodes);
 
-      for (Course basketItem in courseStore.basket) {
-        for (CourseEpisode course in userCourses) {
-          if (basketItem.id == course.id) {
-            tempBasket.remove(basketItem);
-          }
+      courseStore.userEpisodes.forEach((episode) {
+        if(episodes.contains(episode)){
+          basketEpisodes.remove(episode);
+          isWholeCourseAvailable = false;
         }
-      }
+      });
 
-      courseStore.refineUserBasket(tempBasket);
-    }
-    else {
-
-    }
+      return basketEpisodes;
   }
 
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
@@ -89,11 +83,12 @@ class _CoursePageState extends State<CoursePage> {
       String episodeDescription = episode.description;
       var picFile = widget.courseCover;
 
+      isEpisodePurchasedBefore = false;
       if(courseStore.userEpisodes != null){
-        for(Course tempCourse in courseStore.userEpisodes){
-          if(tempCourse.id == course.id)
+        for(CourseEpisode tempEpisode in courseStore.userEpisodes){
+          if(tempEpisode.id == episode.id)
           {
-            isCoursePurchasedBefore = true;
+            isEpisodePurchasedBefore = true;
             break;
           }
         }
@@ -136,31 +131,45 @@ class _CoursePageState extends State<CoursePage> {
                   flex: 4,
                   child: TextButton(
                     onPressed: () async{
-                      if (courseStore.token != null && courseStore.token != '')
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                              return CheckOutPage();
-                            }));
-                      else {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                              return AuthenticationPage(FormName.SignUp);
-                            }));
-
-                        if(courseStore.userEpisodes.contains(episode))
-                          Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
-                        else{
-
-                          Navigator.push(context,
+                      if(episode.price != 0 && episode.price != null){
+                        if (courseStore.token != null && courseStore.token != ''){
+                          isEpisodePurchasedBefore = false;
+                          courseStore.userEpisodes.forEach((element) {
+                            if(element.id == episode.id){
+                              isEpisodePurchasedBefore = true;
+                            }
+                          });
+                          if(!isEpisodePurchasedBefore){
+                            List<CourseEpisode> tempEpisodes = [];
+                            tempEpisodes.add(episode);
+                            await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+                          }
+                          else{
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return NowPlaying(episode, course.photoAddress);
+                                }));
+                          }
+                        }
+                        else {
+                          await Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                                return CheckOutPage();
-                              })
-                          );
+                                return AuthenticationPage(FormName.SignUp);
+                              }));
+                          List<CourseEpisode> tempEpisodes = [];
+                          tempEpisodes.add(episode);
+                          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
                         }
                       }
+                      else{
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                              return NowPlaying(episode, course.photoAddress);
+                            }));
+                      }
                     },
-                    child: Icon((isCoursePurchasedBefore ||
-                          (episode.price == 0 || episode.price == null)) ?
+                    child: Icon((isEpisodePurchasedBefore ||
+                          episode.price == 0 || episode.price == null) ?
                         Icons.play_arrow_outlined : Icons.add_shopping_cart,
                         size: 32,
                         color: Color(0xFFFFFFFF),
@@ -252,22 +261,17 @@ class _CoursePageState extends State<CoursePage> {
                 flex: 1,
                 child: TextButton(
                   onPressed: () async{
-                    if (courseStore.token != null && courseStore.token != '')
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                            return CheckOutPage();
-                          }));
+                    if (courseStore.token != null && courseStore.token != ''){
+                      await createBasket(PurchaseType.WholeCourse, episodes, course);
+                    }
                     else {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                             return AuthenticationPage(FormName.SignUp);
                           }));
-                      List<int> episodeIds = [];
-                      for(var episode in episodes){
-                        if(episode.price != null || episode.price != 0)
-                          episodeIds.add(episode.id);
-                      }
-                      await checkItemsToBePurchased(PurchaseType.WholeCourse, episodeIds);
+
+                      await createBasket(PurchaseType.WholeCourse, episodes, course);
+
                     }
                   },
                   child: Icon(
@@ -289,6 +293,94 @@ class _CoursePageState extends State<CoursePage> {
           ),
         )
       ],
+    );
+  }
+
+  Future createBasket(PurchaseType purchaseType, List<CourseEpisode> episodes, Course course) async{
+    if(purchaseType == PurchaseType.WholeCourse){
+      List<CourseEpisode> episodesToBePurchased = [];
+      for(var episode in episodes){
+        if(episode.price != null || episode.price != 0)
+          episodesToBePurchased.add(episode);
+      }
+      List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
+      if(!isWholeCourseAvailable){
+        Widget cancelB = cancelButton('خیر');
+        Widget continueB =
+        continueButton('بله', Alert.LogOut, null);
+        AlertDialog alertD = alert('هشدار',
+            'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
+            [cancelB, continueB]);
+
+        await showBasketAlertDialog(context, alertD);
+
+        if(alertReturn){
+          await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
+        }
+        alertReturn = false;
+      }
+      else{
+        await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            })
+        );
+      }
+    }
+    else{
+      if(courseStore.userEpisodes.contains(episodes[0]))
+        Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
+      else{
+        await courseStore.setUserBasket(episodes, null);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            })
+        );
+      }
+    }
+  }
+
+  Widget cancelButton(String cancelText){
+    return FlatButton(
+      child: Text(cancelText),
+      onPressed: () {
+        Navigator.of(context).pop();
+        alertReturn = false;
+      },
+    );
+  }
+
+  Widget continueButton(String continueText, Alert alert, int index){
+    return FlatButton(
+      child: Text(continueText),
+      onPressed: () {
+        Navigator.of(context).pop();
+        alertReturn = true;
+      },
+    );
+  }
+
+  AlertDialog alert(String titleText, String contentText, List<Widget> actions){
+    return AlertDialog(
+      title: Text(titleText),
+      content: Text(contentText),
+      actions: actions,
+    );
+  }
+
+  Future showBasketAlertDialog(BuildContext context, AlertDialog alert) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 
