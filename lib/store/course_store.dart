@@ -98,7 +98,8 @@ class CourseStore extends ChangeNotifier{
     else{
       _userId = '';
       _userName = '';
-      _userEpisodes != null ?? _userEpisodes.clear();
+      if(_userEpisodes != null)
+          _userEpisodes.clear();
     }
 
     _salespersonCouponCode = salespersonCouponCode;
@@ -127,7 +128,8 @@ class CourseStore extends ChangeNotifier{
     this._basket.salespersonCouponCode = this._salespersonCouponCode;
     List<int> episodesIds = [];
     for(var episode in episodes){
-      episodesIds.add(episode.id);
+      if(episode.price != 0 && episode.price != null)
+        episodesIds.add(episode.id);
     }
     this._basket.episodeIds = episodesIds;
     int salespersonDiscountPercent = await discountService.salespersonDiscountPercent(this._salespersonCouponCode);

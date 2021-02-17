@@ -36,6 +36,8 @@ class _CoursePageState extends State<CoursePage> {
   bool isWholeCourseAvailable = true;
   AuthenticationService authService = AuthenticationService();
   bool alertReturn = false;
+  int nonFreeEpisodesCount = 0;
+  int purchasedEpisodesCount = 0;
 
   @override
   void setState(fn) {
@@ -83,11 +85,15 @@ class _CoursePageState extends State<CoursePage> {
       String episodeDescription = episode.description;
       var picFile = widget.courseCover;
 
+      if(episode.price != 0 && episode.price != null)
+        nonFreeEpisodesCount++;
+
       isEpisodePurchasedBefore = false;
       if(courseStore.userEpisodes != null){
         for(CourseEpisode tempEpisode in courseStore.userEpisodes){
           if(tempEpisode.id == episode.id)
           {
+            purchasedEpisodesCount++;
             isEpisodePurchasedBefore = true;
             break;
           }
@@ -156,9 +162,23 @@ class _CoursePageState extends State<CoursePage> {
                               MaterialPageRoute(builder: (context) {
                                 return AuthenticationPage(FormName.SignUp);
                               }));
-                          List<CourseEpisode> tempEpisodes = [];
-                          tempEpisodes.add(episode);
-                          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+                          isEpisodePurchasedBefore = false;
+                          courseStore.userEpisodes.forEach((element) {
+                            if(element.id == episode.id){
+                              isEpisodePurchasedBefore = true;
+                            }
+                          });
+                          if(!isEpisodePurchasedBefore){
+                            List<CourseEpisode> tempEpisodes = [];
+                            tempEpisodes.add(episode);
+                            await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+                          }
+                          else{
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return NowPlaying(episode, course.photoAddress);
+                                }));
+                          }
                         }
                       }
                       else{
@@ -259,27 +279,7 @@ class _CoursePageState extends State<CoursePage> {
               ),
               Expanded(
                 flex: 1,
-                child: TextButton(
-                  onPressed: () async{
-                    if (courseStore.token != null && courseStore.token != ''){
-                      await createBasket(PurchaseType.WholeCourse, episodes, course);
-                    }
-                    else {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                            return AuthenticationPage(FormName.SignUp);
-                          }));
-
-                      await createBasket(PurchaseType.WholeCourse, episodes, course);
-
-                    }
-                  },
-                  child: Icon(
-                    Icons.add_shopping_cart,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
+                child: coursePurchaseButton(episodes, course),
               )
             ],
           ),
@@ -294,6 +294,33 @@ class _CoursePageState extends State<CoursePage> {
         )
       ],
     );
+  }
+
+  Widget coursePurchaseButton(List<CourseEpisode> episodes, Course course){
+    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+      return Text('');
+    else
+      return TextButton(
+        onPressed: () async{
+          if (courseStore.token != null && courseStore.token != ''){
+            await createBasket(PurchaseType.WholeCourse, episodes, course);
+          }
+          else {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return AuthenticationPage(FormName.SignUp);
+                }));
+
+            await createBasket(PurchaseType.WholeCourse, episodes, course);
+
+          }
+        },
+        child: Icon(
+          Icons.add_shopping_cart,
+          size: 20,
+          color: Colors.white,
+        ),
+      );
   }
 
   Future createBasket(PurchaseType purchaseType, List<CourseEpisode> episodes, Course course) async{
