@@ -8,7 +8,6 @@ import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:mobile/services/discount_service.dart';
-import 'package:mobile/shared/enums.dart';
 
 
 var audioManagerInstance = AudioManager.instance;
@@ -20,6 +19,7 @@ class CourseStore extends ChangeNotifier{
   Course _currentCourse;
   int _totalBasketPrice = 0;
   List<CourseEpisode> _userEpisodes =[];
+  List<Course> _userFavoriteCourses = [];
   int _playingEpisodeId = 0;
 
   String _userId;
@@ -40,6 +40,7 @@ class CourseStore extends ChangeNotifier{
   Course get currentCourse => _currentCourse;
   int get totalBasketPrice => _totalBasketPrice;
   List<CourseEpisode> get userEpisodes => _userEpisodes;
+  List<Course> get userFavoriteCourses => _userFavoriteCourses;
   int get playingEpisodeId => _playingEpisodeId;
 
   String get userId => _userId;
@@ -58,23 +59,6 @@ class CourseStore extends ChangeNotifier{
   setCurrentCourse(Course tapedCourse){
     this._currentCourse = tapedCourse;
   }
-
-  // bool addCourseToBasket(Course toBeAddedCourse){
-  //   Course similarCourse = _basket
-  //       .firstWhere((x) => x.id == toBeAddedCourse.id, orElse: () => null);
-  //
-  //   if(similarCourse == null) {
-  //     _basket.add(toBeAddedCourse);
-  //     notifyListeners();
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-  // deleteCourseFromBasket(Course toBeDeletedCourse){
-  //   _basket.remove(toBeDeletedCourse);
-  //   notifyListeners();
-  // }
 
   setTotalBasketPrice(int totalPrice){
     this._totalBasketPrice = totalPrice;
@@ -107,13 +91,6 @@ class CourseStore extends ChangeNotifier{
     _token = receivedToken;
 
   }
-
-  // refineUserBasket(List<Course> refinedBasket) {
-  //   if(refinedBasket.isNotEmpty && refinedBasket.length > 0)
-  //     this._basket = refinedBasket;
-  //   else
-  //     this._basket.clear();
-  // }
 
   setPlayingEpisode(int episodeId){
     this._playingEpisodeId = episodeId;
@@ -153,10 +130,30 @@ class CourseStore extends ChangeNotifier{
     }
   }
 
+  applyCouponCodeDiscount(int discountPercent){
+    double newDiscount = this._basket.totalPrice * discountPercent/100;
+    this._basket.discount += newDiscount;
+    this._basket.priceToPay -= newDiscount;
+  }
+
+  setOtherCouponCodeInBasket(String couponCode){
+    this._basket.otherCouponCode = couponCode;
+  }
+
   setConfigs(List<Config> configs){
     var config = configs.firstWhere((x) => x.titleEn == 'SalespersonDefaultDiscountPercent');
     if(config != null)
       this._salespersonDefaultDiscountPercent = int.parse(config.value);
+  }
 
+  bool addToUserFavoriteCourses(Course course){
+    if(!this._userFavoriteCourses.contains(course)) {
+      this._userFavoriteCourses.add(course);
+      return true;
+    }
+    else{
+      this._userFavoriteCourses.remove(course);
+      return false;
+    }
   }
 }

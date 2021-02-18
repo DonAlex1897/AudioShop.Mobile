@@ -38,13 +38,14 @@ class _CoursePageState extends State<CoursePage> {
   bool alertReturn = false;
   int nonFreeEpisodesCount = 0;
   int purchasedEpisodesCount = 0;
+  IconData iconData;
 
-  @override
-  void setState(fn) {
-    if(mounted) {
-      super.setState(fn);
-    }
-  }
+  // @override
+  // void setState(fn) {
+  //   if(mounted) {
+  //     super.setState(fn);
+  //   }
+  // }
 
   @override
   void initState() {
@@ -279,6 +280,26 @@ class _CoursePageState extends State<CoursePage> {
               ),
               Expanded(
                 flex: 1,
+                child: TextButton(
+                  onPressed: () {
+                    bool added = courseStore.addToUserFavoriteCourses(widget.courseDetails);
+                    added ?
+                      setState(() {
+                        iconData = Icons.favorite;
+                      }) :
+                      setState(() {
+                        iconData = Icons.favorite_border;
+                      });
+                  },
+                  child: Icon(
+                    iconData,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
                 child: coursePurchaseButton(episodes, course),
               )
             ],
@@ -416,6 +437,9 @@ class _CoursePageState extends State<CoursePage> {
     courseStore = Provider.of<CourseStore>(context);
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
+    iconData = Icons.favorite_border;
+    courseStore.userFavoriteCourses.contains(widget.courseDetails) ?
+        iconData = Icons.favorite : iconData = Icons.favorite_border;
 
     return FutureBuilder(
         future: episodesFuture,

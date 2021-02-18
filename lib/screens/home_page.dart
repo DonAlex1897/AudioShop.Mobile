@@ -157,10 +157,77 @@ class _HomePageState extends State<HomePage> {
   Widget navigationSelect(int tab) {
     if (tab == 0)
       return library();
-    else //if (tab == 1)
+    else if (tab == 1)
       return home();
+    else
+      return profile();
     // else
     //   return basket();
+  }
+
+  Widget profile(){
+    return SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Card(
+              color: Color(0xFF202028),
+              elevation: 20,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: Icon(
+                      Icons.person_pin,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Expanded(
+                    flex: courseStore.hasPhoneNumber ? 4 : 3,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                      child: Text(courseStore.userName),
+                    ),
+                  ),
+                  registerPhoneButton(),
+                  Expanded(
+                    flex: 2,
+                    child: TextButton(
+                        onPressed: () async {
+                          Widget cancelB = cancelButton('خیر');
+                          Widget continueB =
+                          continueButton('بله', Alert.LogOut, null);
+                          AlertDialog alertD = alert('هشدار',
+                              'میخواهید از برنامه خارج شوید؟',
+                              [cancelB, continueB]);
+
+                          await showBasketAlertDialog(context, alertD);
+
+                          if(alertReturn){
+                            await logOut();
+                          }
+                          alertReturn = false;
+
+                          setState(() {
+                            navigationSelect(1);
+                          });
+                        },
+                        child: Card(
+                          color: Colors.red[700],
+                          child: Center(child: Text('خروج')),
+                        )
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          notRegisteredPhoneNumber(),
+        ],
+      ),
+    );
   }
 
   Widget home() {
@@ -374,15 +441,102 @@ class _HomePageState extends State<HomePage> {
   // }
 
   Widget library() {
-    return (courseStore.token == null || courseStore.token == '')
-        ? Column(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'دوره های من',),
+              Tab(text: 'مورد علاقه ها',)
+            ],
+          ),
+        ),
+        body: TabBarView(children: [
+          myCoursesWidget(),
+          myFavoriteCoursesWidget(),
+        ]),
+      ),
+    );
+
+      // (courseStore.token == null || courseStore.token == '')
+      //   ? SafeArea(
+      //     child: Column(
+      //         children: <Widget>[
+      //           Expanded(
+      //             flex: 3,
+      //             child: Text('جهت استفاده از محتوای غیر رایگان برنامه لطفا'
+      //                 ' ثبت نام کنید یا اگر قبلا ثبت نامه کرده اید وارد شوید.'),
+      //           ),
+      //           Expanded(
+      //               flex: 1,
+      //               child: Row(
+      //                 children: <Widget>[
+      //                   Expanded(
+      //                     child: TextButton(
+      //                       child: Text('ورود'),
+      //                       onPressed: () {
+      //                         Navigator.push(context,
+      //                             MaterialPageRoute(builder: (context) {
+      //                           return AuthenticationPage(FormName.SignIn);
+      //                         }));
+      //                       },
+      //                     ),
+      //                   ),
+      //                   Expanded(
+      //                     child: TextButton(
+      //                       child: Text('ثبت نام'),
+      //                       onPressed: () {
+      //                         Navigator.push(context,
+      //                             MaterialPageRoute(builder: (context) {
+      //                           return AuthenticationPage(FormName.SignUp);
+      //                         }));
+      //                       },
+      //                     ),
+      //                   ),
+      //                 ],
+      //               ))
+      //         ],
+      //       ),
+      //   )
+      //   : SafeArea(
+      //       child: Column(
+      //         children: <Widget>[
+      //           Expanded(
+      //             flex: 1,
+      //             child: Padding(
+      //               padding: const EdgeInsets.only(right: 8.0),
+      //               child: Center(
+      //                   child: Row(
+      //                     mainAxisAlignment: MainAxisAlignment.start,
+      //                     children: [
+      //                       Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
+      //                         'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
+      //                         style: TextStyle(fontSize: 18),
+      //                       ),
+      //                     ],
+      //                   ),
+      //               ),
+      //             ),
+      //           ),
+      //           Expanded(
+      //             flex: 15,
+      //             child: courseStore.userEpisodes != null ? userCourses() : Container(),
+      //           )
+      //         ],
+      //       ),
+      //   );
+  }
+
+  Widget myCoursesWidget(){
+    return (courseStore.token == null || courseStore.token == '') ?
+      SafeArea(
+        child: Column(
             children: <Widget>[
               Expanded(
                 flex: 3,
-                child: SafeArea (
-                  child: Text('جهت استفاده از محتوای غیر رایگان برنامه لطفا'
-                      ' ثبت نام کنید یا اگر قبلا ثبت نامه کرده اید وارد شوید.'),
-                ),
+                child: Text('جهت استفاده از محتوای غیر رایگان برنامه لطفا'
+                    ' ثبت نام کنید یا اگر قبلا ثبت نامه کرده اید وارد شوید.'),
               ),
               Expanded(
                   flex: 1,
@@ -413,90 +567,113 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ))
             ],
+          ),
+      )
+      : SafeArea(
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
+                            'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ],
+                      ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 15,
+                child: courseStore.userEpisodes != null ? userCourses() : Container(),
+              )
+            ],
+          ),
+      );
+  }
+
+  Widget myFavoriteCoursesWidget(){
+    return SafeArea(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text((courseStore.userFavoriteCourses != null && courseStore.userFavoriteCourses.length > 0) ?
+                    'دوره های مورد علاقه شما' : 'هنوز دوره ای را به علاقه مندی های خود اضافه نکرده اید',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 15,
+            child: courseStore.userEpisodes != null ? userFavoriteCourses() : Container(),
           )
-        : SafeArea(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 3,
-                  child: Card(
-                    color: Color(0xFF202028),
-                    elevation: 20,
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                            flex: 1,
-                            child: Icon(
-                              Icons.person_pin,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                        ),
-                        Expanded(
-                            flex: courseStore.hasPhoneNumber ? 4 : 3,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                              child: Text(courseStore.userName),
-                            ),
-                        ),
-                        registerPhoneButton(),
-                        Expanded(
-                          flex: 2,
-                          child: TextButton(
-                            onPressed: () async {
-                              Widget cancelB = cancelButton('خیر');
-                              Widget continueB =
-                                continueButton('بله', Alert.LogOut, null);
-                              AlertDialog alertD = alert('هشدار',
-                                  'میخواهید از برنامه خارج شوید؟',
-                                  [cancelB, continueB]);
+        ],
+      ),
+    );
+  }
 
-                              await showBasketAlertDialog(context, alertD);
-
-                              if(alertReturn){
-                                await logOut();
-                              }
-                              alertReturn = false;
-
-                              setState(() {
-                                navigationSelect(1);
-                              });
-                            },
-                            child: Card(
-                              color: Colors.red[700],
-                              child: Center(child: Text('خروج')),
-                            )
+  Widget userFavoriteCourses(){
+    List<Course> userFavoriteCourses = courseStore.userFavoriteCourses;
+    return ListView.builder(
+        itemCount: courseStore.userFavoriteCourses.length,
+        itemBuilder: (BuildContext context, int index) {
+          return TextButton(
+            onPressed: () async {
+              var picFile = await DefaultCacheManager().getSingleFile(
+                  userFavoriteCourses[index].photoAddress);
+              goToCoursePage(userFavoriteCourses[index], picFile);
+            },
+            child: Card(
+              color: Color(0xFF403F44),
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Expanded(
+                        flex: 2,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                              userFavoriteCourses[index].photoAddress),
+                        )),
+                    Expanded(
+                      flex: 6,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                          child: Text(
+                            userFavoriteCourses[index].name,
+                            style: TextStyle(fontSize: 19),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                notRegisteredPhoneNumber(),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
-                              'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ],
-                        ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 15,
-                  child: courseStore.userEpisodes != null ? userCourses() : Container(),
-                )
-              ],
+              ),
             ),
-        );
+          );
+        });
   }
 
   Widget registerPhoneButton(){
@@ -691,10 +868,10 @@ class _HomePageState extends State<HomePage> {
                         height: 50,
                         backgroundColor: Color(0xFF34333A),
                         items: <Widget>[
-                          Icon(Icons.person,
+                          Icon(Icons.my_library_music,
                               size: 25, color: Color(0xFF20BFA9)),
                           Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
-                          Icon(Icons.shopping_basket,
+                          Icon(Icons.person,
                               size: 25, color: Color(0xFF20BFA9)),
                         ],
                         onTap: (index) => {
