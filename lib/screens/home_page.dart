@@ -13,6 +13,7 @@ import 'package:mobile/services/course_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
+import 'add_salesperson_coupon_code.dart';
 import 'course_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -166,11 +167,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget profile(){
-    return SafeArea(
+    return (courseStore.token == null || courseStore.token == '') ?
+      notLoggedInWidget() : SafeArea(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            flex: 3,
+          SizedBox(
+            height: 90,
             child: Card(
               color: Color(0xFF202028),
               elevation: 20,
@@ -225,6 +228,36 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           notRegisteredPhoneNumber(),
+          SizedBox(
+            height: 80,
+            width: width,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.white,
+                    ),
+                  ),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context){
+                        return AddSalesPersonCouponCode();
+                      })
+                  );
+                },
+                child: Text(
+                  'ثبت کد معرف',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  )
+                ),
+              )
+            )
+          )
         ],
       ),
     );
@@ -459,117 +492,11 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-      // (courseStore.token == null || courseStore.token == '')
-      //   ? SafeArea(
-      //     child: Column(
-      //         children: <Widget>[
-      //           Expanded(
-      //             flex: 3,
-      //             child: Text('جهت استفاده از محتوای غیر رایگان برنامه لطفا'
-      //                 ' ثبت نام کنید یا اگر قبلا ثبت نامه کرده اید وارد شوید.'),
-      //           ),
-      //           Expanded(
-      //               flex: 1,
-      //               child: Row(
-      //                 children: <Widget>[
-      //                   Expanded(
-      //                     child: TextButton(
-      //                       child: Text('ورود'),
-      //                       onPressed: () {
-      //                         Navigator.push(context,
-      //                             MaterialPageRoute(builder: (context) {
-      //                           return AuthenticationPage(FormName.SignIn);
-      //                         }));
-      //                       },
-      //                     ),
-      //                   ),
-      //                   Expanded(
-      //                     child: TextButton(
-      //                       child: Text('ثبت نام'),
-      //                       onPressed: () {
-      //                         Navigator.push(context,
-      //                             MaterialPageRoute(builder: (context) {
-      //                           return AuthenticationPage(FormName.SignUp);
-      //                         }));
-      //                       },
-      //                     ),
-      //                   ),
-      //                 ],
-      //               ))
-      //         ],
-      //       ),
-      //   )
-      //   : SafeArea(
-      //       child: Column(
-      //         children: <Widget>[
-      //           Expanded(
-      //             flex: 1,
-      //             child: Padding(
-      //               padding: const EdgeInsets.only(right: 8.0),
-      //               child: Center(
-      //                   child: Row(
-      //                     mainAxisAlignment: MainAxisAlignment.start,
-      //                     children: [
-      //                       Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
-      //                         'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
-      //                         style: TextStyle(fontSize: 18),
-      //                       ),
-      //                     ],
-      //                   ),
-      //               ),
-      //             ),
-      //           ),
-      //           Expanded(
-      //             flex: 15,
-      //             child: courseStore.userEpisodes != null ? userCourses() : Container(),
-      //           )
-      //         ],
-      //       ),
-      //   );
   }
 
   Widget myCoursesWidget(){
     return (courseStore.token == null || courseStore.token == '') ?
-      SafeArea(
-        child: Column(
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: Text('جهت استفاده از محتوای غیر رایگان برنامه لطفا'
-                    ' ثبت نام کنید یا اگر قبلا ثبت نامه کرده اید وارد شوید.'),
-              ),
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextButton(
-                          child: Text('ورود'),
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return AuthenticationPage(FormName.SignIn);
-                            }));
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton(
-                          child: Text('ثبت نام'),
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return AuthenticationPage(FormName.SignUp);
-                            }));
-                          },
-                        ),
-                      ),
-                    ],
-                  ))
-            ],
-          ),
-      )
-      : SafeArea(
+      notLoggedInWidget() : SafeArea(
           child: Column(
             children: <Widget>[
               Expanded(
@@ -596,6 +523,76 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
       );
+  }
+
+  Widget notLoggedInWidget(){
+    return SafeArea(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: Text(
+                'این بخش مخصوص کاربرانی است که ثبت نام کرده اند.'
+                  'اگر قبلا ثبت نام کرده اید وارد شوید. در غیر اینصورت'
+                  'ثبت نام کنید',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Card(
+                        color: Color(0xFF20BFA9),
+                        child: TextButton(
+                          child: Text(
+                            'ورود',
+                            style: TextStyle(
+                              fontSize: 19,
+                              color: Colors.white),
+                          ),
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return AuthenticationPage(FormName.SignIn);
+                                }));
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Card(
+                        color: Color(0xFF20BFA9),
+                        child: TextButton(
+                          child: Text(
+                            'ثبت نام',
+                            style: TextStyle(
+                              fontSize: 19,
+                              color: Colors.white,),
+                          ),
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return AuthenticationPage(FormName.SignUp);
+                                }));
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ))
+        ],
+      ),
+    );
   }
 
   Widget myFavoriteCoursesWidget(){
@@ -699,17 +696,16 @@ class _HomePageState extends State<HomePage> {
     if(courseStore.token != null &&
         courseStore.token != '' &&
         !courseStore.hasPhoneNumber){
-      return Expanded(
-        flex: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            'کاربر عزیز. شماره همراه شما در سیستم ثبت نشده است.'
-                ' ورود مجدد به حساب کاربری فقط با شماره همراه ممکن است.'
-                ' آیا مایل به ثبت شماره همراه خود هستید؟',
-            style: TextStyle(color: Colors.red[300]),
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          'کاربر عزیز. شماره همراه شما در سیستم ثبت نشده است.'
+              ' ورود مجدد به حساب کاربری فقط با شماره همراه ممکن است.'
+              'در صورت تمایل به ثبت شماره همراه، دکمه سبز رنگ را '
+              'از منوی بالا انتخاب کنید',
+          style: TextStyle(color: Colors.red[300]),
       ),
-        ));
+      );
     }
     return SizedBox();
   }

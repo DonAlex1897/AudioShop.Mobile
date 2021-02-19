@@ -283,6 +283,7 @@ class _CoursePageState extends State<CoursePage> {
                 child: TextButton(
                   onPressed: () {
                     bool added = courseStore.addToUserFavoriteCourses(widget.courseDetails);
+
                     added ?
                       setState(() {
                         iconData = Icons.favorite;

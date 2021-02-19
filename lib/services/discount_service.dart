@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:mobile/models/user.dart';
 
 class DiscountService{
 
@@ -31,7 +32,6 @@ class DiscountService{
   Future<int> couponDiscountPercent(String couponCode, String token) async {
     String url = baseUrl + 'member/canUseCoupon/$couponCode';
     try{
-      // http.Response response = await http.get(url);
       http.Response response = await http.get(Uri.encodeFull(url),
           // body: body,
           headers: {
@@ -52,6 +52,35 @@ class DiscountService{
     catch(e){
       print(e.toString());
       return 0;
+    }
+  }
+
+  Future<User> setSalespersonCouponCode(String salespersonCouponCode, String token) async{
+    String url = baseUrl + 'member/addSalespersonCoupon/$salespersonCouponCode';
+    try{
+      http.Response response = await http.post(Uri.encodeFull(url),
+          // body: body,
+          headers: {
+            "Accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": "Bearer $token",
+          });
+      if(response.statusCode == 200){
+        String data = response.body;
+        var userMap = jsonDecode(data);
+
+        User registeredUser = User.fromJson(userMap);
+
+        return registeredUser;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
     }
   }
 }

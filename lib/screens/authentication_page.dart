@@ -214,21 +214,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
       await courseStore.setUserDetails(loggedInUser.token, loggedInUser.hasPhoneNumber, loggedInUser.salespersonCouponCode);
 
-      // List<Course> userCourses = await authService.getUserEpisodes(
-      //     courseStore.userId, courseStore.token);
-      //
-      // List<Course> tempBasket = List.from(courseStore.basket);
-      //
-      // for (Course basketItem in courseStore.basket) {
-      //   for (Course course in userCourses) {
-      //     if (basketItem.id == course.id) {
-      //       tempBasket.remove(basketItem);
-      //     }
-      //   }
-      // }
-      //
-      // courseStore.refineUserBasket(tempBasket);
-
       Navigator.pop(context);
     }
   }
