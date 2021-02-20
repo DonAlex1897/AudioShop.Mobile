@@ -234,6 +234,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
                         style:
                             TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
                     Padding(
@@ -357,6 +358,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
                         style:
                             TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
                     Padding(
@@ -486,6 +488,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         'جهت ثبت نام موارد زیر را کامل کنید',
                         style:
                             TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
                     Padding(

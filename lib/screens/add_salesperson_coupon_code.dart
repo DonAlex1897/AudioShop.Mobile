@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/user.dart';
@@ -16,8 +17,50 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
   DiscountService discountService = DiscountService();
   CourseStore courseStore;
   FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  String discountPercent;
+  String descriptionText = '';
+
+  @override
+  Future<void> didChangeDependencies() async {
+    courseStore = Provider.of<CourseStore>(context);
+    await getDiscountPercent();
+    await setDescriptionText();
+    super.didChangeDependencies();
+  }
+
+  Future setDescriptionText() async{
+    setState(() {
+      if(discountPercent != null)
+        descriptionText =
+            'کد معرف فعلی شما ' + courseStore.salespersonCouponCode +
+                ' می باشد و به صورت پیشفرض از هر خرید ' + discountPercent +
+                ' درصد تخفیف، شامل حال شما خواهد شد';
+      else
+        descriptionText =
+            'کد معرف فعلی شما ' + courseStore.salespersonCouponCode +
+                ' می باشد و به صورت پیشفرض از هر خرید '
+                + courseStore.salespersonDefaultDiscountPercent.toString() +
+                ' درصد تخفیف، شامل حال شما خواهد شد';
+    });
+  }
+
+  Future getDiscountPercent() async{
+    DiscountService discountService = DiscountService();
+    int tempDiscountPercent =
+          await discountService
+            .salespersonDiscountPercent(courseStore.salespersonCouponCode);
+    setState(() {
+      discountPercent = tempDiscountPercent.toString();
+    });
+  }
 
   Future addSalespersonCouponCode(String salespersonCouponCode) async{
+    // int tempDiscountPercent = await discountService
+    //     .salespersonDiscountPercent(salespersonCouponCode);
+    // if(tempDiscountPercent < 0){
+    //   Fluttertoast.showToast(msg: 'کد وارد شده معتبر نیست');
+    //   return;
+    // }
     User user = await discountService
         .setSalespersonCouponCode(couponCodeController.text, courseStore.token);
 
@@ -38,6 +81,10 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
       await courseStore.setUserDetails(
           user.token, user.hasPhoneNumber, user.salespersonCouponCode);
 
+
+      await getDiscountPercent();
+      await setDescriptionText();
+
       Fluttertoast.showToast(
           msg: 'کد معرف با موفقیت ثبت شد');
     }
@@ -45,7 +92,6 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
 
   @override
   Widget build(BuildContext context) {
-    courseStore = Provider.of<CourseStore>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,10 +104,12 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
+                  Text(courseStore.salespersonCouponCode == null ||
+                       courseStore.salespersonCouponCode == '' ?
                     'در صورت در اختیار داشتن کد معرف آن را وارد کنید '
-                      'تا از تخفیف ها و مزایای آن بهره مند شوید',
+                      'تا از تخفیف ها و مزایای آن بهره مند شوید' : descriptionText,
                     style: TextStyle(fontSize: 20),
+                    textAlign: TextAlign.justify,
                   ),
                   SizedBox(
                     height: 45,
@@ -96,8 +144,10 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                       onPressed: () async{
                         await addSalespersonCouponCode(couponCodeController.text);
                       },
-                      child: Text(
-                        'تایید کد معرف',
+                      child:
+                      Text(courseStore.salespersonCouponCode == null ||
+                           courseStore.salespersonCouponCode == '' ?
+                        'افزودن کد معرف' : 'تغییر کد معرف',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
