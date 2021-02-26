@@ -1,12 +1,12 @@
-class Config{
+class Configuration{
   int id;
   String titleEn;
   String titleFa;
   String value;
 
-  Config({this.id, this.titleEn, this.titleFa, this.value});
+  Configuration({this.id, this.titleEn, this.titleFa, this.value});
 
-  Config.fromJson(Map<String, dynamic> json)
+  Configuration.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         titleEn = json['titleEn'],
         titleFa = json['titleFa'],

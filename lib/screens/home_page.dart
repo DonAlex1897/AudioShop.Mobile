@@ -2,14 +2,17 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/screens/checkout_page.dart';
 import 'package:mobile/screens/authentication_page.dart';
 import 'package:mobile/services/course_service.dart';
+import 'package:mobile/services/global_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +30,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FlutterLocalNotificationsPlugin localPromotionNotificationsPlugin;
+  FlutterLocalNotificationsPlugin localReminderNotificationsPlugin;
   final secureStorage = FlutterSecureStorage();
   CourseData courseData;
   double width = 0;
@@ -43,6 +48,7 @@ class _HomePageState extends State<HomePage> {
   double totalBasketPrice = 0;
   Widget dropdownValue = Icon(Icons.person_pin, size: 50, color: Colors.white,);
   bool alertReturn = false;
+  GlobalService globalService;
 
   @override
   void setState(fn) {
@@ -54,20 +60,75 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    globalService = GlobalService();
+    // courseData = CourseData();
+    // courses = getCourses();
+    // loginStatement();
+  }
+
+  @override
+  void didChangeDependencies(){
+    courseStore = Provider.of<CourseStore>(context);
     courseData = CourseData();
     courses = getCourses();
     loginStatement();
+    courseStore.setAllCourses(courseList);
+    super.didChangeDependencies();
+  }
+
+  Future onSelectPromotionNotification(String payload) async {
+    print('payload: $payload');
+    Course course = await courseData.getCourseById(int.parse(payload));
+    var courseCover = await DefaultCacheManager().getSingleFile(course.photoAddress);
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return CoursePage(course, courseCover);
+    }));
+  }
+
+  Future showPromotionNotification() async{
+    List<Configuration> promotionConfigurations = await globalService.getConfigsByGroup('Promote');
+    String body = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'PromoteNotifBody', orElse: () => null).value;
+    String title = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'PromoteNotifTitle', orElse: () => null).value;
+    String courseId = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'PromoteNotifCourseId', orElse: () => null).value;
+    var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
+    var iOS = IOSNotificationDetails();
+    var platform = NotificationDetails(android: android, iOS: iOS);
+    await localPromotionNotificationsPlugin.show(0, title, body, platform, payload: courseId);
   }
 
   Future<List<Course>> getCourses() async {
+    await setLocalNotificationSettings();
+    await setGeneralConfigurations();
     courseList = await courseData.getCourses();
-
     if (courseList != null)
       await updateUI(courseList);
     else
       await updateUI(widget.courses);
-
     return courseList;
+  }
+
+  Future setLocalNotificationSettings() async{
+    localPromotionNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    localReminderNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = IOSInitializationSettings();
+    var initSettings = InitializationSettings(android: android, iOS: iOS);
+    localPromotionNotificationsPlugin
+        .initialize(initSettings, onSelectNotification: onSelectPromotionNotification);
+    await showPromotionNotification();
+
+    localReminderNotificationsPlugin
+        .initialize(initSettings, onSelectNotification: onSelectPromotionNotification);
+
+  }
+
+  Future setGeneralConfigurations() async{
+    List<Configuration> generalConfigurations = await globalService.getConfigsByGroup('');
+    courseStore.setConfigs(generalConfigurations);
   }
 
   goToCoursePage(Course course, var courseCover) {
@@ -162,8 +223,6 @@ class _HomePageState extends State<HomePage> {
       return home();
     else
       return profile();
-    // else
-    //   return basket();
   }
 
   Widget profile(){
@@ -300,178 +359,6 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
-
-  // Widget basket() {
-  //   totalBasketPrice = 0;
-  //   return courseStore.basket.length > 0
-  //       ? Column(
-  //           children: <Widget>[
-  //             Expanded(
-  //               flex: 8,
-  //               child: SafeArea (
-  //                 child: ListView.builder(
-  //                     itemCount: courseStore.basket.length,
-  //                     itemBuilder: (BuildContext context, int index) {
-  //                       return Padding(
-  //                         padding: const EdgeInsets.symmetric(
-  //                             vertical: 2, horizontal: 8),
-  //                         child: Card(
-  //                           color: Color(0xFF403F44),
-  //                           elevation: 8,
-  //                           shape: RoundedRectangleBorder(
-  //                             borderRadius: BorderRadius.circular(15.0),
-  //                           ),
-  //                           child: IntrinsicHeight(
-  //                             child: Row(
-  //                               crossAxisAlignment: CrossAxisAlignment.stretch,
-  //                               children: <Widget>[
-  //                                 Expanded(
-  //                                     flex: 2,
-  //                                     child: ClipRRect(
-  //                                       borderRadius: BorderRadius.circular(15),
-  //                                       child: Image.network(
-  //                                           courseStore.basket[index].photoAddress),
-  //                                     )),
-  //                                 Expanded(
-  //                                   flex: 6,
-  //                                   child: Column(
-  //                                     mainAxisAlignment:
-  //                                         MainAxisAlignment.spaceEvenly,
-  //                                     children: [
-  //                                       Text(
-  //                                         courseStore.basket[index].name,
-  //                                         style: TextStyle(fontSize: 19),
-  //                                       ),
-  //                                       Text(
-  //                                         NumberFormat('#,###').format(courseStore
-  //                                                 .basket[index].price) +
-  //                                             ' تومان',
-  //                                         style: TextStyle(fontSize: 15),
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                 ),
-  //                                 Expanded(
-  //                                   flex: 1,
-  //                                   child: ClipRRect(
-  //                                     borderRadius: BorderRadius.only(
-  //                                       topLeft: Radius.circular(15),
-  //                                       bottomLeft: Radius.circular(15),
-  //                                     ),
-  //                                     child: Container(
-  //                                       color: Colors.red,
-  //                                       child: TextButton(
-  //                                         child: Icon(Icons.delete_outline_sharp,
-  //                                             size: 25, color: Colors.white),
-  //                                         onPressed: () async {
-  //                                           Widget cancelB = cancelButton('خیر');
-  //                                           Widget continueB =
-  //                                             continueButton('بله', Alert.DeleteFromBasket, index);
-  //                                           AlertDialog alertD = alert('هشدار',
-  //                                               'آیا از حذف دوره از سبد خرید مطمئنید؟',
-  //                                               [cancelB, continueB]);
-  //
-  //                                           showBasketAlertDialog(context, alertD);
-  //
-  //                                         },
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                 )
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       );
-  //                     }),
-  //               ),
-  //             ),
-  //             Expanded(
-  //               flex: 3,
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.stretch,
-  //                 children: <Widget>[
-  //                   Expanded(
-  //                     flex: 2,
-  //                     child: Padding(
-  //                       padding: const EdgeInsets.symmetric(
-  //                           vertical: 0, horizontal: 15.0),
-  //                       child: Row(
-  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                         children: <Widget>[
-  //                           Padding(
-  //                             padding: const EdgeInsets.only(right: 5),
-  //                             child: Text('مجموع دوره های انتخاب شده: '),
-  //                           ),
-  //                           Card(
-  //                               color: Color(0xFF202028),
-  //                               shape: RoundedRectangleBorder(
-  //                                 borderRadius: BorderRadius.circular(15.0),
-  //                               ),
-  //                               child: Padding(
-  //                                 padding:
-  //                                     const EdgeInsets.fromLTRB(8, 8, 8, 8),
-  //                                 child: Text(
-  //                                   basketPrice(),
-  //                                 ),
-  //                               )),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   Expanded(
-  //                     flex: 3,
-  //                     child: Padding(
-  //                       padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
-  //                       child: Card(
-  //                         color: Color(0xFF20BFA9),
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(15.0),
-  //                         ),
-  //                         child: TextButton(
-  //                           onPressed: () {
-  //                             if (courseStore.token != null && courseStore.token != '')
-  //                               Navigator.push(context,
-  //                                   MaterialPageRoute(builder: (context) {
-  //                                 return CheckOutPage();
-  //                               }));
-  //                             else {
-  //                               Navigator.push(context,
-  //                                   MaterialPageRoute(builder: (context) {
-  //                                 return AuthenticationPage(FormName.SignUp);
-  //                               }));
-  //                             }
-  //                           },
-  //                           child: Center(
-  //                             child: Text(
-  //                               'ادامه خرید',
-  //                               style: TextStyle(
-  //                                 fontSize: 23,
-  //                                 color: Colors.white,
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             )
-  //           ],
-  //         )
-  //       : Center(
-  //           child: Text('دوره ای در سبد خرید شما موجود نمی باشد'),
-  //         );
-  // }
-
-  // String basketPrice() {
-  //   for (var course in courseStore.basket) totalBasketPrice += course.price;
-  //
-  //   courseStore.setTotalBasketPrice(totalBasketPrice.toInt());
-  //
-  //   return NumberFormat('#,###').format(totalBasketPrice) + ' تومان';
-  // }
 
   Widget library() {
     return DefaultTabController(
@@ -665,6 +552,36 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
+                    Expanded(
+                      flex: 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          bottomLeft: Radius.circular(15),
+                        ),
+                        child: Container(
+                          color: Colors.red,
+                          child: TextButton(
+                            child: Icon(Icons.delete_outline_sharp,
+                                size: 25, color: Colors.white),
+                            onPressed: () async {
+                              Widget cancelB = cancelButton('خیر');
+                              Widget continueB =
+                              continueButton('بله', Alert.DeleteFromFavorite, index);
+                              AlertDialog alertD = alert('هشدار',
+                                  'آیا از حذف دوره از علاقه مندی ها مطمئنید؟',
+                                  [cancelB, continueB]);
+                              await showBasketAlertDialog(context, alertD);
+
+                              if(alertReturn)
+                                setState(() {
+                                  courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
+                                });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -790,12 +707,8 @@ class _HomePageState extends State<HomePage> {
       child: Text(continueText),
       onPressed: () async {
         Navigator.of(context).pop();
-        // if(alert == Alert.DeleteFromBasket)
-        //   courseStore.deleteCourseFromBasket(courseStore.basket[index]);
-        // else 
-        if(alert == Alert.LogOut){
+        if(alert == Alert.DeleteFromFavorite || alert == Alert.LogOut)
           alertReturn = true;
-        }
         else if(alert == Alert.RegisterPhoneNumber){
           Navigator.push(context, MaterialPageRoute(builder: (context){
             return AuthenticationPage(FormName.RegisterPhoneNumber);
@@ -837,8 +750,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    courseStore = Provider.of<CourseStore>(context);
-    courseStore.setAllCourses(courseList);
+    // courseStore = Provider.of<CourseStore>(context);
+    // courseStore.setAllCourses(courseList);
+
+
     // if(courseStore.token != null)
     //   courseStore.setUserDetails(courseStore.token, courseStore.hasPhoneNumber, );
     // FirebaseAdMob.instance

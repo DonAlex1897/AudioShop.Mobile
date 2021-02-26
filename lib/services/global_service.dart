@@ -1,32 +1,36 @@
 import 'dart:convert';
 
-import 'package:mobile/models/config.dart';
+import 'package:mobile/models/configuration.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/store/course_store.dart';
 
 class GlobalService{
   String configsUrl = 'http://10.0.2.2:5000/api/configs/all';
-  CourseStore courseStore = CourseStore();
   GlobalService();
 
-  Future getAllConfigs() async{
+  Future<List<Configuration>> getConfigsByGroup(String groupTitleEn) async{
     try{
-      http.Response response = await http.get(configsUrl);
+      String url = configsUrl;
+      if(groupTitleEn != 'General' && groupTitleEn != '')
+        url += '?group=$groupTitleEn';
+      http.Response response = await http.get(url);
       if(response.statusCode == 200){
         String data = response.body;
         var configMap = jsonDecode(data);
-        List<Config> configsList = List<Config>();
+        List<Configuration> configsList = List<Configuration>();
         for(var config in configMap){
-          configsList.add(Config.fromJson(config));
+          configsList.add(Configuration.fromJson(config));
         }
-        courseStore.setConfigs(configsList);
+        return configsList;
       }
       else{
         print(response.statusCode);
+        return null;
       }
     }
     catch(e){
       print(e.toString());
+      return null;
     }
   }
 }

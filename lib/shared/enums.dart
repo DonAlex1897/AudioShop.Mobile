@@ -6,7 +6,7 @@ enum FormName {
 
 enum Alert {
   LogOut,
-  DeleteFromBasket,
+  DeleteFromFavorite,
   RegisterPhoneNumber,
 }
 

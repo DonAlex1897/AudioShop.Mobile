@@ -30,4 +30,24 @@ class CourseData{
       return null;
     }
   }
+
+  Future<Course> getCourseById(int id) async{
+    try{
+      http.Response response = await http.get(coursesUrl + id.toString());
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        Course course = Course.fromJson(courseMap, photoUrl);
+        return course;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
 }
