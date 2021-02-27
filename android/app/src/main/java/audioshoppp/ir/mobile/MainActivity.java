@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
+import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -23,14 +24,24 @@ import io.flutter.plugin.common.MethodChannel;
 
 
 public class MainActivity extends FlutterActivity {
-    private final static  String CHANNEL = "audioshoppp.ir.mobile/nowplaying";
+    private final static  String PLAYER_CHANNEL = "audioshoppp.ir.mobile/nowplaying";
+    private final static  String NOTIFICATION_CHANNEL = "audioshoppp.ir.mobile/notification";
     String my_key = "21rf23frfgt6yhj8";
     String my_spec_key = "21rf23frfgt6yhj8";
+
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), NOTIFICATION_CHANNEL)
+                .setMethodCallHandler(
+                        (call, result) -> {
+                            if(call.method.equals("getTimeZoneName")){
+                                result.success(TimeZone.getDefault().getID());
+                            }
+                        }
+                );
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), PLAYER_CHANNEL)
                 .setMethodCallHandler(
                         (call, result) -> {
                             if(call.method.equals("decryptFileInJava")){

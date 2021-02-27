@@ -164,7 +164,7 @@ class CourseStore extends ChangeNotifier{
 
   updateInProgressCourses(int courseId, int episodeSortNumber, int waitingTime){
       InProgressCourse testInProgressEpisode = this._inProgressCourses
-          .firstWhere((element) => element.courseId == courseId);
+          .firstWhere((element) => element.courseId == courseId, orElse: () => null);
       DateTime currentTime = DateTime.now();
       if(testInProgressEpisode != null){
         this._inProgressCourses.firstWhere((element) => element.courseId == courseId)
@@ -185,7 +185,7 @@ class CourseStore extends ChangeNotifier{
 
   bool isEpisodeAccessible(int courseId, int episodeSortNumber, int waitingTime){
     InProgressCourse testInProgressEpisode = this._inProgressCourses
-        .firstWhere((element) => element.courseId == courseId);
+        .firstWhere((element) => element.courseId == courseId, orElse: () => null);
     if(testInProgressEpisode == null && episodeSortNumber != 0){
       Fluttertoast.showToast(msg: 'لطفا دوره را از ابتدا شروع کنید');
       return false;

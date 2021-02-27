@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,7 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
-import 'package:mobile/screens/checkout_page.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
 import 'package:mobile/services/course_service.dart';
 import 'package:mobile/services/global_service.dart';
@@ -49,6 +51,8 @@ class _HomePageState extends State<HomePage> {
   Widget dropdownValue = Icon(Icons.person_pin, size: 50, color: Colors.white,);
   bool alertReturn = false;
   GlobalService globalService;
+  MethodChannel platform =
+    MethodChannel('audioshoppp.ir.mobile/notification');
 
   @override
   void setState(fn) {
@@ -94,13 +98,50 @@ class _HomePageState extends State<HomePage> {
         .firstWhere((element) => element.titleEn == 'PromoteNotifTitle', orElse: () => null).value;
     String courseId = promotionConfigurations
         .firstWhere((element) => element.titleEn == 'PromoteNotifCourseId', orElse: () => null).value;
+    String timeOfDay = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'PromoteNotifTime', orElse: () => null).value;
     var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
     var iOS = IOSNotificationDetails();
     var platform = NotificationDetails(android: android, iOS: iOS);
-    await localPromotionNotificationsPlugin.show(0, title, body, platform, payload: courseId);
+    // await localPromotionNotificationsPlugin.show(0, title, body, platform, payload: courseId);
+    await localPromotionNotificationsPlugin.zonedSchedule(
+        0,
+        title,
+        body,
+        _nextInstanceOfTimeToShowNotification(int.parse(timeOfDay)),
+        platform,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: courseId);
+  }
+
+  tz.TZDateTime _nextInstanceOfTimeToShowNotification(int hour) {
+    try{
+      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      tz.TZDateTime scheduledDate =
+      tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 01);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+      return scheduledDate;
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
   }
 
   Future<List<Course>> getCourses() async {
+    try{
+      tz.initializeTimeZones();
+      final String timeZoneName = await platform.invokeMethod('getTimeZoneName');
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    }
+    catch(e){
+      print(e.toString());
+    }
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
     courseList = await courseData.getCourses();
