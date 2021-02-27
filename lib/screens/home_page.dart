@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
   }
 
-  Future onSelectPromotionNotification(String payload) async {
+  Future _onSelectPromotionNotification(String payload) async {
     print('payload: $payload');
     Course course = await courseData.getCourseById(int.parse(payload));
     var courseCover = await DefaultCacheManager().getSingleFile(course.photoAddress);
@@ -90,7 +90,14 @@ class _HomePageState extends State<HomePage> {
     }));
   }
 
-  Future showPromotionNotification() async{
+  Future _onSelectReminderNotification(String payload) async {
+    print('payload: $payload');
+    setState(() {
+      tabIndex = 0;
+    });
+  }
+
+  Future _setUpPromotionNotification() async{
     List<Configuration> promotionConfigurations = await globalService.getConfigsByGroup('Promote');
     String body = promotionConfigurations
         .firstWhere((element) => element.titleEn == 'PromoteNotifBody', orElse: () => null).value;
@@ -117,11 +124,37 @@ class _HomePageState extends State<HomePage> {
         payload: courseId);
   }
 
+  Future _setUpReminderNotification() async{
+    List<Configuration> promotionConfigurations = await globalService.getConfigsByGroup('Reminder');
+    String body = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'ReminderNotifBody', orElse: () => null).value;
+    String title = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'ReminderNotifTitle', orElse: () => null).value;
+    String courseId = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'ReminderNotifCourseId', orElse: () => null).value;
+    String timeOfDay = promotionConfigurations
+        .firstWhere((element) => element.titleEn == 'ReminderNotifTime', orElse: () => null).value;
+    var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
+    var iOS = IOSNotificationDetails();
+    var platform = NotificationDetails(android: android, iOS: iOS);
+    await localPromotionNotificationsPlugin.zonedSchedule(
+        0,
+        title,
+        body,
+        _nextInstanceOfTimeToShowNotification(int.parse(timeOfDay)),
+        platform,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: courseId);
+  }
+
   tz.TZDateTime _nextInstanceOfTimeToShowNotification(int hour) {
     try{
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       tz.TZDateTime scheduledDate =
-      tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 01);
+      tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 56);
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
@@ -141,6 +174,7 @@ class _HomePageState extends State<HomePage> {
     }
     catch(e){
       print(e.toString());
+      tz.setLocalLocation(tz.getLocation('Asia/Tehran'));
     }
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
@@ -159,12 +193,12 @@ class _HomePageState extends State<HomePage> {
     var iOS = IOSInitializationSettings();
     var initSettings = InitializationSettings(android: android, iOS: iOS);
     localPromotionNotificationsPlugin
-        .initialize(initSettings, onSelectNotification: onSelectPromotionNotification);
-    await showPromotionNotification();
+        .initialize(initSettings, onSelectNotification: _onSelectPromotionNotification);
+    await _setUpPromotionNotification();
 
     localReminderNotificationsPlugin
-        .initialize(initSettings, onSelectNotification: onSelectPromotionNotification);
-
+        .initialize(initSettings, onSelectNotification: _onSelectReminderNotification);
+    await _setUpReminderNotification();
   }
 
   Future setGeneralConfigurations() async{
