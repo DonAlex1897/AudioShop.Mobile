@@ -311,8 +311,10 @@ class _CoursePageState extends State<CoursePage> {
                 flex: 1,
                 child: IconButton(
                   onPressed: () {
-                    bool added = courseStore.addToUserFavoriteCourses(widget.courseDetails);
-                    Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
+                    if(courseStore.addToUserFavoriteCourses(widget.courseDetails))
+                      Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
+                    else
+                      Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
                   },
                   icon: Icon(
                     Icons.library_add_outlined,

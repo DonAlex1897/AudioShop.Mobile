@@ -79,9 +79,15 @@ class CourseData{
   Future<bool> addReviewToCourse(Review review, String token) async{
     try{
       String url = coursesUrl + review.courseId.toString() + '/reviews';
-
+      var body = jsonEncode({
+        'text': review.text,
+        'rating': review.rating,
+        'courseId': review.courseId,
+        'userId': review.userId,
+        'userFirstName': review.userFirstName,
+      });
       http.Response response = await http.post(Uri.encodeFull(url),
-          body: review.toJson(),
+          body: body,
           headers: {
             "Accept": "application/json",
             "content-type": "application/json",

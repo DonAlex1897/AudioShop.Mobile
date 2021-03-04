@@ -26,11 +26,8 @@ class Review{
     'id': id,
     'text': text,
     'rating': rating,
-    'accepted': accepted,
-    'date': date,
     'courseId': courseId,
     'userId': userId,
     'userFirstName': userFirstName,
-    'userLastName': userLastName
   };
 }
