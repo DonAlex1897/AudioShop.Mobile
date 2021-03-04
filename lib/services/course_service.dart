@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:mobile/models/course.dart';
+import 'package:mobile/models/review.dart';
 
 class CourseData{
   String coursesUrl = 'http://10.0.2.2:5000/api/courses/'; //TODO change to production
@@ -48,6 +49,55 @@ class CourseData{
     catch(e){
       print(e.toString());
       return null;
+    }
+  }
+
+  Future<List<Review>> getCourseReviews(int courseId) async{
+    try{
+      String url = coursesUrl + courseId.toString() + '/reviews';
+      http.Response response = await http.get(url);
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseReviewsMap = jsonDecode(data);
+        List<Review> courseReviewsList = List<Review>();
+        for(var courseReview in courseReviewsMap){
+          courseReviewsList.add(Review.fromJson(courseReview));
+        }
+        return courseReviewsList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<bool> addReviewToCourse(Review review, String token) async{
+    try{
+      String url = coursesUrl + review.courseId.toString() + '/reviews';
+
+      http.Response response = await http.post(Uri.encodeFull(url),
+          body: review.toJson(),
+          headers: {
+            "Accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": "Bearer $token",
+          });
+      if(response.statusCode == 200){
+        return true;
+      }
+      else{
+        print(response.statusCode);
+        return false;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return false;
     }
   }
 }

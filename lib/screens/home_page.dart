@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
+import 'package:mobile/screens/course_preview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -206,10 +207,17 @@ class _HomePageState extends State<HomePage> {
     courseStore.setConfigs(generalConfigurations);
   }
 
+  //TODO delete this method
   goToCoursePage(Course course, var courseCover) {
     courseStore.setCurrentCourse(course);
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return CoursePage(course, courseCover);
+    }));
+  }
+
+  goToCoursePreview(Course course){
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return CoursePreview(course);
     }));
   }
 
@@ -231,7 +239,8 @@ class _HomePageState extends State<HomePage> {
                   EdgeInsets.symmetric(vertical: 0, horizontal: 0)),
             ),
             onPressed: () {
-              goToCoursePage(course, pictureFile);
+              // goToCoursePage(course, pictureFile);
+              goToCoursePreview(course);
             },
             child: Column(
               children: <Widget>[
@@ -266,7 +275,8 @@ class _HomePageState extends State<HomePage> {
 
       carouselSlider.add(TextButton(
         onPressed: () {
-          goToCoursePage(course, pictureFile);
+          // goToCoursePage(course, pictureFile);
+          goToCoursePreview(course);
         },
         child: Container(
             child: ClipRRect(
@@ -596,7 +606,8 @@ class _HomePageState extends State<HomePage> {
             onPressed: () async {
               var picFile = await DefaultCacheManager().getSingleFile(
                   userFavoriteCourses[index].photoAddress);
-              goToCoursePage(userFavoriteCourses[index], picFile);
+              // goToCoursePage(userFavoriteCourses[index], picFile);
+              goToCoursePreview(userFavoriteCourses[index]);
             },
             child: Card(
               color: Color(0xFF403F44),
@@ -722,7 +733,8 @@ class _HomePageState extends State<HomePage> {
             onPressed: () async {
               var picFile = await DefaultCacheManager().getSingleFile(
                   userCourses[index].photoAddress);
-              goToCoursePage(userCourses[index], picFile);
+              // goToCoursePage(userCourses[index], picFile);
+              goToCoursePreview(userCourses[index]);
             },
             child: Card(
               color: Color(0xFF403F44),
