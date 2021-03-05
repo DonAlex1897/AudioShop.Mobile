@@ -370,24 +370,35 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future createBasket(PurchaseType purchaseType, List<CourseEpisode> episodes, Course course) async{
-    if(purchaseType == PurchaseType.WholeCourse){
-      List<CourseEpisode> episodesToBePurchased = [];
-      for(var episode in episodes){
-        if(episode.price != null || episode.price != 0)
-          episodesToBePurchased.add(episode);
-      }
-      List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
-      if(!isWholeCourseAvailable){
-        Widget cancelB = cancelButton('خیر');
-        Widget continueB =
-        continueButton('بله', Alert.LogOut, null);
-        AlertDialog alertD = alert('هشدار',
-            'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
-            [cancelB, continueB]);
+    if(courseStore.token != null && courseStore.token != ''){
+      if(purchaseType == PurchaseType.WholeCourse){
+        List<CourseEpisode> episodesToBePurchased = [];
+        for(var episode in episodes){
+          if(episode.price != null || episode.price != 0)
+            episodesToBePurchased.add(episode);
+        }
+        List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
+        if(!isWholeCourseAvailable){
+          Widget cancelB = cancelButton('خیر');
+          Widget continueB =
+          continueButton('بله', Alert.LogOut, null);
+          AlertDialog alertD = alert('هشدار',
+              'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
+              [cancelB, continueB]);
 
-        await showBasketAlertDialog(context, alertD);
+          await showBasketAlertDialog(context, alertD);
 
-        if(alertReturn){
+          if(alertReturn){
+            await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return CheckOutPage();
+                })
+            );
+          }
+          alertReturn = false;
+        }
+        else{
           await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) {
@@ -395,27 +406,18 @@ class _CoursePageState extends State<CoursePage> {
               })
           );
         }
-        alertReturn = false;
       }
       else{
-        await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return CheckOutPage();
-            })
-        );
-      }
-    }
-    else{
-      if(courseStore.userEpisodes.contains(episodes[0]))
-        Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
-      else{
-        await courseStore.setUserBasket(episodes, null);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return CheckOutPage();
-            })
-        );
+        if(courseStore.userEpisodes.contains(episodes[0]))
+          Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
+        else{
+          await courseStore.setUserBasket(episodes, null);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
+        }
       }
     }
   }

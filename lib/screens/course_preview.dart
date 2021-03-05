@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
@@ -120,9 +121,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                           color: Color(0xFF20BFA9),
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              var pictureFile = await DefaultCacheManager()
+                                  .getSingleFile(course.photoAddress);
                               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                return CoursePage(course, course.photoAddress);
+                                return CoursePage(course, pictureFile);
                               }));
                             },
                             child: Padding(
