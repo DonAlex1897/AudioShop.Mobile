@@ -5,14 +5,16 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/store/course_store.dart';
 
 class GlobalService{
-  String configsUrl = 'http://10.0.2.2:5000/api/configs/all';
+  String configsUrl = 'http://10.0.2.2:5000/api/configs/';
   GlobalService();
 
   Future<List<Configuration>> getConfigsByGroup(String groupTitleEn) async{
     try{
       String url = configsUrl;
       if(groupTitleEn != 'General' && groupTitleEn != '')
-        url += '?group=$groupTitleEn';
+        url += groupTitleEn;
+      else
+        url += 'General';
       http.Response response = await http.get(url);
       if(response.statusCode == 200){
         String data = response.body;

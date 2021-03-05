@@ -16,7 +16,7 @@ class CourseData{
         String data = response.body;
         var courseMap = jsonDecode(data);
         List<Course> coursesList = List<Course>();
-        for(var course in courseMap){
+        for(var course in courseMap['items']){
           coursesList.add(Course.fromJson(course, photoUrl));
         }
         return coursesList;

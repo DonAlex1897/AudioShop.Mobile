@@ -117,7 +117,7 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                   TextField(
                     style: TextStyle(
                         decorationColor: Colors.black, color: Colors.white),
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide:

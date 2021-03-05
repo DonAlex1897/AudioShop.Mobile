@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
@@ -29,6 +30,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   double yourRate = 0;
   double averageCourseRate = 0;
   String favoriteButtonText = 'افزودن به علاقه مندی';
+  final secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -166,11 +168,31 @@ class _CoursePreviewState extends State<CoursePreview> {
                                 child: Container(
                                   color: Color(0xFF20BFA9),
                                   child: TextButton(
-                                    onPressed: (){
-                                      if(courseStore.addToUserFavoriteCourses(widget.courseDetails))
+                                    onPressed: () async {
+                                      String userFavoriteCourseIds = await secureStorage
+                                          .read(key: 'UserFavoriteCourseIds');
+                                      if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
                                         Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                                      else
+                                        String courseId = widget.courseDetails.id.toString();
+                                        userFavoriteCourseIds == null ?
+                                          userFavoriteCourseIds = courseId :
+                                          userFavoriteCourseIds += ',' + courseId;
+                                        await secureStorage.write(
+                                            key: 'UserFavoriteCourseIds',
+                                            value: userFavoriteCourseIds);
+                                      }
+                                      else{
                                         Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
+                                        List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                                        userFavoriteCourseIds = '';
+                                        favCourseIds.forEach((element) {
+                                          if(element != widget.courseDetails.id.toString())
+                                            userFavoriteCourseIds += element + ',';
+                                        });
+                                        await secureStorage.write(
+                                            key: 'UserFavoriteCourseIds',
+                                            value: userFavoriteCourseIds);
+                                      }
 
                                       if(courseStore.userFavoriteCourses.contains(widget.courseDetails))
                                         setState(() {
@@ -273,7 +295,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.all(4.0),
+                                    padding: const EdgeInsets.all(20.0),
                                     child: Text(
                                       courseReviewList[index].text,
                                       style: TextStyle(fontSize: 18),

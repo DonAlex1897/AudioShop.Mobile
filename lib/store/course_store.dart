@@ -114,13 +114,18 @@ class CourseStore extends ChangeNotifier{
         episodesIds.add(episode.id);
     }
     this._basket.episodeIds = episodesIds;
-    int salespersonDiscountPercent = await discountService.salespersonDiscountPercent(this._salespersonCouponCode);
-    if(salespersonDiscountPercent > 0)
-      this._salespersonDefaultDiscountPercent = salespersonDiscountPercent;
+    if(this._salespersonCouponCode != null){
+      int salespersonDiscountPercent = await discountService.salespersonDiscountPercent(this._salespersonCouponCode);
+      if(salespersonDiscountPercent > 0)
+        this._salespersonDefaultDiscountPercent = salespersonDiscountPercent;
+    }
+    else
+      this._salespersonDefaultDiscountPercent = 0;
 
     if(course != null){
       this._basket.totalPrice = course.price;
-      this._basket.discount = course.price * this._salespersonDefaultDiscountPercent;
+      this._basket.discount = course.price
+          * this._salespersonDefaultDiscountPercent / 100;
       this._basket.priceToPay = course.price - this._basket.discount;
     }
     else{
@@ -130,7 +135,7 @@ class CourseStore extends ChangeNotifier{
       });
 
       this._basket.totalPrice = price;
-      this._basket.discount = price * this._salespersonDefaultDiscountPercent;
+      this._basket.discount = price * this._salespersonDefaultDiscountPercent / 100;
       this._basket.priceToPay = price - this._basket.discount;
     }
   }

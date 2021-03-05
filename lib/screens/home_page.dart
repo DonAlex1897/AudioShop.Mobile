@@ -75,9 +75,9 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies(){
     courseStore = Provider.of<CourseStore>(context);
     courseData = CourseData();
-    courses = getCourses();
+    if(courses == null)
+      courses = getCourses();
     loginStatement();
-    courseStore.setAllCourses(courseList);
     super.didChangeDependencies();
   }
 
@@ -180,6 +180,7 @@ class _HomePageState extends State<HomePage> {
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
     courseList = await courseData.getCourses();
+    courseStore.setAllCourses(courseList);
     if (courseList != null)
       await updateUI(courseList);
     else
@@ -659,10 +660,22 @@ class _HomePageState extends State<HomePage> {
                                   [cancelB, continueB]);
                               await showBasketAlertDialog(context, alertD);
 
-                              if(alertReturn)
+                              if(alertReturn){
+                                String userFavoriteCourseIds = await secureStorage
+                                    .read(key: 'UserFavoriteCourseIds');
+                                List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                                userFavoriteCourseIds = '';
+                                favCourseIds.forEach((element) {
+                                  if(element != userFavoriteCourses[index].id.toString())
+                                    userFavoriteCourseIds += element + ',';
+                                });
+                                await secureStorage.write(
+                                    key: 'UserFavoriteCourseIds',
+                                    value: userFavoriteCourseIds);
                                 setState(() {
                                   courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
                                 });
+                              }
                             },
                           ),
                         ),
@@ -826,6 +839,16 @@ class _HomePageState extends State<HomePage> {
     String token = await secureStorage.read(key: 'token');
     String hasPhoneNumber = await secureStorage.read(key: 'hasPhoneNumber');
     String salespersonCouponCode = await secureStorage.read(key: 'salespersonCouponCode');
+    String userFavoriteCourseIds = await secureStorage.read(key: 'UserFavoriteCourseIds');
+    if(userFavoriteCourseIds != null && userFavoriteCourseIds.length > 0){
+      List<String> userFavoriteCourseIdList = userFavoriteCourseIds.split(',');
+      userFavoriteCourseIdList.forEach((courseId) async {
+        if(courseId != null && courseId != '0' && courseId != ''){
+          Course userFavoriteCourse = await courseData.getCourseById(int.parse(courseId));
+          courseStore.addToUserFavoriteCourses(userFavoriteCourse);
+        }
+      });
+    }
     if (token != null && token.isNotEmpty && !courseStore.isTokenExpired(token))
       await courseStore.setUserDetails(token, hasPhoneNumber.toLowerCase() == 'true', salespersonCouponCode);
     else if(courseStore.isTokenExpired(token)){

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
@@ -38,6 +39,7 @@ class _CoursePageState extends State<CoursePage> {
   bool alertReturn = false;
   int nonFreeEpisodesCount = 0;
   int purchasedEpisodesCount = 0;
+  final secureStorage = FlutterSecureStorage();
 
   @override
   void setState(fn) {
@@ -310,11 +312,31 @@ class _CoursePageState extends State<CoursePage> {
               Expanded(
                 flex: 1,
                 child: IconButton(
-                  onPressed: () {
-                    if(courseStore.addToUserFavoriteCourses(widget.courseDetails))
+                  onPressed: () async {
+                    String userFavoriteCourseIds = await secureStorage
+                        .read(key: 'UserFavoriteCourseIds');
+                    if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
                       Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                    else
+                      String courseId = widget.courseDetails.id.toString();
+                      userFavoriteCourseIds == null ?
+                      userFavoriteCourseIds = courseId :
+                      userFavoriteCourseIds += ',' + courseId;
+                      await secureStorage.write(
+                          key: 'UserFavoriteCourseIds',
+                          value: userFavoriteCourseIds);
+                    }
+                    else{
                       Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
+                      List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                      userFavoriteCourseIds = '';
+                      favCourseIds.forEach((element) {
+                        if(element != widget.courseDetails.id.toString())
+                          userFavoriteCourseIds += element + ',';
+                      });
+                      await secureStorage.write(
+                          key: 'UserFavoriteCourseIds',
+                          value: userFavoriteCourseIds);
+                    }
                   },
                   icon: Icon(
                     Icons.library_add_outlined,
