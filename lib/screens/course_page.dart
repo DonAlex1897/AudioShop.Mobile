@@ -79,6 +79,69 @@ class _CoursePageState extends State<CoursePage> {
       return basketEpisodes;
   }
 
+  Future<bool> isEpisodeAccessible(
+      int courseId,
+      int episodeSortNumber,
+      int waitingTime) async
+  {
+    String courseKey = 'course' + courseId.toString();
+    String inProgressCourseCachedValue = await secureStorage.read(key: courseKey);
+    if(inProgressCourseCachedValue == null && episodeSortNumber != 0){
+      Fluttertoast.showToast(msg: 'لطفا دوره را از ابتدا شروع کنید');
+      return false;
+    }
+    else if(inProgressCourseCachedValue != null){
+      List<String> inProgressCourseItems = inProgressCourseCachedValue.split(',');
+      int lastFinishedEpisodeSortNumber = int.parse(inProgressCourseItems[0]);
+      int sortDifference = episodeSortNumber - lastFinishedEpisodeSortNumber;
+      DateTime lastFinishedEpisodeTime = DateTime.parse(inProgressCourseItems[1]);
+      String nextEpisode = (lastFinishedEpisodeSortNumber + 2).toString();
+      if(sortDifference > 0){
+        if(sortDifference > 1){
+          Fluttertoast.showToast(msg: 'هنوز قسمت $nextEpisode را گوش نداده اید');
+          return false;
+        }
+        else{
+          DateTime currentTime = DateTime.now();
+          int timeElapsedSinceLastEpisode = currentTime
+              .difference(lastFinishedEpisodeTime).inHours;
+          if(timeElapsedSinceLastEpisode < waitingTime){
+            int remainedTimeToWait = waitingTime - timeElapsedSinceLastEpisode;
+            Fluttertoast.showToast(msg: 'زمان انتظار بین هر دو قسمت در این دوره، $waitingTime است.'
+                ' این قسمت $remainedTimeToWait ساعت دیگر در دسترس شما قرار میگیرد');
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  Future writeInProgressCourseInCache(CourseEpisode episode) async{
+    String courseKey = 'course' + episode.courseId.toString();
+    String inProgressCourseCacheValue =
+        episode.sort.toString() + ',' +
+        DateTime.now().toString();
+    await secureStorage.write(
+        key: courseKey,
+        value: inProgressCourseCacheValue);
+  }
+
+  Future<bool> isEpisodePlayedBefore(CourseEpisode episode) async{
+    String courseKey = 'course' + episode.courseId.toString();
+    String inProgressCourseCachedValue = await secureStorage.read(key: courseKey);
+    if(inProgressCourseCachedValue == null){
+      return false;
+    }
+    else if(inProgressCourseCachedValue != null){
+      List<String> inProgressCourseItems = inProgressCourseCachedValue.split(',');
+      int lastFinishedEpisodeSortNumber = int.parse(inProgressCourseItems[0]);
+      if(episode.sort > lastFinishedEpisodeSortNumber)
+        return false;
+    }
+    return true;
+  }
+
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
@@ -153,15 +216,13 @@ class _CoursePageState extends State<CoursePage> {
                             await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
                           }
                           else{
-                            if(courseStore.isEpisodeAccessible(
-                              episode.courseId,
-                              episode.sort,
-                              course.waitingTimeBetweenEpisodes))
+                            if(await isEpisodeAccessible(
+                                episode.courseId,
+                                episode.sort,
+                                course.waitingTimeBetweenEpisodes))
                             {
-                              courseStore.updateInProgressCourses(
-                                  episode.courseId,
-                                  episode.sort,
-                                  course.waitingTimeBetweenEpisodes);
+                              if(!(await isEpisodePlayedBefore(episode)))
+                                await writeInProgressCourseInCache(episode);
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                     return NowPlaying(episode, course.photoAddress);
@@ -186,15 +247,13 @@ class _CoursePageState extends State<CoursePage> {
                             await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
                           }
                           else{
-                            if(courseStore.isEpisodeAccessible(
+                            if(await isEpisodeAccessible(
                                 episode.courseId,
                                 episode.sort,
                                 course.waitingTimeBetweenEpisodes))
                             {
-                              courseStore.updateInProgressCourses(
-                                  episode.courseId,
-                                  episode.sort,
-                                  course.waitingTimeBetweenEpisodes);
+                              if(!(await isEpisodePlayedBefore(episode)))
+                                await writeInProgressCourseInCache(episode);
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                     return NowPlaying(episode, course.photoAddress);
@@ -204,15 +263,13 @@ class _CoursePageState extends State<CoursePage> {
                         }
                       }
                       else{
-                        if(courseStore.isEpisodeAccessible(
+                        if(await isEpisodeAccessible(
                             episode.courseId,
                             episode.sort,
                             course.waitingTimeBetweenEpisodes))
                         {
-                          courseStore.updateInProgressCourses(
-                              episode.courseId,
-                              episode.sort,
-                              course.waitingTimeBetweenEpisodes);
+                          if(!(await isEpisodePlayedBefore(episode)))
+                            await writeInProgressCourseInCache(episode);
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
                                 return NowPlaying(episode, course.photoAddress);

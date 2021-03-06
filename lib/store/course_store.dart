@@ -157,12 +157,14 @@ class CourseStore extends ChangeNotifier{
   }
 
   bool addToUserFavoriteCourses(Course course){
-    if(!this._userFavoriteCourses.contains(course)) {
+    Course repetitiveCourse = this._userFavoriteCourses
+        .firstWhere((element) => element.id == course.id, orElse: () => null);
+    if(repetitiveCourse == null) {
       this._userFavoriteCourses.add(course);
       return true;
     }
     else{
-      this._userFavoriteCourses.remove(course);
+      this._userFavoriteCourses.remove(repetitiveCourse);
       return false;
     }
   }
