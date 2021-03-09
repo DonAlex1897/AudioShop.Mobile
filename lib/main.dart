@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var secureStorage = FlutterSecureStorage();
+  String isFirstTime = await secureStorage.read(key: 'isFirstTime');
   runApp(
     ChangeNotifierProvider(
       create: (context) => CourseStore(),
@@ -30,7 +34,9 @@ void main() {
             bodyText1: TextStyle(color: Colors.white),
           ),
         ),
-        home: IntroPage(), //HomePage.basic(),
+        home: (isFirstTime == null || isFirstTime.toLowerCase() == 'false') ?
+          IntroPage() : HomePage.basic()
+        , //HomePage.basic(),
       ),
     ),
   );

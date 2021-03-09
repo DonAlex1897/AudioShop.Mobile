@@ -66,6 +66,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     globalService = GlobalService();
+    setFirstTimeTrue();
     // courseData = CourseData();
     // courses = getCourses();
     // loginStatement();
@@ -79,6 +80,10 @@ class _HomePageState extends State<HomePage> {
       courses = getCourses();
     loginStatement();
     super.didChangeDependencies();
+  }
+
+  Future setFirstTimeTrue() async{
+    await secureStorage.write(key: 'isFirstTime', value: 'True');
   }
 
   Future _onSelectPromotionNotification(String payload) async {
@@ -299,6 +304,7 @@ class _HomePageState extends State<HomePage> {
       Fluttertoast.showToast(msg: 'برای خروج دو بار روی دکمه بازگشت بزنید');
       return Future.value(false);
     }
+    SystemNavigator.pop();
     return Future.value(true);
   }
 
