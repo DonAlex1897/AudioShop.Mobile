@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   dio: ^3.0.10
+  intro_slider: ^2.3.4
   smooth_star_rating: ^1.1.1
   flutter_local_notifications: ^4.0.1
   audio_manager: ^0.7.3
@@ -41,6 +42,10 @@ flutter:
 
   assets:
     - assets/images/dummy.jpg
+    - assets/images/1.jpg
+    - assets/images/2.jpg
+    - assets/images/3.jpg
+    - assets/images/4.jpg
   #   - images/a_dot_ham.jpeg
 
   fonts:

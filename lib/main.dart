@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/screens/home_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +30,7 @@ void main() {
             bodyText1: TextStyle(color: Colors.white),
           ),
         ),
-        home: HomePage.basic(),
+        home: IntroPage(), //HomePage.basic(),
       ),
     ),
   );

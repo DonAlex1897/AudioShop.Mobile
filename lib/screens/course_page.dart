@@ -145,7 +145,7 @@ class _CoursePageState extends State<CoursePage> {
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
-      String picUrl = course.photoAddress;
+      // String picUrl = course.photoAddress;
       String episodeName = episode.name;
       String episodeDescription = episode.description;
       var picFile = widget.courseCover;

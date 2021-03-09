@@ -56,8 +56,10 @@ class _CoursePreviewState extends State<CoursePreview> {
       courseId: widget.courseDetails.id,
       userFirstName: courseStore.userName
     );
-    if(courseStore.token != '' && courseStore.token != null)
+    if(courseStore.token != '' && courseStore.token != null){
       bool sentReview = await courseData.addReviewToCourse(review, courseStore.token);
+      sentReview ?? Fluttertoast.showToast(msg: 'نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.');
+    }
     else
       Fluttertoast.showToast(msg: 'برای ثبت نظر باید وارد حساب کاربریتان شوید');
   }
