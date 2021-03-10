@@ -3,13 +3,33 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/screens/intro_page.dart';
+import 'package:mobile/screens/update_page.dart';
+import 'package:mobile/services/global_service.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   var secureStorage = FlutterSecureStorage();
   String isFirstTime = await secureStorage.read(key: 'isFirstTime');
+  final PackageInfo info = await PackageInfo.fromPlatform();
+  bool isUpdateAvailable = false;
+  String currentVersion = info.version;
+  GlobalService globalService = GlobalService();
+  int availableVersion = await globalService.getLatestVersionAvailable();
+  if(availableVersion > int.parse(currentVersion.replaceAll(new RegExp(r'[^0-9]'),'')))
+    isUpdateAvailable = true;
+
+  Widget homeWidget(){
+    if(isUpdateAvailable)
+      return UpdatePage(availableVersion);
+    else if(isFirstTime == null || isFirstTime.toLowerCase() == 'false'){
+      return IntroPage();
+    }
+    return HomePage.basic();
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => CourseStore(),
@@ -34,9 +54,7 @@ void main() async {
             bodyText1: TextStyle(color: Colors.white),
           ),
         ),
-        home: (isFirstTime == null || isFirstTime.toLowerCase() == 'false') ?
-          IntroPage() : HomePage.basic()
-        , //HomePage.basic(),
+        home: homeWidget(), //HomePage.basic(),
       ),
     ),
   );

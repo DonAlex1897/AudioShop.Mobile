@@ -5,8 +5,8 @@ import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/episode_audios.dart';
 
 class CourseEpisodeData{
-  String baseUrl = 'http://10.0.2.2:5000/';
-  String audioUrl = 'http://10.0.2.2:5000/files/';
+  String baseUrl = 'https://95.216.229.251/';
+  String audioUrl = 'https://95.216.229.251/files/';
 
   CourseEpisodeData();
 

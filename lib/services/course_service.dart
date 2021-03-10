@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/review.dart';
+import 'package:mobile/models/slider_item.dart';
 
 class CourseData{
-  String coursesUrl = 'http://10.0.2.2:5000/api/courses/'; //TODO change to production
-  String photoUrl = 'http://10.0.2.2:5000/files/';
+  String coursesUrl = 'https://95.216.229.251/api/courses/';
+  String sliderUrl = 'https://95.216.229.251/api/sliders/';
+  String photoUrl = 'https://95.216.229.251/files/';
   CourseData();
 
   Future<List<Course>> getCourses() async{
@@ -104,6 +106,29 @@ class CourseData{
     catch(e){
       print(e.toString());
       return false;
+    }
+  }
+
+  Future<List<SliderItem>> getSliderItems() async{
+    try{
+      http.Response response = await http.get(sliderUrl);
+      if(response.statusCode == 200){
+        String data = response.body;
+        var sliderItemsMap = jsonDecode(data);
+        List<SliderItem> sliderItemsList = List<SliderItem>();
+        for(var sliderItem in sliderItemsMap){
+          sliderItemsList.add(SliderItem.fromJson(sliderItem, photoUrl));
+        }
+        return sliderItemsList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
     }
   }
 }

@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   double height = 0;
   List<Widget> coursesList = List<Widget>();
   List<Widget> carouselSlider = List<Widget>();
-  // final String url = 'http://10.0.2.2:5000/api/courses/';
+  // final String url = 'https://95.216.229.251/api/courses/';
   DateTime currentBackPressTime;
   Future<dynamic> courses;
   CourseStore courseStore;

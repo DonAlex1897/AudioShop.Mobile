@@ -8,7 +8,7 @@ class Course {
 
   Course({this.id, this.name, this.price,this.waitingTimeBetweenEpisodes, this.photoAddress, this.description});
 
-  Course.fromJson(Map<String, dynamic> json,String photoUrl)
+  Course.fromJson(Map<String, dynamic> json, String photoUrl)
       : id = json['id'],
         name = json['name'],
         price = json['price'],

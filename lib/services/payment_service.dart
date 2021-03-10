@@ -7,8 +7,8 @@ class PaymentService{
 
   PaymentService();
 
-  String createOrderUrl = 'http://10.0.2.2:5000/api/orders';
-  String payOrderUrl = 'http://10.0.2.2:5000/api/payment/payorder';
+  String createOrderUrl = 'https://95.216.229.251/api/orders';
+  String payOrderUrl = 'https://95.216.229.251/api/payment/payorder';
 
   Future<String> createOrder(Basket basket, String userId, String token) async {
     var body = jsonEncode({

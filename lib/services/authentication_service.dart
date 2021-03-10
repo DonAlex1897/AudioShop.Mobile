@@ -10,16 +10,16 @@ class AuthenticationService {
   AuthenticationService();
 
   String phoneNumberCheckUrl =
-      'http://10.0.2.2:5000/api/auth/phoneexists?phoneNumber=';
+      'https://95.216.229.251/api/auth/phoneexists?phoneNumber=';
   String usernameCheckUrl =
-      'http://10.0.2.2:5000/api/auth/userexists?username=';
-  String signUpUrl = 'http://10.0.2.2:5000/api/auth/register?role=member';
-  String verifyTokenUrl = 'http://10.0.2.2:5000/api/auth/verifytoken';
-  String refineUserBasketUrl = 'http://10.0.2.2:5000/api/user/RefineRepetitiveCourses';
-  String getUserEpisodesUrl = 'http://10.0.2.2:5000/api/member/episodes/';
-  String verifyPhoneUrl = 'http://10.0.2.2:5000/api/auth/verifyphone';
-  String basePhotoUrl = 'http://10.0.2.2:5000/files/';
-  String sendLoginVerificationCode = 'http://10.0.2.2:5000/api/auth/login?usingphone=true';
+      'https://95.216.229.251/api/auth/userexists?username=';
+  String signUpUrl = 'https://95.216.229.251/api/auth/register?role=member';
+  String verifyTokenUrl = 'https://95.216.229.251/api/auth/verifytoken';
+  String refineUserBasketUrl = 'https://95.216.229.251/api/user/RefineRepetitiveCourses';
+  String getUserEpisodesUrl = 'https://95.216.229.251/api/member/episodes/';
+  String verifyPhoneUrl = 'https://95.216.229.251/api/auth/verifyphone';
+  String basePhotoUrl = 'https://95.216.229.251/files/';
+  String sendLoginVerificationCode = 'https://95.216.229.251/api/auth/login?usingphone=true';
 
   Future<bool> isPhoneNumberRegistered(String phoneNumber) async {
     http.Response response = await http.get(phoneNumberCheckUrl + phoneNumber);

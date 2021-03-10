@@ -7,7 +7,7 @@ class DiscountService{
 
   DiscountService();
 
-  String baseUrl = 'http://10.0.2.2:5000/api/';
+  String baseUrl = 'https://95.216.229.251/api/';
 
   Future<int> salespersonDiscountPercent(String couponCode) async{
     String url = baseUrl + 'coupons/$couponCode/IsSalespersonCoupon';
