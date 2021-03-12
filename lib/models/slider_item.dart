@@ -1,9 +1,9 @@
 class SliderItem{
   int id;
   String title;
-  int description;
+  String description;
   int courseId;
-  String isActive;
+  bool isActive;
   String photoAddress;
 
   SliderItem({this.id, this.title, this.description, this.courseId, this.isActive, this.photoAddress});
@@ -14,7 +14,7 @@ class SliderItem{
         description = json['description'],
         courseId = json['courseId'],
         isActive = json['isActive'],
-        photoAddress = photoUrl +json['courseId'].toString() + '/'+ json['photoFileName'];
+        photoAddress = photoUrl + json['photoFileName'];
 
   Map<String, dynamic> toJson() => {
     'id': id,

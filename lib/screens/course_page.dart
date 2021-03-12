@@ -143,15 +143,24 @@ class _CoursePageState extends State<CoursePage> {
     return true;
   }
 
+  String getEpisodeDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
       // String picUrl = course.photoAddress;
       String episodeName = episode.name;
       String episodeDescription = episode.description;
-      String episodeDuration = episode.totalEpisodeAudio != 0 ?
-        ((episode.totalEpisodeAudio ~/ 60)).toString() +
-          ':' + (episode.totalEpisodeAudio % 60).toString() : '00:00';
+      Duration duration = Duration(
+          seconds: episode.totalEpisodeAudio != 0 ?
+              episode.totalEpisodeAudio.toInt() : 0);
+
+      String episodeDuration = getEpisodeDuration(duration);
       var picFile = widget.courseCover;
 
       if(episode.price != 0 && episode.price != null)
@@ -360,7 +369,7 @@ class _CoursePageState extends State<CoursePage> {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: FileImage(widget.courseCover),
-                  fit: BoxFit.fill,
+                  fit: BoxFit.fitWidth,
                 ),
               ),
               child: BackdropFilter(

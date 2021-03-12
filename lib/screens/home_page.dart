@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
+import 'package:mobile/models/slider_item.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -45,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   Future<dynamic> courses;
   CourseStore courseStore;
   List<Course> courseList = List<Course>();
+  List<SliderItem> sliderItemList = List<SliderItem>();
   int tabIndex = 1;
   bool delete = false;
   double totalBasketPrice = 0;
@@ -184,11 +186,12 @@ class _HomePageState extends State<HomePage> {
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
     courseList = await courseData.getCourses();
+    sliderItemList = await courseData.getSliderItems();
     courseStore.setAllCourses(courseList);
     if (courseList != null)
-      await updateUI(courseList);
+      await updateUI(courseList, sliderItemList);
     else
-      await updateUI(widget.courses);
+      await updateUI(widget.courses, sliderItemList);
     return courseList;
   }
 
@@ -226,7 +229,7 @@ class _HomePageState extends State<HomePage> {
     }));
   }
 
-  Future updateUI(List<Course> coursesData) async {
+  Future updateUI(List<Course> coursesData, List<SliderItem> sliderItems) async {
     for (var course in coursesData) {
       String picUrl = course.photoAddress;
       String courseName = course.name;
@@ -277,21 +280,32 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
+    }
 
-      carouselSlider.add(TextButton(
-        onPressed: () {
-          // goToCoursePage(course, pictureFile);
-          goToCoursePreview(course);
-        },
-        child: Container(
-            child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.file(
-            //picUrl,
-            pictureFile,
-          ),
-        )),
-      ));
+    for(var sliderItem in sliderItems){
+      try{
+        String sliderPicUrl = sliderItem.photoAddress;
+        var pictureFile = await DefaultCacheManager().getSingleFile(sliderPicUrl);
+        carouselSlider.add(
+            TextButton(
+              onPressed: () async {
+                Course course = await courseData.getCourseById(sliderItem.courseId);
+                goToCoursePreview(course);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: FileImage(pictureFile),
+                    fit: BoxFit.cover,
+                  ),
+                ), //Image.file(pictureFile,),
+            ),
+            )
+        );
+      }
+      catch(e){
+        print(e.toString());
+      }
     }
   }
 
@@ -414,40 +428,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget home() {
-    return Column(
-      children: <Widget>[
-        Expanded(
-          flex: 2,
-          child: Card(
-            color: Color(0xFF403F44),
-            child: SafeArea (
-              child: CarouselSlider(
-                  options: CarouselOptions(
-                      height: height,
-                      viewportFraction: 0.6,
-                      reverse: false,
-                      autoPlay: true,
-                      autoPlayInterval: Duration(seconds: 3),
-                      autoPlayAnimationDuration: Duration(milliseconds: 800),
-                      autoPlayCurve: Curves.fastOutSlowIn,
-                      enlargeCenterPage: true),
-                  items: carouselSlider),
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            CarouselSlider(
+                options: CarouselOptions(
+                    height: width * 1.2,
+                    viewportFraction: 1,
+                    // aspectRatio: 1.75,
+                    reverse: false,
+                    autoPlay: true,
+                    autoPlayInterval: Duration(seconds: 5),
+                    autoPlayAnimationDuration: Duration(milliseconds: 800),
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enlargeCenterPage: true
+                ),
+                items: carouselSlider),
+            Card(
+              color: Color(0xFF403F44),
+              child: GridView.count(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(5),
+                crossAxisCount: 3,
+                childAspectRatio: (width / height),
+                children: coursesList,
+                physics: ScrollPhysics(),
+              ),
             ),
-          ),
+          ],
         ),
-        Expanded(
-          flex: 3,
-          child: Card(
-            color: Color(0xFF403F44),
-            child: GridView.count(
-              padding: const EdgeInsets.all(5),
-              crossAxisCount: 3,
-              childAspectRatio: (width / height),
-              children: coursesList,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

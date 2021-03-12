@@ -9,7 +9,8 @@ import 'package:mobile/shared/global_variables.dart';
 class CourseData{
   String coursesUrl = GlobalVariables.baseUrl + 'api/courses/';
   String sliderUrl = GlobalVariables.baseUrl + 'api/sliders/';
-  String photoUrl = GlobalVariables.baseUrl + 'files/';
+  String coursePhotoUrl = GlobalVariables.baseUrl + 'files/';
+  String sliderPhotoUrl = GlobalVariables.baseUrl + 'slider/';
   CourseData();
 
   Future<List<Course>> getCourses() async{
@@ -20,7 +21,7 @@ class CourseData{
         var courseMap = jsonDecode(data);
         List<Course> coursesList = List<Course>();
         for(var course in courseMap['items']){
-          coursesList.add(Course.fromJson(course, photoUrl));
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
         }
         return coursesList;
       }
@@ -41,7 +42,7 @@ class CourseData{
       if(response.statusCode == 200){
         String data = response.body;
         var courseMap = jsonDecode(data);
-        Course course = Course.fromJson(courseMap, photoUrl);
+        Course course = Course.fromJson(courseMap, coursePhotoUrl);
         return course;
       }
       else{
@@ -118,7 +119,7 @@ class CourseData{
         var sliderItemsMap = jsonDecode(data);
         List<SliderItem> sliderItemsList = List<SliderItem>();
         for(var sliderItem in sliderItemsMap){
-          sliderItemsList.add(SliderItem.fromJson(sliderItem, photoUrl));
+          sliderItemsList.add(SliderItem.fromJson(sliderItem, sliderPhotoUrl));
         }
         return sliderItemsList;
       }

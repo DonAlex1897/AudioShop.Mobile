@@ -290,19 +290,6 @@ class _NowPlayingState extends State<NowPlaying> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 1,
-                              child: Center(
-                                child: Text(
-                                  episode.name,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 23.0,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
                               flex: 5,
                               child: Center(
                                 child: Container(
@@ -320,16 +307,37 @@ class _NowPlayingState extends State<NowPlaying> {
                             Expanded(
                               flex: 1,
                               child: Center(
-                                child: Text(
-                                  "بیطرف",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 23.0,
-                                    fontWeight: FontWeight.w600,
+                                child: Directionality(
+                                  textDirection: ui.TextDirection.rtl,
+                                  child: Text(
+                                    episode.name + ' (' +
+                                        (audioManagerInstance.curIndex + 1)
+                                            .toString() + ' / ' +
+                                        (audioManagerInstance
+                                        .audioList.length).toString() + ')'
+                                    ,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 23.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
+                            // Expanded(
+                            //   flex: 1,
+                            //   child: Center(
+                            //     child: Text(
+                            //       "بیطرف",
+                            //       style: TextStyle(
+                            //         color: Colors.white,
+                            //         fontSize: 23.0,
+                            //         fontWeight: FontWeight.w600,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                             Expanded(
                               flex: 3,
                               child: Container(
