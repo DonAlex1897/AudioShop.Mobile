@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/user.dart';
+import 'package:mobile/shared/global_variables.dart';
 
 class DiscountService{
 
   DiscountService();
 
-  String baseUrl = 'https://95.216.229.251/api/';
+  String baseUrl = GlobalVariables.baseUrl + 'api/';
 
   Future<int> salespersonDiscountPercent(String couponCode) async{
     String url = baseUrl + 'coupons/$couponCode/IsSalespersonCoupon';

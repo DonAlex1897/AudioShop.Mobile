@@ -4,11 +4,12 @@ import 'dart:convert';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/review.dart';
 import 'package:mobile/models/slider_item.dart';
+import 'package:mobile/shared/global_variables.dart';
 
 class CourseData{
-  String coursesUrl = 'https://95.216.229.251/api/courses/';
-  String sliderUrl = 'https://95.216.229.251/api/sliders/';
-  String photoUrl = 'https://95.216.229.251/files/';
+  String coursesUrl = GlobalVariables.baseUrl + 'api/courses/';
+  String sliderUrl = GlobalVariables.baseUrl + 'api/sliders/';
+  String photoUrl = GlobalVariables.baseUrl + 'files/';
   CourseData();
 
   Future<List<Course>> getCourses() async{

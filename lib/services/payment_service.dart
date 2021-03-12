@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/basket.dart';
+import 'package:mobile/shared/global_variables.dart';
 
 class PaymentService{
 
   PaymentService();
 
-  String createOrderUrl = 'https://95.216.229.251/api/orders';
-  String payOrderUrl = 'https://95.216.229.251/api/payment/payorder';
+  String createOrderUrl = GlobalVariables.baseUrl + 'api/orders';
+  String payOrderUrl = GlobalVariables.baseUrl + 'api/payment/payorder';
 
   Future<String> createOrder(Basket basket, String userId, String token) async {
     var body = jsonEncode({

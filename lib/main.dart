@@ -24,7 +24,7 @@ void main() async {
   Widget homeWidget(){
     if(isUpdateAvailable)
       return UpdatePage(availableVersion);
-    else if(isFirstTime == null || isFirstTime.toLowerCase() == 'false'){
+    else if(isFirstTime == null || isFirstTime.toLowerCase() == 'true'){
       return IntroPage();
     }
     return HomePage.basic();

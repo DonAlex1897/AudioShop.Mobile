@@ -41,7 +41,6 @@ class _HomePageState extends State<HomePage> {
   double height = 0;
   List<Widget> coursesList = List<Widget>();
   List<Widget> carouselSlider = List<Widget>();
-  // final String url = 'https://95.216.229.251/api/courses/';
   DateTime currentBackPressTime;
   Future<dynamic> courses;
   CourseStore courseStore;
@@ -83,7 +82,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future setFirstTimeTrue() async{
-    await secureStorage.write(key: 'isFirstTime', value: 'True');
+    await secureStorage.write(key: 'isFirstTime', value: 'false');
   }
 
   Future _onSelectPromotionNotification(String payload) async {

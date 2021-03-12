@@ -3,16 +3,16 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/episode_audios.dart';
+import 'package:mobile/shared/global_variables.dart';
 
 class CourseEpisodeData{
-  String baseUrl = 'https://95.216.229.251/';
-  String audioUrl = 'https://95.216.229.251/files/';
+  String audioUrl = GlobalVariables.baseUrl + 'files/';
 
   CourseEpisodeData();
 
   Future<List<CourseEpisode>> getCourseEpisodes(int courseId) async{
     try{
-      String episodesUrl = baseUrl + 'api/courses/' + courseId.toString() + '/episodes';
+      String episodesUrl = GlobalVariables.baseUrl + 'api/courses/' + courseId.toString() + '/episodes';
       http.Response response = await http.get(episodesUrl);
       if(response.statusCode == 200){
         String data = response.body;
@@ -37,7 +37,7 @@ class CourseEpisodeData{
 
   Future<List<EpisodeAudios>> getEpisodeAudios(int episodeId) async{
     try{
-      String episodeAudiosUrl = baseUrl + 'api/courses/episodes/' +episodeId.toString();
+      String episodeAudiosUrl = GlobalVariables.baseUrl +  'api/courses/episodes/' +episodeId.toString();
       http.Response response = await http.get(episodeAudiosUrl);
       if(response.statusCode == 200){
         String data = response.body;

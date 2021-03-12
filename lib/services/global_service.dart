@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:mobile/models/configuration.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/shared/global_variables.dart';
 import 'package:mobile/store/course_store.dart';
 
 class GlobalService{
-  String configsUrl = 'https://95.216.229.251/api/configs/';
+  String configsUrl = GlobalVariables.baseUrl + 'api/configs/';
   GlobalService();
 
   Future<List<Configuration>> getConfigsByGroup(String groupTitleEn) async{
@@ -57,9 +58,9 @@ class GlobalService{
     }
   }
 
-  Future<bool> downloadLastVersion() async {
+  Future<String> getDownloadUrl() async {
     String fileNameUrl = configsUrl + '?title=LatestMobileAppName';
-    String downloadUrl = 'https://95.216.229.251/mobile/';
+    String downloadUrl = GlobalVariables.baseUrl + 'mobile/';
     try{
       http.Response response = await http.get(fileNameUrl);
       if(response.statusCode == 200){
@@ -67,29 +68,16 @@ class GlobalService{
         var configMap = jsonDecode(data);
         Configuration latestMobileAppName = Configuration.fromJson(configMap);
         downloadUrl += latestMobileAppName.value;
-        try{
-          http.Response responseDownload = await http.get(downloadUrl);
-          if(responseDownload.statusCode == 200){
-            return true;
-          }
-          else{
-            print(response.statusCode);
-            return false;
-          }
-        }
-        catch(e){
-          print(e.toString());
-          return false;
-        }
+        return downloadUrl;
       }
       else{
         print(response.statusCode);
-        return false;
+        return null;
       }
     }
     catch(e){
       print(e.toString());
-      return false;
+      return null;
     }
   }
 }
