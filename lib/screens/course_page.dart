@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/now_playing.dart';
@@ -148,6 +149,9 @@ class _CoursePageState extends State<CoursePage> {
       // String picUrl = course.photoAddress;
       String episodeName = episode.name;
       String episodeDescription = episode.description;
+      String episodeDuration = episode.totalEpisodeAudio != 0 ?
+        ((episode.totalEpisodeAudio ~/ 60)).toString() +
+          ':' + (episode.totalEpisodeAudio % 60).toString() : '00:00';
       var picFile = widget.courseCover;
 
       if(episode.price != 0 && episode.price != null)
@@ -182,7 +186,7 @@ class _CoursePageState extends State<CoursePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 25,
+                  flex: 21,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: Column(
@@ -190,11 +194,47 @@ class _CoursePageState extends State<CoursePage> {
                       children: <Widget>[
                         Text(
                           episodeName,
-                          style: TextStyle(fontSize: 16),),
-                        Text(
-                          episodeDescription,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12),)],
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 16,
+                              color: Color(0xFFFFFFFF),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                episodeDuration,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 15),
+                              ),
+                            ),
+                          ],
+                        )],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: TextButton(
+                      onPressed: () async {
+                        AlertDialog alert = AlertDialog(
+                          title: Text(episodeName),
+                          content: Text(episodeDescription),
+                        );
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alert;
+                          },
+                        );
+                      },
+                    child: Icon(
+                      Icons.preview,
+                      size: 25,
+                      color: Color(0xFFFFFFFF),
                     ),
                   ),
                 ),
@@ -277,12 +317,20 @@ class _CoursePageState extends State<CoursePage> {
                         }
                       }
                     },
-                    child: Icon((isEpisodePurchasedBefore ||
-                          episode.price == 0 || episode.price == null) ?
-                        Icons.play_arrow_outlined : Icons.add_shopping_cart,
-                        size: 32,
-                        color: Color(0xFFFFFFFF),
-                    ),
+                    child:
+                      (isEpisodePurchasedBefore ||
+                       episode.price == 0 ||
+                       episode.price == null) ?
+                          Icon(
+                            Icons.play_arrow_outlined,
+                            size: 35,
+                            color: Color(0xFFFFFFFF),
+                          ):
+                          Icon(
+                            Icons.add_shopping_cart,
+                            size: 25,
+                            color: Color(0xFFFFFFFF),
+                          ),
                   ),
                 )
               ],
