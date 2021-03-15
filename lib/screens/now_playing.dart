@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:audio_manager/audio_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/episode_audios.dart';
 import 'package:mobile/services/course_episode_service.dart';
@@ -37,6 +39,7 @@ Future<dynamic> decryptFileInJava(dynamic encryptedFilePath) async{
 class _NowPlayingState extends State<NowPlaying> {
   IconData playBtn = Icons.play_arrow;
   CourseEpisodeData courseEpisodeData;
+  bool isDrivingMode = false;
 
   Duration position = new Duration();
   Duration musicLength = new Duration();
@@ -239,6 +242,34 @@ class _NowPlayingState extends State<NowPlaying> {
     }
   }
 
+  Widget jumpToThePosition(IconData iconData){
+    double iconSize = 30;
+    if(iconData == Icons.forward_30 || iconData == Icons.replay_30)
+      iconSize = 40;
+
+    return !isDrivingMode ?
+     IconButton(
+      iconSize: iconSize,
+      color: Colors.white,
+      onPressed: () {
+        int tempPosition = 0;
+        if(position.inSeconds < 10){
+          tempPosition = 0;
+        }
+        else{
+          tempPosition = position.inSeconds - 10;
+        }
+        setState(() {
+          position = new Duration(seconds: tempPosition);
+          seekToSec(position.inMilliseconds);
+        });
+      },
+      icon: Icon(
+        iconData,
+      ),
+    ) : SizedBox();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -260,6 +291,28 @@ class _NowPlayingState extends State<NowPlaying> {
                   fontSize: 24.0,
                 ),
               ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Card(
+                    color: isDrivingMode? Color(0xFF20BFA9) : Colors.white,
+                    child: TextButton(
+                      child: Text(
+                        'حالت رانندگی',
+                        style: TextStyle(
+                            color: isDrivingMode ? Colors.white : Color(0xFF20BFA9)
+                        ),
+                      ),
+                      onPressed: (){
+                        setState(() {
+                          isDrivingMode ?
+                            isDrivingMode = false : isDrivingMode = true;
+                        });
+                      },
+                    ),
+                  ),
+                )
+              ],
             ),
             body: Directionality(
               textDirection: ui.TextDirection.ltr,
@@ -384,27 +437,31 @@ class _NowPlayingState extends State<NowPlaying> {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           IconButton(
-                                            iconSize: 35.0,
+                                            iconSize: !isDrivingMode ? 35 : 65,
                                             color: Colors.white,
                                             onPressed: () {
-                                              int tempPosition = 0;
-                                              if(position.inSeconds < 30){
-                                                tempPosition = 0;
+                                              position = new Duration();
+                                              musicLength = new Duration();
+                                              if(audioManagerInstance.curIndex != 0)
+                                              {
+                                                audioManagerInstance.previous();
+                                                audioManagerInstance.playOrPause();
+                                                setState(() {
+                                                  playBtn = Icons.pause;
+                                                });
                                               }
-                                              else{
-                                                tempPosition = position.inSeconds - 30;
+                                              else {
+                                                Fluttertoast.showToast(msg: 'اولین فایل');
                                               }
-                                              setState(() {
-                                                position = new Duration(seconds: tempPosition);
-                                                seekToSec(position.inMilliseconds);
-                                              });
                                             },
                                             icon: Icon(
-                                              Icons.replay_30,
+                                              Icons.skip_previous,
                                             ),
                                           ),
+                                          jumpToThePosition(Icons.replay_10),
+                                          jumpToThePosition(Icons.replay_30),
                                           IconButton(
-                                            iconSize: 45.0,
+                                            iconSize: isDrivingMode ? 95 : 65.0,
                                             color: Colors.white,
                                             onPressed: () async {
                                               if (!audioManagerInstance.isPlaying) {
@@ -430,21 +487,29 @@ class _NowPlayingState extends State<NowPlaying> {
                                               playBtn,
                                             ),
                                           ),
+                                          jumpToThePosition(Icons.forward_30),
+                                          jumpToThePosition(Icons.forward_10),
                                           IconButton(
-                                            iconSize: 35.0,
+                                            iconSize: !isDrivingMode ? 35 : 65,
                                             color: Colors.white,
                                             onPressed: () {
-                                              int tempPosition = position.inSeconds + 30;
-                                              if(tempPosition > audioManagerInstance.duration.inSeconds){
-                                                tempPosition = audioManagerInstance.duration.inSeconds;
+                                              position = new Duration();
+                                              musicLength = new Duration();
+                                              if(audioManagerInstance.curIndex !=
+                                                  audioManagerInstance.audioList.length - 1)
+                                              {
+                                                audioManagerInstance.next();
+                                                audioManagerInstance.playOrPause();
+                                                setState(() {
+                                                  playBtn = Icons.pause;
+                                                });
                                               }
-                                              setState(() {
-                                                position = new Duration(seconds: tempPosition);
-                                                seekToSec(position.inMilliseconds);
-                                              });
+                                              else {
+                                                Fluttertoast.showToast(msg: 'آخرین فایل');
+                                              }
                                             },
                                             icon: Icon(
-                                              Icons.forward_30,
+                                              Icons.skip_next,
                                             ),
                                           ),
                                         ],

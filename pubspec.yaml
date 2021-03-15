@@ -9,8 +9,9 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  dio: ^3.0.10
+#  dio: ^3.0.10
   intro_slider: ^2.3.4
+  flutter_open_whatsapp: ^0.1.2
   package_info:
   smooth_star_rating: ^1.1.1
   flutter_local_notifications: ^4.0.1
@@ -48,6 +49,8 @@ flutter:
     - assets/images/3.jpg
     - assets/images/4.jpg
     - assets/images/update.png
+      - assets/images/whatsapp.png
+      - assets/images/telegram.png
   #   - images/a_dot_ham.jpeg
 
   fonts:

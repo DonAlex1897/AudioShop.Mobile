@@ -18,7 +18,8 @@ void main() async {
   String currentVersion = info.version;
   GlobalService globalService = GlobalService();
   int availableVersion = await globalService.getLatestVersionAvailable();
-  if(availableVersion > int.parse(currentVersion.replaceAll(new RegExp(r'[^0-9]'),'')))
+  if( availableVersion != null &&
+      availableVersion > int.parse(currentVersion.replaceAll(new RegExp(r'[^0-9]'),'')))
     isUpdateAvailable = true;
 
   Widget homeWidget(){
