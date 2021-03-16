@@ -102,7 +102,7 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(courseStore.salespersonCouponCode == null ||
                        courseStore.salespersonCouponCode == '' ?
@@ -114,45 +114,52 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                   SizedBox(
                     height: 45,
                   ),
-                  TextField(
-                    style: TextStyle(
-                        decorationColor: Colors.black, color: Colors.white),
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                        BorderSide(color: Colors.white, width: 2.0),
+                  Container(
+                    width: 200,
+                    height: 55,
+                    child: TextField(
+                      style: TextStyle(
+                          decorationColor: Colors.black, color: Colors.white),
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                          BorderSide(color: Colors.white, width: 2.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                          BorderSide(color: Colors.white, width: 2.0),
+                        ),
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        labelText: 'کد معرف',
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                        BorderSide(color: Colors.white, width: 2.0),
-                      ),
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                      ),
-                      labelText: 'کد معرف',
+                      controller: couponCodeController,
                     ),
-                    controller: couponCodeController,
                   ),
                   SizedBox(
                     height: 15,
                   ),
-                  Card(
-                    color: Color(0xFF20BFA9),
-                    child: TextButton(
-                      onPressed: () async{
-                        await addSalespersonCouponCode(couponCodeController.text);
-                      },
-                      child:
-                      Text(courseStore.salespersonCouponCode == null ||
-                           courseStore.salespersonCouponCode == '' ?
-                        'افزودن کد معرف' : 'تغییر کد معرف',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      )
+                  Container(
+                    width: 200,
+                    child: Card(
+                      color: Color(0xFF20BFA9),
+                      child: TextButton(
+                        onPressed: () async{
+                          await addSalespersonCouponCode(couponCodeController.text);
+                        },
+                        child:
+                        Text(courseStore.salespersonCouponCode == null ||
+                             courseStore.salespersonCouponCode == '' ?
+                          'افزودن کد معرف' : 'تغییر کد معرف',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        )
+                      ),
                     ),
                   )
                 ],

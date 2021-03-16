@@ -12,6 +12,7 @@ import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
 import 'package:mobile/screens/course_preview.dart';
+import 'package:mobile/screens/psychological_tests_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -445,6 +446,36 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: Text(
                         'پشتیبانی',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        )
+                    ),
+                  )
+              )
+          ),
+          SizedBox(
+              height: 80,
+              width: width,
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context){
+                            return PsychologicalTestsPage();
+                          })
+                      );
+                    },
+                    child: Text(
+                        'تست های روانشناسی',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,

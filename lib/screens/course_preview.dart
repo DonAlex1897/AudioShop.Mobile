@@ -29,8 +29,11 @@ class _CoursePreviewState extends State<CoursePreview> {
   CourseStore courseStore;
   double yourRate = 0;
   double averageCourseRate = 0;
-  String favoriteButtonText = 'افزودن به علاقه مندی';
+  String favoriteButtonText = 'افزودن';
   final secureStorage = FlutterSecureStorage();
+  String sendButtonText = 'ارسال';
+  double sendButtonSize = 20;
+  Color sendButtonColor = Color(0xFF20BFA9);
 
   @override
   void initState() {
@@ -49,6 +52,11 @@ class _CoursePreviewState extends State<CoursePreview> {
   }
 
   Future postReview() async{
+    setState(() {
+      sendButtonText = 'در حال ارسال';
+      sendButtonSize = 18;
+      sendButtonColor = Color(0xff2afcdd);
+    });
     Review review = Review(
       userId: courseStore.userId,
       text: reviewController.text,
@@ -58,10 +66,18 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
     if(courseStore.token != '' && courseStore.token != null){
       bool sentReview = await courseData.addReviewToCourse(review, courseStore.token);
-      sentReview ?? Fluttertoast.showToast(msg: 'نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.');
+      if(sentReview)
+        Fluttertoast.showToast(
+            msg: 'نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.');
     }
     else
       Fluttertoast.showToast(msg: 'برای ثبت نظر باید وارد حساب کاربریتان شوید');
+
+    setState(() {
+      sendButtonText = 'ارسال';
+      sendButtonSize = 20;
+      sendButtonColor = Color(0xFF20BFA9);
+    });
   }
 
   @override
@@ -69,8 +85,8 @@ class _CoursePreviewState extends State<CoursePreview> {
     courseStore = Provider.of<CourseStore>(context);
     Course course = widget.courseDetails;
     courseStore.userFavoriteCourses.contains(widget.courseDetails) ?
-      favoriteButtonText = 'حذف از علاقه مندی':
-      favoriteButtonText = 'افزودن به علاقه مندی';
+      favoriteButtonText = 'حذف':
+      favoriteButtonText = 'افزودن';
 
     return FutureBuilder(
       future: courseReviews,
@@ -198,15 +214,15 @@ class _CoursePreviewState extends State<CoursePreview> {
 
                                       if(courseStore.userFavoriteCourses.contains(widget.courseDetails))
                                         setState(() {
-                                          favoriteButtonText = 'حذف از علاقه مندی';
+                                          favoriteButtonText = 'حذف';
                                         });
                                       else
                                         setState(() {
-                                          favoriteButtonText = 'افزودن به علاقه مندی';
+                                          favoriteButtonText = 'افزودن';
                                         });
                                     },
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Icon(
                                           Icons.library_add,
@@ -361,43 +377,49 @@ class _CoursePreviewState extends State<CoursePreview> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Card(
-                                color: Color(0xFF20BFA9),
-                                child: TextButton(
-                                  onPressed: () async {
-                                    if (reviewController.text.isNotEmpty && yourRate != 0)
-                                      await postReview();
-                                    else if(reviewController.text.isEmpty)
-                                      Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
-                                    else
-                                      Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
-                                  },
-                                  child: Text(
-                                    'ارسال',
-                                    style: TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                              child: Container(
+                                height: 55,
+                                child: Card(
+                                  color: sendButtonColor,
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      if (reviewController.text.isNotEmpty && yourRate != 0)
+                                        await postReview();
+                                      else if(reviewController.text.isEmpty)
+                                        Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
+                                      else
+                                        Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
+                                    },
+                                    child: Text(
+                                      sendButtonText,
+                                      style: TextStyle(
+                                        fontSize: sendButtonSize,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                             Expanded(
-                              child: Card(
-                                color: Colors.red[700],
-                                child: TextButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      reviewController.text = '';
-                                    });
-                                  },
-                                  child: Text(
-                                    'پاک کردن',
-                                    style: TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                              child: Container(
+                                height: 55,
+                                child: Card(
+                                  color: Colors.red[700],
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        reviewController.text = '';
+                                      });
+                                    },
+                                    child: Text(
+                                      'پاک کردن',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),

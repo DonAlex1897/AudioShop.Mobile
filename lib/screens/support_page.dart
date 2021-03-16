@@ -15,35 +15,22 @@ class _SupportPageState extends State<SupportPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.75,
-              height: MediaQuery.of(context).size.width * 0.75,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.pink[100],
-                  width: 5,
-                ),
-                image: DecorationImage(
-                    image: AssetImage('assets/images/sybil.jpg'),
-                    fit: BoxFit.fill
-                ),
-              ),
-            ),
+            Image.asset('assets/images/support.png'),
             Padding(
               padding: const EdgeInsets.all(30.0),
-              child: Text('Hey Honey. I am out. send me something on '
-                  'Whatsapp so that I call you back later',
+              child: Text('در صورت بروز هر گونه مشکل یا برای پرسیدن '
+                  'سوالات خود، می توانید از طریق واتسپ و تلگرام با'
+                  'کارشناسان ما در ارتباط باشید',
                 style: TextStyle(fontFamily: 'AlexandriaFLF', fontSize: 16),
                 textAlign: TextAlign.justify,
               ),
             ),
-            SizedBox(
-              width: 150,
-              child: Center(
-                child: Row(
-                  children: [
-                    TextButton(
+            Padding(
+              padding: const EdgeInsets.only(left: 58.0, right: 58.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
                       onPressed: () async{
                         FlutterOpenWhatsapp
                             .sendSingleMessage(
@@ -65,7 +52,9 @@ class _SupportPageState extends State<SupportPage> {
                       },
                       child: Image.asset('assets/images/whatsapp.png'),
                     ),
-                    TextButton(
+                  ),
+                  Expanded(
+                    child: TextButton(
                       onPressed: () async{
                         // FlutterOpenWhatsapp
                         //     .sendSingleMessage(
@@ -84,8 +73,8 @@ class _SupportPageState extends State<SupportPage> {
                       },
                       child: Image.asset('assets/images/telegram.png'),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             )
           ],
