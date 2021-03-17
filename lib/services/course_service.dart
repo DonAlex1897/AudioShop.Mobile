@@ -133,4 +133,28 @@ class CourseData{
       return null;
     }
   }
+
+  Future<List<Course>> searchCourses(String searchParameter) async{
+    try{
+      String url = coursesUrl + '?search=' + searchParameter;
+      http.Response response = await http.get(url);
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        List<Course> coursesList = List<Course>();
+        for(var course in courseMap['items']){
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
+        }
+        return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
 }

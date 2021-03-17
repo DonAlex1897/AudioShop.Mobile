@@ -615,9 +615,13 @@ class _CoursePageState extends State<CoursePage> {
             );
           }
           else{
-            return SpinKitWave(
-              color: Color(0xFF20BFA9),
-              size: 100.0,
+            return Container(
+              color: Color(0xFF202028),
+              child: SpinKitWave(
+                type: SpinKitWaveType.center,
+                color: Color(0xFF20BFA9),
+                size: 65.0,
+              ),
             );
           }
         }

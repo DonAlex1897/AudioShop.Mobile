@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -13,6 +14,7 @@ import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:mobile/screens/psychological_tests_page.dart';
+import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -55,8 +57,9 @@ class _HomePageState extends State<HomePage> {
   Widget dropdownValue = Icon(Icons.person_pin, size: 50, color: Colors.white,);
   bool alertReturn = false;
   GlobalService globalService;
-  MethodChannel platform =
-    MethodChannel('audioshoppp.ir.mobile/notification');
+  MethodChannel platform = MethodChannel('audioshoppp.ir.mobile/notification');
+  TextEditingController searchController = TextEditingController();
+  int currentSlideIndex = 0;
 
   @override
   void setState(fn) {
@@ -289,20 +292,63 @@ class _HomePageState extends State<HomePage> {
         String sliderPicUrl = sliderItem.photoAddress;
         var pictureFile = await DefaultCacheManager().getSingleFile(sliderPicUrl);
         carouselSlider.add(
-            TextButton(
-              onPressed: () async {
-                Course course = await courseData.getCourseById(sliderItem.courseId);
-                goToCoursePreview(course);
-              },
+          Stack(children: <Widget>[
+            InkWell(onTap: () async {
+              Course course = await courseData.getCourseById(sliderItem.courseId);
+              goToCoursePreview(course);
+            },
+                child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: FileImage(pictureFile),
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                )
+            ), //I
+            Positioned(
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
               child: Container(
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: FileImage(pictureFile),
-                    fit: BoxFit.cover,
+                  gradient: LinearGradient(
+                    colors: [Color.fromARGB(200, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
                   ),
-                ), //Image.file(pictureFile,),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: Text(
+                  sliderItem.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-            )
+          ]),
+            // TextButton(
+            //   onPressed: () async {
+            //     Course course = await courseData.getCourseById(sliderItem.courseId);
+            //     goToCoursePreview(course);
+            //   },
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       image: DecorationImage(
+            //         image: FileImage(pictureFile),
+            //         fit: BoxFit.cover,
+            //       ),
+            //     ), //Image.file(pictureFile,),
+            //   ),
+            //   style: ButtonStyle(
+            //     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            //         EdgeInsetsGeometry.lerp(EdgeInsets.zero, EdgeInsets.zero, 0)
+            //     ),
+            //   ),
+            // )
         );
       }
       catch(e){
@@ -493,7 +539,62 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5, right: 5),
+                    child: Container(
+                      width: width * 2 - 50,
+                      height: 40,
+                      child: TextField(
+                        style: TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.white, width: 2.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.white, width: 2.0),
+                          ),
+                          labelText: 'جستجو',
+                          labelStyle: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        controller: searchController,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Container(
+                      width: 30,
+                      // color: Color(0xFF20BFA9),
+                      child: TextButton(
+                          onPressed: (){
+                            if(searchController.text != '')
+                              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                return SearchResultPage(searchController.text);
+                              }));
+                            else
+                              Fluttertoast.showToast(msg: 'لطفا قسمتی از نام '
+                                  'دوره را وارد کنید');
+                          },
+                          child: Icon(Icons.search,
+                              size: 25, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             CarouselSlider(
                 options: CarouselOptions(
                     height: width * 1.2,
@@ -504,20 +605,42 @@ class _HomePageState extends State<HomePage> {
                     autoPlayInterval: Duration(seconds: 5),
                     autoPlayAnimationDuration: Duration(milliseconds: 800),
                     autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true
+                    enlargeCenterPage: true,
+                    onPageChanged: pageChanged
                 ),
-                items: carouselSlider),
-            Card(
-              color: Color(0xFF403F44),
-              child: GridView.count(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(5),
-                crossAxisCount: 3,
-                childAspectRatio: (width / height),
-                children: coursesList,
-                physics: ScrollPhysics(),
+                items: carouselSlider,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: carouselSlider.map((image) {
+                int index=carouselSlider.indexOf(image); //are changed
+                return Container(
+                  width: 8.0,
+                  height: 8.0,
+                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: currentSlideIndex == index
+                          ? Colors.white38
+                          : Colors.white),
+                );
+              }).toList()
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: 30,
+                child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 20),),
               ),
+            ),
+            GridView.count(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(5),
+              crossAxisCount: 3,
+              childAspectRatio: (width / height),
+              children: coursesList,
+              physics: ScrollPhysics(),
             ),
           ],
         ),
@@ -544,6 +667,12 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
+  }
+
+  pageChanged(int index, CarouselPageChangedReason changedReason){
+    setState(() {
+      currentSlideIndex = index;
+    });
   }
 
   Widget myCoursesWidget(){
@@ -988,8 +1117,9 @@ class _HomePageState extends State<HomePage> {
             return Container(
               color: Color(0xFF202028),
               child: SpinKitWave(
+                type: SpinKitWaveType.center,
                 color: Color(0xFF20BFA9),
-                size: 100.0,
+                size: 65.0,
               ),
             );
         });
