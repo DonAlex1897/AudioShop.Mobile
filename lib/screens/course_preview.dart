@@ -391,10 +391,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                         child: Text('نظرات کاربران', style: TextStyle(fontSize: 17),),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 10),
+                        padding: const EdgeInsets.only(left: 15, top: 20, right: 15, bottom: 10),
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
                           itemCount: courseReviewList.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Card(
@@ -465,7 +466,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 5),
+                        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
                         child: TextField(
                           minLines: 1,
                           maxLines: 15,
@@ -495,10 +496,14 @@ class _CoursePreviewState extends State<CoursePreview> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                height: 55,
-                                child: Card(
-                                  color: sendButtonColor,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: sendButtonColor,
+                                  ),
+                                  height: 55,
                                   child: TextButton(
                                     onPressed: () async {
                                       if (reviewController.text.isNotEmpty && yourRate != 0)
@@ -521,10 +526,14 @@ class _CoursePreviewState extends State<CoursePreview> {
                               ),
                             ),
                             Expanded(
-                              child: Container(
-                                height: 55,
-                                child: Card(
-                                  color: Colors.red[700],
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 5.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.red[700],
+                                  ),
+                                  height: 55,
                                   child: TextButton(
                                     onPressed: () async {
                                       setState(() {

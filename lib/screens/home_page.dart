@@ -562,24 +562,22 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Container(
-                      width: 30,
-                      // color: Color(0xFF20BFA9),
-                      child: TextButton(
-                          onPressed: (){
-                            if(searchController.text != '')
-                              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                return SearchResultPage(searchController.text);
-                              }));
-                            else
-                              Fluttertoast.showToast(msg: 'لطفا قسمتی از نام '
-                                  'دوره را وارد کنید');
-                          },
-                          child: Icon(Icons.search,
-                              size: 25, color: Colors.white),
-                      ),
+                  Container(
+                    width: 30,
+                    height: 40,
+                    // color: Color(0xFF20BFA9),
+                    child: InkWell(
+                        onTap: (){
+                          if(searchController.text != '')
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return SearchResultPage(searchController.text);
+                            }));
+                          else
+                            Fluttertoast.showToast(msg: 'لطفا قسمتی از نام '
+                                'دوره را وارد کنید');
+                        },
+                        child: Icon(Icons.search,
+                            size: 25, color: Colors.white),
                     ),
                   ),
                 ],
@@ -798,93 +796,96 @@ class _HomePageState extends State<HomePage> {
 
   Widget userFavoriteCourses(){
     List<Course> userFavoriteCourses = courseStore.userFavoriteCourses;
-    return ListView.builder(
-        itemCount: courseStore.userFavoriteCourses.length,
-        itemBuilder: (BuildContext context, int index) {
-          return TextButton(
-            onPressed: () async {
-              var picFile = await DefaultCacheManager().getSingleFile(
-                  userFavoriteCourses[index].photoAddress);
-              // goToCoursePage(userFavoriteCourses[index], picFile);
-              goToCoursePreview(userFavoriteCourses[index]);
-            },
-            child: Card(
-              color: Color(0xFF403F44),
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Expanded(
-                        flex: 2,
+    return Padding(
+      padding: const EdgeInsets.only(left: 5.0, right: 5.0),
+      child: ListView.builder(
+          itemCount: courseStore.userFavoriteCourses.length,
+          itemBuilder: (BuildContext context, int index) {
+            return InkWell(
+              onTap: () async {
+                var picFile = await DefaultCacheManager().getSingleFile(
+                    userFavoriteCourses[index].photoAddress);
+                // goToCoursePage(userFavoriteCourses[index], picFile);
+                goToCoursePreview(userFavoriteCourses[index]);
+              },
+              child: Card(
+                color: Color(0xFF403F44),
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Expanded(
+                          flex: 2,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.network(
+                                userFavoriteCourses[index].photoAddress),
+                          )),
+                      Expanded(
+                        flex: 6,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                            child: Text(
+                              userFavoriteCourses[index].name,
+                              style: TextStyle(fontSize: 19),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                              userFavoriteCourses[index].photoAddress),
-                        )),
-                    Expanded(
-                      flex: 6,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                          child: Text(
-                            userFavoriteCourses[index].name,
-                            style: TextStyle(fontSize: 19),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
                           ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          bottomLeft: Radius.circular(15),
-                        ),
-                        child: Container(
-                          color: Colors.red,
-                          child: TextButton(
-                            child: Icon(Icons.delete_outline_sharp,
-                                size: 25, color: Colors.white),
-                            onPressed: () async {
-                              Widget cancelB = cancelButton('خیر');
-                              Widget continueB =
-                              continueButton('بله', Alert.DeleteFromFavorite, index);
-                              AlertDialog alertD = alert('هشدار',
-                                  'آیا از حذف دوره از علاقه مندی ها مطمئنید؟',
-                                  [cancelB, continueB]);
-                              await showBasketAlertDialog(context, alertD);
+                          child: Container(
+                            color: Colors.red,
+                            child: TextButton(
+                              child: Icon(Icons.delete_outline_sharp,
+                                  size: 25, color: Colors.white),
+                              onPressed: () async {
+                                Widget cancelB = cancelButton('خیر');
+                                Widget continueB =
+                                continueButton('بله', Alert.DeleteFromFavorite, index);
+                                AlertDialog alertD = alert('هشدار',
+                                    'آیا از حذف دوره از علاقه مندی ها مطمئنید؟',
+                                    [cancelB, continueB]);
+                                await showBasketAlertDialog(context, alertD);
 
-                              if(alertReturn){
-                                String userFavoriteCourseIds = await secureStorage
-                                    .read(key: 'UserFavoriteCourseIds');
-                                List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                                userFavoriteCourseIds = '';
-                                favCourseIds.forEach((element) {
-                                  if(element != userFavoriteCourses[index].id.toString())
-                                    userFavoriteCourseIds += element + ',';
-                                });
-                                await secureStorage.write(
-                                    key: 'UserFavoriteCourseIds',
-                                    value: userFavoriteCourseIds);
-                                setState(() {
-                                  courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
-                                });
-                              }
-                            },
+                                if(alertReturn){
+                                  String userFavoriteCourseIds = await secureStorage
+                                      .read(key: 'UserFavoriteCourseIds');
+                                  List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                                  userFavoriteCourseIds = '';
+                                  favCourseIds.forEach((element) {
+                                    if(element != userFavoriteCourses[index].id.toString())
+                                      userFavoriteCourseIds += element + ',';
+                                  });
+                                  await secureStorage.write(
+                                      key: 'UserFavoriteCourseIds',
+                                      value: userFavoriteCourseIds);
+                                  setState(() {
+                                    courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
+                                  });
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   Widget registerPhoneButton(){
@@ -937,51 +938,54 @@ class _HomePageState extends State<HomePage> {
 
   Widget userCourses(){
     List<Course> userCourses = getUserCourses();
-    return ListView.builder(
-        itemCount: userCourses.length,
-        itemBuilder: (BuildContext context, int index) {
-          return TextButton(
-            onPressed: () async {
-              var picFile = await DefaultCacheManager().getSingleFile(
-                  userCourses[index].photoAddress);
-              // goToCoursePage(userCourses[index], picFile);
-              goToCoursePreview(userCourses[index]);
-            },
-            child: Card(
-              color: Color(0xFF403F44),
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Expanded(
-                        flex: 2,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                              userCourses[index].photoAddress),
-                        )),
-                    Expanded(
-                      flex: 6,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                          child: Text(
-                            userCourses[index].name,
-                            style: TextStyle(fontSize: 19),
+    return Padding(
+      padding: const EdgeInsets.only(left: 5.0, right: 5.0),
+      child: ListView.builder(
+          itemCount: userCourses.length,
+          itemBuilder: (BuildContext context, int index) {
+            return InkWell(
+              onTap: () async {
+                var picFile = await DefaultCacheManager().getSingleFile(
+                    userCourses[index].photoAddress);
+                // goToCoursePage(userCourses[index], picFile);
+                goToCoursePreview(userCourses[index]);
+              },
+              child: Card(
+                color: Color(0xFF403F44),
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Expanded(
+                          flex: 2,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.network(
+                                userCourses[index].photoAddress),
+                          )),
+                      Expanded(
+                        flex: 6,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                            child: Text(
+                              userCourses[index].name,
+                              style: TextStyle(fontSize: 19),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   Future logOut() async{

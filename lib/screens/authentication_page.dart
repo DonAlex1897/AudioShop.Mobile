@@ -109,8 +109,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   Widget sendCodeButton() {
-    return Card(
-      color: (!isTimerActive) ? Colors.red[700] : Colors.red[200],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: (!isTimerActive) ? Colors.red[700] : Colors.red[200],
+      ),
       child: TextButton(
         onPressed: () {
           setState(() {
@@ -280,27 +283,30 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Container(
-                              height: 55,
-                              child: TextField(
-                                style: TextStyle(color: Colors.white),
-                                keyboardType: TextInputType.phone,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white, width: 2.0),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: Container(
+                                height: 55,
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white, width: 2.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white, width: 2.0),
+                                    ),
+                                    labelText: 'کد دریافتی',
+                                    labelStyle: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white, width: 2.0),
-                                  ),
-                                  labelText: 'کد دریافتی',
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                  controller: verificationCodeController,
                                 ),
-                                controller: verificationCodeController,
                               ),
                             ),
                           ),
@@ -316,8 +322,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     ),
                     Container(
                       height: 55,
-                      child: Card(
-                        color: Color(0xFF20BFA9),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Color(0xFF20BFA9),
+                        ),
                         child: TextButton(
                           onPressed: () async {
                             setState(() {
@@ -413,27 +422,30 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Container(
-                              height: 55,
-                              child: TextField(
-                                style: TextStyle(color: Colors.white),
-                                keyboardType: TextInputType.phone,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.white, width: 2.0),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: Container(
+                                height: 55,
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.white, width: 2.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.white, width: 2.0),
+                                    ),
+                                    labelText: 'کد دریافتی',
+                                    labelStyle: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.white, width: 2.0),
-                                  ),
-                                  labelText: 'کد دریافتی',
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                  controller: verificationCodeController,
                                 ),
-                                controller: verificationCodeController,
                               ),
                             ),
                           ),
@@ -538,31 +550,38 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             ),
                             Expanded(
                               flex: 2,
-                              child: Card(
-                                color: !isCheckingUserName
-                                    ? Colors.red[700]
-                                    : Colors.red[200],
-                                child: TextButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      if (!isCheckingUserName) {
-                                        isCheckingUserName = true;
-                                      }
-                                    });
-                                    isUserNameRepetitive(
-                                        userNameController.text);
-                                    setState(() {
-                                      isCheckingUserName = false;
-                                    });
-                                  },
-                                  child: Text(
-                                    (!isCheckingUserName)
-                                        ? 'بررسی'
-                                        : 'در حال بررسی',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: Container(
+                                  height: 55,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: !isCheckingUserName
+                                        ? Colors.red[700]
+                                        : Colors.red[200],
+                                  ),
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        if (!isCheckingUserName) {
+                                          isCheckingUserName = true;
+                                        }
+                                      });
+                                      isUserNameRepetitive(
+                                          userNameController.text);
+                                      setState(() {
+                                        isCheckingUserName = false;
+                                      });
+                                    },
+                                    child: Text(
+                                      (!isCheckingUserName)
+                                          ? 'بررسی'
+                                          : 'در حال بررسی',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -651,33 +670,34 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     ),
                     Container(
                       height: 55,
-                      child: Card(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
                         color: Color(0xFF20BFA9),
-                        child: TextButton(
-                          onPressed: () async {
-                            setState(() {
-                              userNameError = passwordError = '';
-                              if (userNameController.text.isEmpty)
-                                userNameError = 'نام کاربری الزامی است';
-                              if (passwordController.text.isEmpty)
-                                passwordError = 'رمز عبور الزامی است';
-                              else if (confirmPasswordController.text.isEmpty ||
-                                  passwordController.text !=
-                                      confirmPasswordController.text)
-                                passwordError = 'رمز عبور مطابقت ندارد';
-                            });
-                            if (userNameController.text.isNotEmpty &&
-                                passwordController.text.isNotEmpty &&
-                                confirmPasswordController.text.isNotEmpty)
-                              await signUp();
-                          },
-                          child: Text(
-                            'تایید',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                      ),
+                      child: TextButton(
+                        onPressed: () async {
+                          setState(() {
+                            userNameError = passwordError = '';
+                            if (userNameController.text.isEmpty)
+                              userNameError = 'نام کاربری الزامی است';
+                            if (passwordController.text.isEmpty)
+                              passwordError = 'رمز عبور الزامی است';
+                            else if (confirmPasswordController.text.isEmpty ||
+                                passwordController.text !=
+                                    confirmPasswordController.text)
+                              passwordError = 'رمز عبور مطابقت ندارد';
+                          });
+                          if (userNameController.text.isNotEmpty &&
+                              passwordController.text.isNotEmpty &&
+                              confirmPasswordController.text.isNotEmpty)
+                            await signUp();
+                        },
+                        child: Text(
+                          'تایید',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),

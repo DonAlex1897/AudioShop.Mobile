@@ -44,25 +44,31 @@ class _CheckOutPageState extends State<CheckOutPage> {
   }
 
   Widget verifyCodeButton() {
-    return Card(
-      color: (!isVerifyButtonPressed) ? Colors.red[700] : Colors.red[200],
-      child: TextButton(
-        onPressed: () async {
-          if(!isVerifyButtonPressed){
-            setState(() {
-              isVerifyButtonPressed = true;
-            });
-            isCouponCodeVerified = await verifyDiscountCode();
-            if(isCouponCodeVerified)
-              courseStore.setOtherCouponCodeInBasket(discountCodeController.text);
-          }
-        },
-        child: Text(
-          (!isVerifyButtonPressed) ? 'اعمال کد' : 'کد اعمال شد',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: (!isVerifyButtonPressed) ? Colors.red[700] : Colors.red[200],
+        ),
+        child: TextButton(
+          onPressed: () async {
+            if(!isVerifyButtonPressed){
+              setState(() {
+                isVerifyButtonPressed = true;
+              });
+              isCouponCodeVerified = await verifyDiscountCode();
+              if(isCouponCodeVerified)
+                courseStore.setOtherCouponCodeInBasket(discountCodeController.text);
+            }
+          },
+          child: Text(
+            (!isVerifyButtonPressed) ? 'اعمال کد' : 'کد اعمال شد',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -169,7 +175,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(15.0),
                 child: IntrinsicHeight(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -181,7 +187,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                       Expanded(
                         flex: 2,
                         child: Container(
-                          height: 55,
+                          height: 40,
                           child: TextField(
                             style: TextStyle(color: Colors.white),
                             keyboardType: TextInputType.text,
@@ -209,9 +215,12 @@ class _CheckOutPageState extends State<CheckOutPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 20.0, left: 20),
-                child: Card(
-                  color: Color(0xFF403F44),
+                padding: const EdgeInsets.only(right: 15.0, left: 15),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Color(0xFF403F44),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

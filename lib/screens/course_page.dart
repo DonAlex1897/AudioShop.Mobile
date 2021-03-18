@@ -363,7 +363,7 @@ class _CoursePageState extends State<CoursePage> {
         SliverAppBar(
           automaticallyImplyLeading: false,
           titleSpacing: 0.0,
-          //floating: false, pinned: false, snap: false,
+          floating: false, pinned: true, snap: false,
           backgroundColor: Colors.transparent,
           //title: Text(course['name']),
           expandedHeight: 150,
@@ -385,88 +385,93 @@ class _CoursePageState extends State<CoursePage> {
             title:
             ClipRRect(
               borderRadius: BorderRadius.circular(3),
-              child: Image.file(
-                widget.courseCover,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.file(
+                    widget.courseCover,
+                  ),
+                ],
               ),
             ),
             titlePadding: EdgeInsetsDirectional.fromSTEB(10, 80, 0, 10),
           ),
-          title: Row(
-            textBaseline: TextBaseline.ideographic,
-            children: <Widget>[
-              Expanded(
-                flex: 9,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
+          title: Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Row(
+              textBaseline: TextBaseline.ideographic,
+              children: <Widget>[
+                Expanded(
+                  flex: 9,
                   child: Text(
                     course.name,
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 15),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: TextButton(
-                  onPressed: () async {
-                    AlertDialog alert = AlertDialog(
-                      title: Text(widget.courseDetails.name),
-                      content: Text(widget.courseDetails.description),
-                    );
-                    await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return alert;
-                      },
-                    );
-                  },
-                  child: Icon(
-                    Icons.preview,
-                    size: 20,
-                    color: Colors.white,
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    onPressed: () async {
+                      AlertDialog alert = AlertDialog(
+                        title: Text(widget.courseDetails.name),
+                        content: Text(widget.courseDetails.description),
+                      );
+                      await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return alert;
+                        },
+                      );
+                    },
+                    icon: Icon(
+                      Icons.preview,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: IconButton(
-                  onPressed: () async {
-                    String userFavoriteCourseIds = await secureStorage
-                        .read(key: 'UserFavoriteCourseIds');
-                    if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
-                      Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                      String courseId = widget.courseDetails.id.toString();
-                      userFavoriteCourseIds == null ?
-                      userFavoriteCourseIds = courseId :
-                      userFavoriteCourseIds += ',' + courseId;
-                      await secureStorage.write(
-                          key: 'UserFavoriteCourseIds',
-                          value: userFavoriteCourseIds);
-                    }
-                    else{
-                      Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
-                      List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                      userFavoriteCourseIds = '';
-                      favCourseIds.forEach((element) {
-                        if(element != widget.courseDetails.id.toString())
-                          userFavoriteCourseIds += element + ',';
-                      });
-                      await secureStorage.write(
-                          key: 'UserFavoriteCourseIds',
-                          value: userFavoriteCourseIds);
-                    }
-                  },
-                  icon: Icon(
-                    Icons.library_add_outlined,
-                    size: 20,
-                    color: Colors.white,
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    onPressed: () async {
+                      String userFavoriteCourseIds = await secureStorage
+                          .read(key: 'UserFavoriteCourseIds');
+                      if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
+                        Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
+                        String courseId = widget.courseDetails.id.toString();
+                        userFavoriteCourseIds == null ?
+                        userFavoriteCourseIds = courseId :
+                        userFavoriteCourseIds += ',' + courseId;
+                        await secureStorage.write(
+                            key: 'UserFavoriteCourseIds',
+                            value: userFavoriteCourseIds);
+                      }
+                      else{
+                        Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
+                        List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                        userFavoriteCourseIds = '';
+                        favCourseIds.forEach((element) {
+                          if(element != widget.courseDetails.id.toString())
+                            userFavoriteCourseIds += element + ',';
+                        });
+                        await secureStorage.write(
+                            key: 'UserFavoriteCourseIds',
+                            value: userFavoriteCourseIds);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.library_add_outlined,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: coursePurchaseButton(episodes, course),
-              )
-            ],
+                Expanded(
+                  flex: 1,
+                  child: coursePurchaseButton(episodes, course),
+                )
+              ],
+            ),
           ),
         ),
         SliverList(
@@ -485,7 +490,7 @@ class _CoursePageState extends State<CoursePage> {
     if(nonFreeEpisodesCount == purchasedEpisodesCount)
       return Text('');
     else
-      return TextButton(
+      return IconButton(
         onPressed: () async{
           if (courseStore.token != null && courseStore.token != ''){
             await createBasket(PurchaseType.WholeCourse, episodes, course);
@@ -500,7 +505,7 @@ class _CoursePageState extends State<CoursePage> {
 
           }
         },
-        child: Icon(
+        icon: Icon(
           Icons.add_shopping_cart,
           size: 20,
           color: Colors.white,
