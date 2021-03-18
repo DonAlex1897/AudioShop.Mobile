@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/services/discount_service.dart';
 import 'package:mobile/services/payment_service.dart';
 import 'package:mobile/store/course_store.dart';
@@ -24,6 +25,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
   bool isCouponCodeVerified = false;
   TextEditingController discountCodeController = TextEditingController();
   DiscountService discountService = DiscountService();
+  final currencyFormat = new NumberFormat("#,##0");
+
 
   @override
   void setState(fn) {
@@ -177,25 +180,28 @@ class _CheckOutPageState extends State<CheckOutPage> {
                       ),
                       Expanded(
                         flex: 2,
-                        child: TextField(
-                          style: TextStyle(color: Colors.white),
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
+                        child: Container(
+                          height: 55,
+                          child: TextField(
+                            style: TextStyle(color: Colors.white),
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Colors.white, width: 2.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Colors.white, width: 2.0),
+                              ),
+                              labelText: 'کد تخفیف',
+                              labelStyle: TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
-                            ),
-                            labelText: 'کد تخفیف',
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                            ),
+                            controller: discountCodeController,
                           ),
-                          controller: discountCodeController,
                         ),
                       ),
                     ],
@@ -255,7 +261,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(courseStore.basket.totalPrice.toString() + "   تومان"),
+                                    Text(currencyFormat.format(courseStore.basket.totalPrice) + "   ریال"),
                                   ],
                                 ),
                               ),
@@ -263,7 +269,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(courseStore.basket.discount.toString() + "   تومان"),
+                                    Text(currencyFormat.format(courseStore.basket.discount) + "   ریال"),
                                   ],
                                 ),
                               ),
@@ -271,7 +277,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(courseStore.basket.priceToPay.toString() + "   تومان"),
+                                    Text(currencyFormat.format(courseStore.basket.priceToPay) + "   ریال"),
                                   ],
                                 ),
                               ),

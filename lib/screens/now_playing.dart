@@ -243,31 +243,60 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Widget jumpToThePosition(IconData iconData){
-    double iconSize = 30;
-    if(iconData == Icons.forward_30 || iconData == Icons.replay_30)
-      iconSize = 40;
+    double iconSize = 25;
 
     return !isDrivingMode ?
-     IconButton(
-      iconSize: iconSize,
-      color: Colors.white,
-      onPressed: () {
-        int tempPosition = 0;
-        if(position.inSeconds < 10){
-          tempPosition = 0;
-        }
-        else{
-          tempPosition = position.inSeconds - 10;
-        }
-        setState(() {
-          position = new Duration(seconds: tempPosition);
-          seekToSec(position.inMilliseconds);
-        });
-      },
-      icon: Icon(
-        iconData,
-      ),
-    ) : SizedBox();
+     Expanded(
+       child: IconButton(
+        iconSize: iconSize,
+        color: Colors.white,
+        onPressed: () {
+          int tempPosition = 0;
+          if(iconData == Icons.forward_30){
+            iconSize = 30;
+            if(audioManagerInstance.duration.inSeconds - position.inSeconds < 30){
+              tempPosition = audioManagerInstance.duration.inSeconds;
+            }
+            else{
+              tempPosition = position.inSeconds + 30;
+            }
+          }
+          else if(iconData == Icons.replay_30){
+            iconSize = 30;
+            if(position.inSeconds < 30){
+              tempPosition = 0;
+            }
+            else{
+              tempPosition = position.inSeconds - 30;
+            }
+          }
+          else if(iconData == Icons.replay_10){
+            if(position.inSeconds < 10){
+              tempPosition = 0;
+            }
+            else{
+              tempPosition = position.inSeconds - 10;
+            }
+          }
+          else {
+            if(audioManagerInstance.duration.inSeconds - position.inSeconds < 10){
+              tempPosition = audioManagerInstance.duration.inSeconds;
+            }
+            else{
+              tempPosition = position.inSeconds + 10;
+            }
+          }
+
+          setState(() {
+            position = new Duration(seconds: tempPosition);
+            seekToSec(position.inMilliseconds);
+          });
+        },
+        icon: Icon(
+          iconData,
+        ),
+    ),
+     ) : SizedBox();
   }
 
 
@@ -367,7 +396,7 @@ class _NowPlayingState extends State<NowPlaying> {
                                         (audioManagerInstance.curIndex + 1)
                                             .toString() + ' / ' +
                                         (audioManagerInstance
-                                        .audioList.length).toString() + ')'
+                                          .audioList.length).toString() + ')'
                                     ,
                                     style: TextStyle(
                                       color: Colors.white,
@@ -436,80 +465,86 @@ class _NowPlayingState extends State<NowPlaying> {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          IconButton(
-                                            iconSize: !isDrivingMode ? 35 : 65,
-                                            color: Colors.white,
-                                            onPressed: () {
-                                              position = new Duration();
-                                              musicLength = new Duration();
-                                              if(audioManagerInstance.curIndex != 0)
-                                              {
-                                                audioManagerInstance.previous();
-                                                audioManagerInstance.playOrPause();
-                                                setState(() {
-                                                  playBtn = Icons.pause;
-                                                });
-                                              }
-                                              else {
-                                                Fluttertoast.showToast(msg: 'اولین فایل');
-                                              }
-                                            },
-                                            icon: Icon(
-                                              Icons.skip_previous,
+                                          Expanded(
+                                            child: IconButton(
+                                              iconSize: !isDrivingMode ? 25 : 45,
+                                              color: Colors.white,
+                                              onPressed: () {
+                                                position = new Duration();
+                                                musicLength = new Duration();
+                                                if(audioManagerInstance.curIndex != 0)
+                                                {
+                                                  audioManagerInstance.previous();
+                                                  audioManagerInstance.playOrPause();
+                                                  setState(() {
+                                                    playBtn = Icons.pause;
+                                                  });
+                                                }
+                                                else {
+                                                  Fluttertoast.showToast(msg: 'اولین فایل');
+                                                }
+                                              },
+                                              icon: Icon(
+                                                Icons.skip_previous,
+                                              ),
                                             ),
                                           ),
                                           jumpToThePosition(Icons.replay_10),
                                           jumpToThePosition(Icons.replay_30),
-                                          IconButton(
-                                            iconSize: isDrivingMode ? 95 : 65.0,
-                                            color: Colors.white,
-                                            onPressed: () async {
-                                              if (!audioManagerInstance.isPlaying) {
-                                                setState(() {
-                                                  playBtn = Icons.pause;
-                                                });
+                                          Expanded(
+                                            child: InkWell(
+                                              // iconSize: isDrivingMode ? 65 : 35,
+                                              // color: Colors.white,
+                                              onTap: () async {
+                                                if (!audioManagerInstance.isPlaying) {
+                                                  setState(() {
+                                                    playBtn = Icons.pause;
+                                                  });
 
-                                                if(episodeAudios.length > audioManagerInstance.audioList.length)
-                                                  await downloadAndDecryptFiles(episodeAudios);
+                                                  if(episodeAudios.length > audioManagerInstance.audioList.length)
+                                                    downloadAndDecryptFiles(episodeAudios);
 
-                                                await AudioManager.instance.play(index: audioManagerInstance.curIndex);
-
-
-                                              } else {
-                                                // _player.pause();
-                                                await AudioManager.instance.playOrPause();
-                                                setState(() {
-                                                  playBtn = Icons.play_arrow;
-                                                });
-                                              }
-                                            },
-                                            icon: Icon(
-                                              playBtn,
+                                                  await AudioManager.instance.play(index: audioManagerInstance.curIndex);
+                                                } else {
+                                                  // _player.pause();
+                                                  await AudioManager.instance.playOrPause();
+                                                  setState(() {
+                                                    playBtn = Icons.play_arrow;
+                                                  });
+                                                }
+                                              },
+                                              child: Icon(
+                                                playBtn,
+                                                size: isDrivingMode ? 65 : 45,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                           jumpToThePosition(Icons.forward_30),
                                           jumpToThePosition(Icons.forward_10),
-                                          IconButton(
-                                            iconSize: !isDrivingMode ? 35 : 65,
-                                            color: Colors.white,
-                                            onPressed: () {
-                                              position = new Duration();
-                                              musicLength = new Duration();
-                                              if(audioManagerInstance.curIndex !=
-                                                  audioManagerInstance.audioList.length - 1)
-                                              {
-                                                audioManagerInstance.next();
-                                                audioManagerInstance.playOrPause();
-                                                setState(() {
-                                                  playBtn = Icons.pause;
-                                                });
-                                              }
-                                              else {
-                                                Fluttertoast.showToast(msg: 'آخرین فایل');
-                                              }
-                                            },
-                                            icon: Icon(
-                                              Icons.skip_next,
+                                          Expanded(
+                                            child: IconButton(
+                                              iconSize: !isDrivingMode ? 25 : 45,
+                                              color: Colors.white,
+                                              onPressed: () {
+                                                position = new Duration();
+                                                musicLength = new Duration();
+                                                if(audioManagerInstance.curIndex !=
+                                                    audioManagerInstance.audioList.length - 1)
+                                                {
+                                                  audioManagerInstance.next();
+                                                  audioManagerInstance.playOrPause();
+                                                  setState(() {
+                                                    playBtn = Icons.pause;
+                                                  });
+                                                }
+                                                else {
+                                                  Fluttertoast.showToast(msg: 'آخرین فایل');
+                                                }
+                                              },
+                                              icon: Icon(
+                                                Icons.skip_next,
+                                              ),
                                             ),
                                           ),
                                         ],

@@ -94,12 +94,19 @@ class _HomePageState extends State<HomePage> {
 
   Future _onSelectPromotionNotification(String payload) async {
     print('payload: $payload');
-    Course course = await courseData.getCourseById(int.parse(payload));
-    var courseCover = await DefaultCacheManager().getSingleFile(course.photoAddress);
+    if(payload != 0.toString()){
+      Course course = await courseData.getCourseById(int.parse(payload));
+      var courseCover = await DefaultCacheManager().getSingleFile(course.photoAddress);
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CoursePage(course, courseCover);
-    }));
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return CoursePreview(course);
+      }));
+    }
+    else{
+      setState(() {
+        tabIndex = 0;
+      });
+    }
   }
 
   Future _onSelectReminderNotification(String payload) async {
@@ -149,8 +156,8 @@ class _HomePageState extends State<HomePage> {
     var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
     var iOS = IOSNotificationDetails();
     var platform = NotificationDetails(android: android, iOS: iOS);
-    await localPromotionNotificationsPlugin.zonedSchedule(
-        0,
+    await localReminderNotificationsPlugin.zonedSchedule(
+        1,
         title,
         body,
         _nextInstanceOfTimeToShowNotification(int.parse(timeOfDay)),
@@ -166,7 +173,7 @@ class _HomePageState extends State<HomePage> {
     try{
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       tz.TZDateTime scheduledDate =
-      tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 56);
+      tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 0);
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
@@ -206,13 +213,14 @@ class _HomePageState extends State<HomePage> {
     var android = AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = IOSInitializationSettings();
     var initSettings = InitializationSettings(android: android, iOS: iOS);
-    localPromotionNotificationsPlugin
-        .initialize(initSettings, onSelectNotification: _onSelectPromotionNotification);
-    await _setUpPromotionNotification();
 
     localReminderNotificationsPlugin
         .initialize(initSettings, onSelectNotification: _onSelectReminderNotification);
     await _setUpReminderNotification();
+
+    localPromotionNotificationsPlugin
+        .initialize(initSettings, onSelectNotification: _onSelectPromotionNotification);
+    await _setUpPromotionNotification();
   }
 
   Future setGeneralConfigurations() async{
@@ -609,10 +617,10 @@ class _HomePageState extends State<HomePage> {
               }).toList()
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(right:10.0),
               child: SizedBox(
                 height: 30,
-                child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 20),),
+                child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 18),),
               ),
             ),
             GridView.count(
