@@ -256,6 +256,7 @@ class _HomePageState extends State<HomePage> {
               goToCoursePreview(course);
             },
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 ClipRRect(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(8)),

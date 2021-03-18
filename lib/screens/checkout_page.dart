@@ -179,7 +179,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                         flex: 2,
                         child: TextField(
                           style: TextStyle(color: Colors.white),
-                          keyboardType: TextInputType.phone,
+                          keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(

@@ -590,7 +590,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                 height: 55,
                                 child: TextField(
                                   style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.visiblePassword,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     enabledBorder: OutlineInputBorder(
@@ -618,7 +618,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                 height: 55,
                                 child: TextField(
                                   style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.visiblePassword,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     enabledBorder: OutlineInputBorder(
