@@ -55,12 +55,12 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
   }
 
   Future addSalespersonCouponCode(String salespersonCouponCode) async{
-    // int tempDiscountPercent = await discountService
-    //     .salespersonDiscountPercent(salespersonCouponCode);
-    // if(tempDiscountPercent < 0){
-    //   Fluttertoast.showToast(msg: 'کد وارد شده معتبر نیست');
-    //   return;
-    // }
+    int tempDiscountPercent = await discountService
+        .salespersonDiscountPercent(salespersonCouponCode);
+    if(tempDiscountPercent < 0){
+      Fluttertoast.showToast(msg: 'کد وارد شده معتبر نیست');
+      return;
+    }
     User user = await discountService
         .setSalespersonCouponCode(couponCodeController.text, courseStore.token);
 
@@ -109,7 +109,7 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                     'در صورت در اختیار داشتن کد معرف آن را وارد کنید '
                       'تا از تخفیف ها و مزایای آن بهره مند شوید' : descriptionText,
                     style: TextStyle(fontSize: 20),
-                    textAlign: TextAlign.justify,
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(
                     height: 45,

@@ -31,7 +31,7 @@ class _IntroPageState extends State<IntroPage> {
             "این برنامه جهت افزایش مهارت و توانمندی شما"
             " در روابط اجتماعی و ارتباط با جنس مخالف تهیه شده است.",
         styleDescription: TextStyle(
-            color: Color(0xfffe9c8f),
+            color: Color(0xFF20BFA9),
             fontSize: 20.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
@@ -53,7 +53,7 @@ class _IntroPageState extends State<IntroPage> {
             " تبلیغات، ما را حمایت کنید و انگیزه ای باشید برای ما"
             " تا محتوای آموزشی رایگان بیشتری برای شما تهیه کنیم.",
         styleDescription: TextStyle(
-            color: Color(0xfffe9c8f),
+            color: Color(0xFF20BFA9),
             fontSize: 20.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
@@ -74,7 +74,7 @@ class _IntroPageState extends State<IntroPage> {
             " تکنیک های ارائه شده،  میتوانید استاد برقراری"
             " ارتباط در فضای مجازی و حقیقی شوید .",
         styleDescription: TextStyle(
-            color: Color(0xfffe9c8f),
+            color: Color(0xFF20BFA9),
             fontSize: 20.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
@@ -95,7 +95,7 @@ class _IntroPageState extends State<IntroPage> {
             " زمان و در بروز رسانی های بعدی قرار داده خواهد شد. "
             "حمایت شما انگیزه بخش ادامه این مسیر خواهد بود.",
         styleDescription: TextStyle(
-            color: Color(0xfffe9c8f),
+            color: Color(0xFF20BFA9),
             fontSize: 20.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
@@ -119,7 +119,7 @@ class _IntroPageState extends State<IntroPage> {
   Widget renderNextBtn() {
     return Icon(
       Icons.navigate_next,
-      color: Color(0xffffcc5c),
+      color: Color(0xFF20BFA9),
       size: 35.0,
     );
   }
@@ -127,14 +127,14 @@ class _IntroPageState extends State<IntroPage> {
   Widget renderDoneBtn() {
     return Icon(
       Icons.done,
-      color: Color(0xffffcc5c),
+      color: Color(0xFF20BFA9),
     );
   }
 
   Widget renderSkipBtn() {
     return Icon(
       Icons.skip_next,
-      color: Color(0xffffcc5c),
+      color: Color(0xFF20BFA9),
     );
   }
 
@@ -194,7 +194,7 @@ class _IntroPageState extends State<IntroPage> {
       // Skip button
       renderSkipBtn: this.renderSkipBtn(),
       colorSkipBtn: Color(0x33ffcc5c),
-      highlightColorSkipBtn: Color(0xffffcc5c),
+      highlightColorSkipBtn:  Color(0xff3da4ab),
 
       // Next button
       renderNextBtn: this.renderNextBtn(),
@@ -203,10 +203,10 @@ class _IntroPageState extends State<IntroPage> {
       renderDoneBtn: this.renderDoneBtn(),
       onDonePress: this.onDonePress,
       colorDoneBtn: Color(0x33ffcc5c),
-      highlightColorDoneBtn: Color(0xffffcc5c),
+      highlightColorDoneBtn:  Color(0xff3da4ab),
 
       // Dot indicator
-      colorDot: Color(0xffffcc5c),
+      colorDot: Color(0xff3da4ab),
       sizeDot: 13.0,
       typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
 

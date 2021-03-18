@@ -323,32 +323,13 @@ class _HomePageState extends State<HomePage> {
                   sliderItem.title,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 30.0,
+                    fontSize: 22.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
           ]),
-            // TextButton(
-            //   onPressed: () async {
-            //     Course course = await courseData.getCourseById(sliderItem.courseId);
-            //     goToCoursePreview(course);
-            //   },
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       image: DecorationImage(
-            //         image: FileImage(pictureFile),
-            //         fit: BoxFit.cover,
-            //       ),
-            //     ), //Image.file(pictureFile,),
-            //   ),
-            //   style: ButtonStyle(
-            //     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-            //         EdgeInsetsGeometry.lerp(EdgeInsets.zero, EdgeInsets.zero, 0)
-            //     ),
-            //   ),
-            // )
         );
       }
       catch(e){

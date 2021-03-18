@@ -5,9 +5,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course.dart';
+import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/review.dart';
+import 'package:mobile/screens/checkout_page.dart';
 import 'package:mobile/screens/course_page.dart';
+import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/services/course_service.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
@@ -34,6 +38,8 @@ class _CoursePreviewState extends State<CoursePreview> {
   String sendButtonText = 'ارسال';
   double sendButtonSize = 20;
   Color sendButtonColor = Color(0xFF20BFA9);
+  bool isWholeCourseAvailable = true;
+  bool alertReturn = false;
 
   @override
   void initState() {
@@ -79,6 +85,115 @@ class _CoursePreviewState extends State<CoursePreview> {
       sendButtonColor = Color(0xFF20BFA9);
     });
   }
+
+  Future<List<CourseEpisode>> eliminateRepetitiveEpisodes(List<CourseEpisode> episodes) async{
+
+    List<CourseEpisode> basketEpisodes = List.from(episodes);
+    List<int> courseEpisodeIds = List<int>();
+    basketEpisodes.forEach((episode) {
+      courseEpisodeIds.add(episode.id);
+    });
+    courseStore.userEpisodes.forEach((episode) {
+      if(courseEpisodeIds.contains(episode.id)){
+        basketEpisodes.removeWhere((ep) => ep.id == episode.id);
+        isWholeCourseAvailable = false;
+      }
+    });
+    basketEpisodes.removeWhere((ep) => ep.price == 0);
+
+    return basketEpisodes;
+  }
+
+  Future createBasket(Course course) async{
+    List<CourseEpisode> episodes = List<CourseEpisode>();
+    CourseEpisodeData courseEpisodeData = CourseEpisodeData();
+    episodes = await courseEpisodeData.getCourseEpisodes(course.id);
+
+    if(courseStore.token != null && courseStore.token != ''){
+        List<CourseEpisode> episodesToBePurchased = [];
+        for(var episode in episodes){
+          if(episode.price != null || episode.price != 0)
+            episodesToBePurchased.add(episode);
+        }
+        List<CourseEpisode> finaleEpisodeIds =
+          await eliminateRepetitiveEpisodes(episodesToBePurchased);
+        if(finaleEpisodeIds.length == 0){
+          Fluttertoast
+              .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
+          return;
+        }
+
+        if(!isWholeCourseAvailable){
+          Widget cancelB = cancelButton('خیر');
+          Widget continueB =
+          continueButton('بله', Alert.LogOut, null);
+          AlertDialog alertD = alert('هشدار',
+              'با توجه به اینکه قبلا یک یا چند قسمت از'
+                  ' این دوره را خریداری کرده اید، قیمت دوره'
+                  ' به صورت مجموع قیمت تمام قسمتها محاسبه'
+                  ' می شود. ادامه خرید؟',
+              [cancelB, continueB]);
+
+          await showBasketAlertDialog(context, alertD);
+
+          if(alertReturn){
+            await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return CheckOutPage();
+                })
+            );
+          }
+          alertReturn = false;
+        }
+        else{
+          await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
+        }
+    }
+  }
+
+  Widget cancelButton(String cancelText){
+    return FlatButton(
+      child: Text(cancelText),
+      onPressed: () {
+        Navigator.of(context).pop();
+        alertReturn = false;
+      },
+    );
+  }
+
+  Widget continueButton(String continueText, Alert alert, int index){
+    return FlatButton(
+      child: Text(continueText),
+      onPressed: () {
+        Navigator.of(context).pop();
+        alertReturn = true;
+      },
+    );
+  }
+
+  AlertDialog alert(String titleText, String contentText, List<Widget> actions){
+    return AlertDialog(
+      title: Text(titleText),
+      content: Text(contentText),
+      actions: actions,
+    );
+  }
+
+  Future showBasketAlertDialog(BuildContext context, AlertDialog alert) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +358,9 @@ class _CoursePreviewState extends State<CoursePreview> {
                                 child: Container(
                                   color: Color(0xFF20BFA9),
                                   child: TextButton(
+                                    onPressed: () async{
+                                      await createBasket(course);
+                                    },
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: [

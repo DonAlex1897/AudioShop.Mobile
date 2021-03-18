@@ -68,16 +68,19 @@ class _CoursePageState extends State<CoursePage> {
 
   Future<List<CourseEpisode>> eliminateRepetitiveEpisodes(List<CourseEpisode> episodes) async{
 
-      List<CourseEpisode> basketEpisodes = List.from(episodes);
+    List<CourseEpisode> basketEpisodes = List.from(episodes);
+    List<int> courseEpisodeIds = List<int>();
+    basketEpisodes.forEach((episode) {
+      courseEpisodeIds.add(episode.id);
+    });
+    courseStore.userEpisodes.forEach((episode) {
+      if(courseEpisodeIds.contains(episode.id)){
+        basketEpisodes.removeWhere((ep) => ep.id == episode.id);
+        isWholeCourseAvailable = false;
+      }
+    });
 
-      courseStore.userEpisodes.forEach((episode) {
-        if(episodes.contains(episode)){
-          basketEpisodes.remove(episode);
-          isWholeCourseAvailable = false;
-        }
-      });
-
-      return basketEpisodes;
+    return basketEpisodes;
   }
 
   Future<bool> isEpisodeAccessible(
