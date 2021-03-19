@@ -32,23 +32,23 @@ class _SupportPageState extends State<SupportPage> {
                   Expanded(
                     child: TextButton(
                       onPressed: () async{
-                        FlutterOpenWhatsapp
-                            .sendSingleMessage(
-                              "+989012416905",
-                              "سلام. در مورد اپلیکیشن مهارت های ارتباطی"
-                                  " سوال داشتم ازتون.");
-                        // String chatUrl = 'https://api.whatsapp.com/send/?phone=989012416905&text&app_absent=0';
-                        // if (await canLaunch(chatUrl)){
-                        //   try{
-                        //     await launch(chatUrl);
-                        //   }
-                        //   catch(e){
-                        //     print(e.toString());
-                        //   }
-                        //   finally{
-                        //     SystemNavigator.pop();
-                        //   }
-                        // }
+                        // FlutterOpenWhatsapp
+                        //     .sendSingleMessage(
+                        //       "+989012416905",
+                        //       "سلام. در مورد اپلیکیشن مهارت های ارتباطی"
+                        //           " سوال داشتم ازتون.");
+                        String chatUrl = 'https://api.whatsapp.com/send/?phone=989012416905&text&app_absent=0';
+                        if (await canLaunch(chatUrl)){
+                          try{
+                            await launch(chatUrl);
+                          }
+                          catch(e){
+                            print(e.toString());
+                          }
+                          // finally{
+                          //   SystemNavigator.pop();
+                          // }
+                        }
                       },
                       child: Image.asset('assets/images/whatsapp.png'),
                     ),
@@ -56,12 +56,7 @@ class _SupportPageState extends State<SupportPage> {
                   Expanded(
                     child: TextButton(
                       onPressed: () async{
-                        // FlutterOpenWhatsapp
-                        //     .sendSingleMessage(
-                        //     "+989012416905",
-                        //     "سلام. در مورد اپلیکیشن مهارت های ارتباطی"
-                        //         " سوال داشتم ازتون.");
-                        String chatUrl = 'https://telegram.me/samiehn';
+                        String chatUrl = 'https://telegram.me/aminkaviyani';
                         if (await canLaunch(chatUrl)){
                           try{
                             await launch(chatUrl);

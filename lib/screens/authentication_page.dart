@@ -279,7 +279,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                               color: Colors.white,
                             ),
                             labelText: 'شماره همراه',
-                            hintText: '9121111111',
+                            hintText: 'مثال: 9121111111',
                             hintStyle: TextStyle(
                               color: Colors.white60,
                             ),
