@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -118,7 +119,24 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         onPressed: () {
           setState(() {
             if (!isTimerActive) {
-              receiveCode();
+              bool isQualified = true;
+              if(phoneNumberController.text.isNotEmpty &&
+                  phoneNumberController.text[0] == '0')
+                phoneNumberController.text =
+                    phoneNumberController.text.substring(1);
+              setState(() {
+                phoneNumberError = verificationCodeError = '';
+                if (phoneNumberController.text.isEmpty){
+                  phoneNumberError = 'شماره موبایل الزامی است';
+                  isQualified = false;
+                }
+                else if(phoneNumberController.text.length != 10){
+                  phoneNumberError = 'فرمت شماره همراه اشتباه است';
+                  isQualified = false;
+                }
+              });
+              if(isQualified)
+                receiveCode();
             }
           });
         },
@@ -261,6 +279,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                               color: Colors.white,
                             ),
                             labelText: 'شماره همراه',
+                            hintText: '9121111111',
+                            hintStyle: TextStyle(
+                              color: Colors.white60,
+                            ),
                           ),
                           controller: phoneNumberController,
                         ),
@@ -329,18 +351,30 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         ),
                         child: TextButton(
                           onPressed: () async {
+                            bool isQualified = true;
+                            if(phoneNumberController.text.isNotEmpty &&
+                                phoneNumberController.text[0] == '0')
+                              phoneNumberController.text =
+                                  phoneNumberController.text.substring(1);
                             setState(() {
                               phoneNumberError = verificationCodeError = '';
-                              if (phoneNumberController.text.isEmpty)
+                              if (phoneNumberController.text.isEmpty){
                                 phoneNumberError = 'شماره موبایل الزامی است';
-                              if (verificationCodeController.text.isEmpty)
+                                isQualified = false;
+                              }
+                              else if(phoneNumberController.text.length != 10){
+                                phoneNumberError =
+                                  'فرمت شماره همراه اشتباه است';
+                                isQualified = false;
+                              }
+                              if (verificationCodeController.text.isEmpty){
                                 verificationCodeError =
-                                    'کد ارسال شده به همراهتان را وارد کنید';
+                                  'کد ارسال شده به همراهتان را وارد کنید';
+                                isQualified = false;
+                              }
                             });
-                            if (phoneNumberController.text.isNotEmpty &&
-                                verificationCodeController.text.isNotEmpty)
+                            if(isQualified)
                               await signIn();
-                            //TODO SignIn Method
                           },
                           child: Text(
                             'تایید',
@@ -401,6 +435,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             color: Colors.white,
                           ),
                           labelText: 'شماره همراه',
+                          hintText: 'مثال: 9121111111',
+                          hintStyle: TextStyle(
+                            color: Colors.white60,
+                          ),
                         ),
                         controller: phoneNumberController,
                       ),
@@ -465,17 +503,29 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         color: Color(0xFF20BFA9),
                         child: TextButton(
                           onPressed: () async {
+                            bool isQualified = true;
+                            if(phoneNumberController.text.isNotEmpty &&
+                                phoneNumberController.text[0] == '0')
+                              phoneNumberController.text =
+                                  phoneNumberController.text.substring(1);
                             setState(() {
                               phoneNumberError = verificationCodeError = '';
-                              if (phoneNumberController.text.isEmpty)
+                              if (phoneNumberController.text.isEmpty){
                                 phoneNumberError = 'شماره موبایل الزامی است';
-                              if (verificationCodeController.text.isEmpty)
+                                isQualified = false;
+                              }
+                              else if(phoneNumberController.text.length != 10){
+                                phoneNumberError =
+                                'فرمت شماره همراه اشتباه است';
+                                isQualified = false;
+                              }
+                              if (verificationCodeController.text.isEmpty){
                                 verificationCodeError =
-                                    'کد ارسال شده به همراهتان را وارد کنید';
-
+                                'کد ارسال شده به همراهتان را وارد کنید';
+                                isQualified = false;
+                              }
                             });
-                            if(phoneNumberController.text.isNotEmpty &&
-                              verificationCodeController.text.isNotEmpty)
+                            if(isQualified)
                               await registerPhoneNumber();
                           },
                           child: Text(
