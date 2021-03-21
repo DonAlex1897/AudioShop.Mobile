@@ -13,6 +13,7 @@ import 'package:mobile/models/episode_audios.dart';
 import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
+import 'package:async/async.dart';
 
 class NowPlaying extends StatefulWidget {
   NowPlaying(this.episodeDetails, this.courseCoverUrl);
@@ -40,9 +41,10 @@ class _NowPlayingState extends State<NowPlaying> {
   IconData playBtn = Icons.play_arrow;
   CourseEpisodeData courseEpisodeData;
   bool isDrivingMode = false;
-
   Duration position = new Duration();
   Duration musicLength = new Duration();
+  bool isTakingMuchTime = false;
+  Duration _timerDuration = new Duration(seconds: 10);
 
 
   @override
@@ -111,6 +113,7 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Future<dynamic> setAudioFile() async{
+    RestartableTimer(_timerDuration, setTimerState);
     try{
 
       if(await isCurrentEpisodePlaying(widget.episodeDetails.id) &&
@@ -297,6 +300,66 @@ class _NowPlayingState extends State<NowPlaying> {
         ),
     ),
      ) : SizedBox();
+  }
+
+  Widget spinner(){
+    return Scaffold(
+        body: !isTakingMuchTime ? SpinKitWave(
+          type: SpinKitWaveType.center,
+          color: Color(0xFF20BFA9),
+          size: 65.0,
+        ) :
+        Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Image.asset('assets/images/internetdown.png')
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      isTakingMuchTime = false;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => super.widget));
+                    });
+                  },
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'تلاش مجدد',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18
+                        ),),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        )
+    ) ;
+  }
+
+  setTimerState() {
+    setState(() {
+      isTakingMuchTime = true;
+    });
   }
 
 
@@ -564,14 +627,7 @@ class _NowPlayingState extends State<NowPlaying> {
           );
         }
         else{
-          return Container(
-            color: Color(0xFF202028),
-            child: SpinKitWave(
-              type: SpinKitWaveType.center,
-              color: Color(0xFF20BFA9),
-              size: 65.0,
-            ),
-          );
+          return spinner();
         }
       }
     );

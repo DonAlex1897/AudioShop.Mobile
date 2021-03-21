@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/now_playing.dart';
@@ -13,6 +12,7 @@ import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
+import 'package:async/async.dart';
 
 import 'authentication_page.dart';
 import 'checkout_page.dart';
@@ -41,6 +41,8 @@ class _CoursePageState extends State<CoursePage> {
   int nonFreeEpisodesCount = 0;
   int purchasedEpisodesCount = 0;
   final secureStorage = FlutterSecureStorage();
+  bool isTakingMuchTime = false;
+  Duration _timerDuration = new Duration(seconds: 5);
 
   @override
   void setState(fn) {
@@ -56,6 +58,7 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future<List<CourseEpisode>> getCourseEpisodes() async{
+    RestartableTimer(_timerDuration, setTimerState);
     CourseEpisodeData courseEpisodeData = CourseEpisodeData();
     List<CourseEpisode> courseEpisodes =
       await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
@@ -603,6 +606,67 @@ class _CoursePageState extends State<CoursePage> {
     );
   }
 
+  Widget spinner(){
+    return Scaffold(
+        body: !isTakingMuchTime ? SpinKitWave(
+          type: SpinKitWaveType.center,
+          color: Color(0xFF20BFA9),
+          size: 65.0,
+        ) :
+        Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    width: width * 1.5,
+                    child: Image.asset('assets/images/internetdown.png')
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      isTakingMuchTime = false;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => super.widget));
+                    });
+                  },
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'تلاش مجدد',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18
+                        ),),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        )
+    ) ;
+  }
+
+  setTimerState() {
+    setState(() {
+      isTakingMuchTime = true;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
@@ -623,14 +687,7 @@ class _CoursePageState extends State<CoursePage> {
             );
           }
           else{
-            return Container(
-              color: Color(0xFF202028),
-              child: SpinKitWave(
-                type: SpinKitWaveType.center,
-                color: Color(0xFF20BFA9),
-                size: 65.0,
-              ),
-            );
+            return spinner();
           }
         }
     );

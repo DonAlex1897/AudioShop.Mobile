@@ -8,7 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
+import 'package:async/async.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
@@ -60,6 +60,8 @@ class _HomePageState extends State<HomePage> {
   MethodChannel platform = MethodChannel('audioshoppp.ir.mobile/notification');
   TextEditingController searchController = TextEditingController();
   int currentSlideIndex = 0;
+  bool isTakingMuchTime = false;
+  Duration _timerDuration = new Duration(seconds: 5);
 
   @override
   void setState(fn) {
@@ -185,7 +187,68 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Widget spinner(){
+    return Scaffold(
+      body: !isTakingMuchTime ? SpinKitWave(
+        type: SpinKitWaveType.center,
+        color: Color(0xFF20BFA9),
+        size: 65.0,
+      ) :
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: width * 1.5,
+                child: Image.asset('assets/images/internetdown.png')
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'لطفا اتصال اینترنت خود را بررسی کنید',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: (){
+                  setState(() {
+                    isTakingMuchTime = false;
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => super.widget));
+                  });
+                },
+                child: Card(
+                  color: Color(0xFF20BFA9),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'تلاش مجدد',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18
+                      ),),
+                  ),
+                ),
+              )
+            ]
+        ),
+      )
+    ) ;
+  }
+
+  setTimerState() {
+    setState(() {
+      isTakingMuchTime = true;
+    });
+  }
+
   Future<List<Course>> getCourses() async {
+    RestartableTimer(_timerDuration, setTimerState);
     try{
       tz.initializeTimeZones();
       final String timeZoneName = await platform.invokeMethod('getTimeZoneName');
@@ -1108,14 +1171,7 @@ class _HomePageState extends State<HomePage> {
                     body: navigationSelect(tabIndex)),
                 onWillPop: onWilPop);
           else
-            return Container(
-              color: Color(0xFF202028),
-              child: SpinKitWave(
-                type: SpinKitWaveType.center,
-                color: Color(0xFF20BFA9),
-                size: 65.0,
-              ),
-            );
+            return spinner();
         });
   }
 }

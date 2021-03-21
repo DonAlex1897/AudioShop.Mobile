@@ -52,6 +52,7 @@ flutter:
     - assets/images/telegram.png
     - assets/images/support.png
     - assets/images/16personalities.png
+    - assets/images/internetdown.png
   #   - images/a_dot_ham.jpeg
 
   fonts:

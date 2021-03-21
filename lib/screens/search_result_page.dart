@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:mobile/services/course_service.dart';
+import 'package:async/async.dart';
 
 class SearchResultPage extends StatefulWidget {
   SearchResultPage(this.courseName);
@@ -15,6 +16,8 @@ class SearchResultPage extends StatefulWidget {
 class _SearchResultPageState extends State<SearchResultPage> {
   Future<List<Course>> coursesFuture;
   List<Course> coursesList = List<Course>();
+  bool isTakingMuchTime = false;
+  Duration _timerDuration = new Duration(seconds: 5);
 
   @override
   void initState() {
@@ -23,6 +26,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   }
 
   Future<List<Course>> getCourses(String searchParameter) async{
+    RestartableTimer(_timerDuration, setTimerState);
     CourseData courseData = CourseData();
     coursesList = await courseData.searchCourses(searchParameter);
     return coursesList;
@@ -34,6 +38,67 @@ class _SearchResultPageState extends State<SearchResultPage> {
       return CoursePreview(course);
     }));
   }
+
+  Widget spinner(){
+    return Scaffold(
+        body: !isTakingMuchTime ? SpinKitWave(
+          type: SpinKitWaveType.center,
+          color: Color(0xFF20BFA9),
+          size: 65.0,
+        ) :
+        Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Image.asset('assets/images/internetdown.png')
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      isTakingMuchTime = false;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => super.widget));
+                    });
+                  },
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'تلاش مجدد',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18
+                        ),),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        )
+    ) ;
+  }
+
+  setTimerState() {
+    setState(() {
+      isTakingMuchTime = true;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +158,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                 }),
           );
         else
-          return Container(
-            color: Color(0xFF202028),
-            child: SpinKitWave(
-              type: SpinKitWaveType.center,
-              color: Color(0xFF20BFA9),
-              size: 65.0,
-            ),
-          );
+          return spinner();
       });
   }
 }
