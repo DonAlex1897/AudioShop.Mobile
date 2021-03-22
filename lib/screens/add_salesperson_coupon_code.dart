@@ -102,6 +102,7 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 // crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(courseStore.salespersonCouponCode == null ||
@@ -116,12 +117,12 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                   ),
                   Container(
                     width: 200,
-                    height: 55,
                     child: TextField(
                       style: TextStyle(
                           decorationColor: Colors.black, color: Colors.white),
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         enabledBorder: OutlineInputBorder(
                           borderSide:
                           BorderSide(color: Colors.white, width: 2.0),

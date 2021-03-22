@@ -260,12 +260,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 28.0),
                       child: Container(
-                        height: 55,
                         child: TextField(
                           style: TextStyle(
                               decorationColor: Colors.black, color: Colors.white),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
                             enabledBorder: OutlineInputBorder(
                               borderSide:
                                   BorderSide(color: Colors.white, width: 2.0),
@@ -313,6 +313,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                   style: TextStyle(color: Colors.white),
                                   keyboardType: TextInputType.phone,
                                   decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                     border: OutlineInputBorder(),
                                     enabledBorder: OutlineInputBorder(
                                       borderSide:
@@ -422,6 +423,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             decorationColor: Colors.black, color: Colors.white),
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
                           enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.white, width: 2.0),
@@ -468,6 +470,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                   style: TextStyle(color: Colors.white),
                                   keyboardType: TextInputType.phone,
                                   decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                     border: OutlineInputBorder(),
                                     enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
@@ -572,30 +575,28 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           children: [
                             Expanded(
                               flex: 5,
-                              child: Container(
-                                height: 55,
-                                child: TextField(
-                                  style: TextStyle(
-                                      decorationColor: Colors.black,
-                                      color: Colors.white),
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    border: OutlineInputBorder(),
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                    labelText: 'نام کاربری',
+                              child: TextField(
+                                style: TextStyle(
+                                    decorationColor: Colors.black,
+                                    color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
                                   ),
-                                  controller: userNameController,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(),
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  labelText: 'نام کاربری',
                                 ),
+                                controller: userNameController,
                               ),
                             ),
                             Expanded(
@@ -603,7 +604,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 10.0),
                                 child: Container(
-                                  height: 55,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: !isCheckingUserName
@@ -655,56 +655,52 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4.0),
-                              child: Container(
-                                height: 55,
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.visiblePassword,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    labelText: 'رمز عبور',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                    ),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.visiblePassword,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
                                   ),
-                                  controller: passwordController,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'رمز عبور',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
+                                controller: passwordController,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(right: 4.0),
-                              child: Container(
-                                height: 55,
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.visiblePassword,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    labelText: 'تکرار رمز عبور',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                    ),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.visiblePassword,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
                                   ),
-                                  controller: confirmPasswordController,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'تکرار رمز عبور',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
+                                controller: confirmPasswordController,
                               ),
                             ),
                           ),
@@ -719,7 +715,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                       ),
                     ),
                     Container(
-                      height: 55,
+                      height: 45,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Color(0xFF20BFA9),

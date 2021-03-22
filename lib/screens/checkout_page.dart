@@ -192,6 +192,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             style: TextStyle(color: Colors.white),
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
                               border: OutlineInputBorder(),
                               enabledBorder: OutlineInputBorder(
                                 borderSide:

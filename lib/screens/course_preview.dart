@@ -538,6 +538,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                               decorationColor: Colors.black, color: Colors.white),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
                             enabledBorder: OutlineInputBorder(
                               borderSide:
                               BorderSide(color: Colors.white, width: 2.0),

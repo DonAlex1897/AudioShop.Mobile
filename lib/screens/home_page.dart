@@ -364,44 +364,45 @@ class _HomePageState extends State<HomePage> {
         String sliderPicUrl = sliderItem.photoAddress;
         var pictureFile = await DefaultCacheManager().getSingleFile(sliderPicUrl);
         carouselSlider.add(
-          Stack(children: <Widget>[
-            InkWell(onTap: () async {
+          InkWell(
+            onTap: () async {
               Course course = await courseData.getCourseById(sliderItem.courseId);
               goToCoursePreview(course);
             },
+            child: Stack(children: <Widget>[
+              Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: FileImage(pictureFile),
+                        fit: BoxFit.cover,
+                      ),
+                    )
+              ), //I
+              Positioned(
+                bottom: 0.0,
+                left: 0.0,
+                right: 0.0,
                 child: Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: FileImage(pictureFile),
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                )
-            ), //I
-            Positioned(
-              bottom: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color.fromARGB(200, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color.fromARGB(200, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
                   ),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: Text(
-                  sliderItem.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.bold,
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                  child: Text(
+                    sliderItem.title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ]),
+            ]),
+          ),
         );
       }
       catch(e){
@@ -607,6 +608,7 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(color: Colors.white),
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
                           border: OutlineInputBorder(),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
