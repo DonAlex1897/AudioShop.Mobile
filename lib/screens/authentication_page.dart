@@ -241,183 +241,25 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   Widget authForm(FormName formName) {
     if (formName == FormName.SignIn)
       return SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(45, 0, 45, 0),
-            child: Center(
-              child: IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Center(
-                      child: Text(
-                        'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
-                        style:
-                            TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.justify,
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(65, 0, 65, 0),
+          child: Center(
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.justify,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 28.0),
-                      child: Container(
-                        child: TextField(
-                          style: TextStyle(
-                              decorationColor: Colors.black, color: Colors.white),
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 2.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 2.0),
-                            ),
-                            border: OutlineInputBorder(),
-                            labelStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            labelText: 'شماره همراه',
-                            hintText: 'مثال: 9121111111',
-                            hintStyle: TextStyle(
-                              color: Colors.white60,
-                            ),
-                          ),
-                          controller: phoneNumberController,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 30,
-                      child: Text(
-                        phoneNumberError,
-                        style: TextStyle(color: Colors.red[200]),
-                      ),
-                    ),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 1,
-                            child: sendCodeButton(),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Container(
-                                height: 55,
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.phone,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                    border: OutlineInputBorder(),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white, width: 2.0),
-                                    ),
-                                    labelText: 'کد دریافتی',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  controller: verificationCodeController,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                      child: Text(
-                        verificationCodeError,
-                        style: TextStyle(color: Colors.red[200]),
-                      ),
-                    ),
-                    Container(
-                      height: 55,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Color(0xFF20BFA9),
-                        ),
-                        child: TextButton(
-                          onPressed: () async {
-                            bool isQualified = true;
-                            if(phoneNumberController.text.isNotEmpty &&
-                                phoneNumberController.text[0] == '0')
-                              phoneNumberController.text =
-                                  phoneNumberController.text.substring(1);
-                            setState(() {
-                              phoneNumberError = verificationCodeError = '';
-                              if (phoneNumberController.text.isEmpty){
-                                phoneNumberError = 'شماره موبایل الزامی است';
-                                isQualified = false;
-                              }
-                              else if(phoneNumberController.text.length != 10){
-                                phoneNumberError =
-                                  'فرمت شماره همراه اشتباه است';
-                                isQualified = false;
-                              }
-                              if (verificationCodeController.text.isEmpty){
-                                verificationCodeError =
-                                  'کد ارسال شده به همراهتان را وارد کنید';
-                                isQualified = false;
-                              }
-                            });
-                            if(isQualified)
-                              await signIn();
-                          },
-                          child: Text(
-                            'تایید',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    else if (formName == FormName.RegisterPhoneNumber)
-      return SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(45, 0, 45, 0),
-            child: Center(
-              child: IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Center(
-                      child: Text(
-                        'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
-                        style:
-                            TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      height: 55,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 28.0),
+                    child: Container(
                       child: TextField(
                         style: TextStyle(
                             decorationColor: Colors.black, color: Colors.white),
@@ -445,105 +287,250 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         controller: phoneNumberController,
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
-                      child: Text(
-                        phoneNumberError,
-                        style: TextStyle(color: Colors.red[200]),
-                      ),
+                  ),
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      phoneNumberError,
+                      style: TextStyle(color: Colors.red[200]),
                     ),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 1,
-                            child: sendCodeButton(),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Container(
-                                height: 55,
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  keyboardType: TextInputType.phone,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                    border: OutlineInputBorder(),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 2.0),
-                                    ),
-                                    labelText: 'کد دریافتی',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  controller: verificationCodeController,
+                  ),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Expanded(
+                          flex: 1,
+                          child: sendCodeButton(),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: TextField(
+                              style: TextStyle(color: Colors.white),
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                border: OutlineInputBorder(),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.white, width: 2.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.white, width: 2.0),
+                                ),
+                                labelText: 'کد دریافتی',
+                                labelStyle: TextStyle(
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                      child: Text(
-                        verificationCodeError,
-                        style: TextStyle(color: Colors.red[200]),
-                      ),
-                    ),
-                    Container(
-                      height: 55,
-                      child: Card(
-                        color: Color(0xFF20BFA9),
-                        child: TextButton(
-                          onPressed: () async {
-                            bool isQualified = true;
-                            if(phoneNumberController.text.isNotEmpty &&
-                                phoneNumberController.text[0] == '0')
-                              phoneNumberController.text =
-                                  phoneNumberController.text.substring(1);
-                            setState(() {
-                              phoneNumberError = verificationCodeError = '';
-                              if (phoneNumberController.text.isEmpty){
-                                phoneNumberError = 'شماره موبایل الزامی است';
-                                isQualified = false;
-                              }
-                              else if(phoneNumberController.text.length != 10){
-                                phoneNumberError =
-                                'فرمت شماره همراه اشتباه است';
-                                isQualified = false;
-                              }
-                              if (verificationCodeController.text.isEmpty){
-                                verificationCodeError =
-                                'کد ارسال شده به همراهتان را وارد کنید';
-                                isQualified = false;
-                              }
-                            });
-                            if(isQualified)
-                              await registerPhoneNumber();
-                          },
-                          child: Text(
-                            'تایید',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              controller: verificationCodeController,
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      verificationCodeError,
+                      style: TextStyle(color: Colors.red[200]),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Color(0xFF20BFA9),
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        bool isQualified = true;
+                        if(phoneNumberController.text.isNotEmpty &&
+                            phoneNumberController.text[0] == '0')
+                          phoneNumberController.text =
+                              phoneNumberController.text.substring(1);
+                        setState(() {
+                          phoneNumberError = verificationCodeError = '';
+                          if (phoneNumberController.text.isEmpty){
+                            phoneNumberError = 'شماره موبایل الزامی است';
+                            isQualified = false;
+                          }
+                          else if(phoneNumberController.text.length != 10){
+                            phoneNumberError =
+                              'فرمت شماره همراه اشتباه است';
+                            isQualified = false;
+                          }
+                          if (verificationCodeController.text.isEmpty){
+                            verificationCodeError =
+                              'کد ارسال شده به همراهتان را وارد کنید';
+                            isQualified = false;
+                          }
+                        });
+                        if(isQualified)
+                          await signIn();
+                      },
+                      child: Text(
+                        'تایید',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    else if (formName == FormName.RegisterPhoneNumber)
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(65, 0, 65, 0),
+          child: Center(
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Text(
+                      'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextField(
+                    style: TextStyle(
+                        decorationColor: Colors.black, color: Colors.white),
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colors.white, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colors.white, width: 2.0),
+                      ),
+                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                      labelText: 'شماره همراه',
+                      hintText: 'مثال: 9121111111',
+                      hintStyle: TextStyle(
+                        color: Colors.white60,
+                      ),
+                    ),
+                    controller: phoneNumberController,
+                  ),
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      phoneNumberError,
+                      style: TextStyle(color: Colors.red[200]),
+                    ),
+                  ),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Expanded(
+                          flex: 1,
+                          child: sendCodeButton(),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: TextField(
+                              style: TextStyle(color: Colors.white),
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                border: OutlineInputBorder(),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.white, width: 2.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.white, width: 2.0),
+                                ),
+                                labelText: 'کد دریافتی',
+                                labelStyle: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              controller: verificationCodeController,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      verificationCodeError,
+                      style: TextStyle(color: Colors.red[200]),
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF20BFA9),
+                      borderRadius: BorderRadius.circular(5)
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        bool isQualified = true;
+                        if(phoneNumberController.text.isNotEmpty &&
+                            phoneNumberController.text[0] == '0')
+                          phoneNumberController.text =
+                              phoneNumberController.text.substring(1);
+                        setState(() {
+                          phoneNumberError = verificationCodeError = '';
+                          if (phoneNumberController.text.isEmpty){
+                            phoneNumberError = 'شماره موبایل الزامی است';
+                            isQualified = false;
+                          }
+                          else if(phoneNumberController.text.length != 10){
+                            phoneNumberError =
+                            'فرمت شماره همراه اشتباه است';
+                            isQualified = false;
+                          }
+                          if (verificationCodeController.text.isEmpty){
+                            verificationCodeError =
+                            'کد ارسال شده به همراهتان را وارد کنید';
+                            isQualified = false;
+                          }
+                        });
+                        if(isQualified)
+                          await registerPhoneNumber();
+                      },
+                      child: Text(
+                        'تایید',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -553,7 +540,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       return SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(45, 0, 45, 0),
+            padding: const EdgeInsets.fromLTRB(65, 20, 65, 20),
             child: Center(
               child: IntrinsicWidth(
                 child: Column(
@@ -563,7 +550,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                       child: Text(
                         'جهت ثبت نام موارد زیر را کامل کنید',
                         style:
-                            TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.justify,
                       ),
                     ),
@@ -708,7 +695,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 20,
+                      height: 25,
                       child: Text(
                         passwordError,
                         style: TextStyle(color: Colors.red[200]),
@@ -722,20 +709,25 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                       ),
                       child: TextButton(
                         onPressed: () async {
+                          bool isQualified = true;
                           setState(() {
                             userNameError = passwordError = '';
-                            if (userNameController.text.isEmpty)
+                            if (userNameController.text.isEmpty){
                               userNameError = 'نام کاربری الزامی است';
-                            if (passwordController.text.isEmpty)
+                              isQualified = false;
+                            }
+                            if (passwordController.text.isEmpty){
                               passwordError = 'رمز عبور الزامی است';
+                              isQualified = false;
+                            }
                             else if (confirmPasswordController.text.isEmpty ||
                                 passwordController.text !=
-                                    confirmPasswordController.text)
+                                    confirmPasswordController.text){
                               passwordError = 'رمز عبور مطابقت ندارد';
+                              isQualified = false;
+                            }
                           });
-                          if (userNameController.text.isNotEmpty &&
-                              passwordController.text.isNotEmpty &&
-                              confirmPasswordController.text.isNotEmpty)
+                          if(isQualified)
                             await signUp();
                         },
                         child: Text(

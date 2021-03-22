@@ -674,8 +674,8 @@ class _HomePageState extends State<HomePage> {
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: currentSlideIndex == index
-                          ? Colors.white38
-                          : Colors.white),
+                          ? Colors.white
+                          : Colors.white38),
                 );
               }).toList()
             ),
