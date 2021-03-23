@@ -99,7 +99,7 @@ class _NowPlayingState extends State<NowPlaying> {
         "file://$decryptedFilePath",
         title: widget.episodeDetails.name,
         desc: widget.episodeDetails.description,
-        coverUrl: "assets/images/dummy.jpg"));
+        coverUrl: "assets/images/dummy.png"));
 
     audioManagerInstance.audioList = tempList;
 
@@ -168,7 +168,7 @@ class _NowPlayingState extends State<NowPlaying> {
           "file://$decryptedFilePath",
           title: widget.episodeDetails.name,
           desc: widget.episodeDetails.description,
-          coverUrl: "assets/images/dummy.jpg"));
+          coverUrl: "assets/images/dummy.png"));
 
     }
   }

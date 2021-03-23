@@ -156,6 +156,83 @@ class _CoursePageState extends State<CoursePage> {
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
+  Future playEpisode(Course course, CourseEpisode episode) async{
+    if(episode.price != 0 && episode.price != null){
+      if (courseStore.token != null && courseStore.token != ''){
+        isEpisodePurchasedBefore = false;
+        courseStore.userEpisodes.forEach((element) {
+          if(element.id == episode.id){
+            isEpisodePurchasedBefore = true;
+          }
+        });
+        if(!isEpisodePurchasedBefore){
+          List<CourseEpisode> tempEpisodes = [];
+          tempEpisodes.add(episode);
+          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+        }
+        else{
+          if(await isEpisodeAccessible(
+              episode.courseId,
+              episode.sort,
+              course.waitingTimeBetweenEpisodes))
+          {
+            if(!(await isEpisodePlayedBefore(episode)))
+              await writeInProgressCourseInCache(episode);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return NowPlaying(episode, course.photoAddress);
+                }));
+          }
+        }
+      }
+      else {
+        await Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return AuthenticationPage(FormName.SignUp);
+            }));
+        isEpisodePurchasedBefore = false;
+        courseStore.userEpisodes.forEach((element) {
+          if(element.id == episode.id){
+            isEpisodePurchasedBefore = true;
+          }
+        });
+        if(!isEpisodePurchasedBefore){
+          List<CourseEpisode> tempEpisodes = [];
+          tempEpisodes.add(episode);
+          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+        }
+        else{
+          if(await isEpisodeAccessible(
+              episode.courseId,
+              episode.sort,
+              course.waitingTimeBetweenEpisodes))
+          {
+            if(!(await isEpisodePlayedBefore(episode)))
+              await writeInProgressCourseInCache(episode);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return NowPlaying(episode, course.photoAddress);
+                }));
+          }
+        }
+      }
+    }
+    else{
+      if(await isEpisodeAccessible(
+          episode.courseId,
+          episode.sort,
+          course.waitingTimeBetweenEpisodes))
+      {
+        if(!(await isEpisodePlayedBefore(episode)))
+          await writeInProgressCourseInCache(episode);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return NowPlaying(episode, course.photoAddress);
+            }));
+      }
+    }
+  }
+
   Future updateUI(Course course, List<CourseEpisode> episodes) async {
     episodesList = List<Widget>();
     for (var episode in episodes) {
@@ -193,41 +270,51 @@ class _CoursePageState extends State<CoursePage> {
               children: <Widget>[
                 Expanded(
                   flex: 6,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.file(
-                      picFile,
-                      height: height/10,),
+                  child: InkWell(
+                    onTap: () async{
+                      await playEpisode(course, episode);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        picFile,
+                        height: height/10,),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 21,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          episodeName,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: Color(0xFFFFFFFF),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Text(
-                                episodeDuration,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 15),
+                  child: InkWell(
+                    onTap: () async{
+                      await playEpisode(course, episode);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            episodeName,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: Color(0xFFFFFFFF),
                               ),
-                            ),
-                          ],
-                        )],
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Text(
+                                  episodeDuration,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                              ),
+                            ],
+                          )],
+                      ),
                     ),
                   ),
                 ),
@@ -257,80 +344,7 @@ class _CoursePageState extends State<CoursePage> {
                   flex: 4,
                   child: TextButton(
                     onPressed: () async{
-                      if(episode.price != 0 && episode.price != null){
-                        if (courseStore.token != null && courseStore.token != ''){
-                          isEpisodePurchasedBefore = false;
-                          courseStore.userEpisodes.forEach((element) {
-                            if(element.id == episode.id){
-                              isEpisodePurchasedBefore = true;
-                            }
-                          });
-                          if(!isEpisodePurchasedBefore){
-                            List<CourseEpisode> tempEpisodes = [];
-                            tempEpisodes.add(episode);
-                            await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
-                          }
-                          else{
-                            if(await isEpisodeAccessible(
-                                episode.courseId,
-                                episode.sort,
-                                course.waitingTimeBetweenEpisodes))
-                            {
-                              if(!(await isEpisodePlayedBefore(episode)))
-                                await writeInProgressCourseInCache(episode);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return NowPlaying(episode, course.photoAddress);
-                                  }));
-                            }
-                          }
-                        }
-                        else {
-                          await Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                                return AuthenticationPage(FormName.SignUp);
-                              }));
-                          isEpisodePurchasedBefore = false;
-                          courseStore.userEpisodes.forEach((element) {
-                            if(element.id == episode.id){
-                              isEpisodePurchasedBefore = true;
-                            }
-                          });
-                          if(!isEpisodePurchasedBefore){
-                            List<CourseEpisode> tempEpisodes = [];
-                            tempEpisodes.add(episode);
-                            await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
-                          }
-                          else{
-                            if(await isEpisodeAccessible(
-                                episode.courseId,
-                                episode.sort,
-                                course.waitingTimeBetweenEpisodes))
-                            {
-                              if(!(await isEpisodePlayedBefore(episode)))
-                                await writeInProgressCourseInCache(episode);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return NowPlaying(episode, course.photoAddress);
-                                  }));
-                            }
-                          }
-                        }
-                      }
-                      else{
-                        if(await isEpisodeAccessible(
-                            episode.courseId,
-                            episode.sort,
-                            course.waitingTimeBetweenEpisodes))
-                        {
-                          if(!(await isEpisodePlayedBefore(episode)))
-                            await writeInProgressCourseInCache(episode);
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                                return NowPlaying(episode, course.photoAddress);
-                              }));
-                        }
-                      }
+                      await playEpisode(course, episode);
                     },
                     child:
                       (isEpisodePurchasedBefore ||

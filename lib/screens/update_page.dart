@@ -24,9 +24,12 @@ class _UpdatePageState extends State<UpdatePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/update.png'),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 65),
+              padding: const EdgeInsets.symmetric(horizontal: 75),
+              child: Image.asset('assets/images/update.png'),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30,horizontal: 65),
               child: Text(
                 ' لطفا جهت عملکرد بهتر نرم افزار، آخرین آپدیت را نصب '
                   'کنید.',
@@ -34,64 +37,61 @@ class _UpdatePageState extends State<UpdatePage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Card(
-                    color: Color(0xFF20BFA9),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left:15, right: 15),
-                      child: TextButton(
-                        onPressed: () async {
-                          GlobalService globalService = GlobalService();
-                          String downloadUrl = await globalService.getDownloadUrl();
-                          if (await canLaunch(downloadUrl)){
-                            try{
-                              await launch(downloadUrl);
-                            }
-                            catch(e){
-                              print(e.toString());
-                            }
-                            finally{
-                              SystemNavigator.pop();
-                            }
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Card(
+                  color: Color(0xFF20BFA9),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left:15, right: 15),
+                    child: TextButton(
+                      onPressed: () async {
+                        GlobalService globalService = GlobalService();
+                        String downloadUrl = await globalService.getDownloadUrl();
+                        if (await canLaunch(downloadUrl)){
+                          try{
+                            await launch(downloadUrl);
                           }
-                          else
-                            Fluttertoast.showToast(msg: 'مشکل در دانلود فایل.'
-                                'لطفا اتصال اینترنت خود را بررسی کنید');
-                        },
-                        child: Text(
-                          'بروز رسانی',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                          catch(e){
+                            print(e.toString());
+                          }
+                          finally{
+                            SystemNavigator.pop();
+                          }
+                        }
+                        else
+                          Fluttertoast.showToast(msg: 'مشکل در دانلود فایل.'
+                              'لطفا اتصال اینترنت خود را بررسی کنید');
+                      },
+                      child: Text(
+                        'بروز رسانی',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
-                  widget.updateStatus == UpdateStatus.UpdateAvailable ?
-                    Card(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left:15, right: 15),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context){
-                                  return HomePage.basic();
-                                })
-                            );
-                          },
-                          child: Text(
-                            'بعدا',
-                            style: TextStyle(color: Color(0xFF20BFA9)),
-                          ),
+                ),
+                widget.updateStatus == UpdateStatus.UpdateAvailable ?
+                  Card(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left:15, right: 15),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context){
+                                return HomePage.basic();
+                              })
+                          );
+                        },
+                        child: Text(
+                          'بعدا',
+                          style: TextStyle(color: Color(0xFF20BFA9)),
                         ),
                       ),
-                    ) :
-                    SizedBox(),
-                ],
-              ),
+                    ),
+                  ) :
+                  SizedBox(),
+              ],
             )
           ],
         ),
