@@ -14,3 +14,9 @@ enum PurchaseType {
   WholeCourse,
   SingleEpisode,
 }
+
+enum UpdateStatus {
+  UpToDate,
+  UpdateAvailable,
+  UpdateRequired,
+}

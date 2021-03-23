@@ -5,6 +5,7 @@ import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/screens/update_page.dart';
 import 'package:mobile/services/global_service.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
@@ -14,17 +15,38 @@ void main() async {
   var secureStorage = FlutterSecureStorage();
   String isFirstTime = await secureStorage.read(key: 'isFirstTime');
   final PackageInfo info = await PackageInfo.fromPlatform();
-  bool isUpdateAvailable = false;
   String currentVersion = info.version;
   GlobalService globalService = GlobalService();
-  int availableVersion = await globalService.getLatestVersionAvailable();
-  if( availableVersion != null &&
-      availableVersion > int.parse(currentVersion.replaceAll(new RegExp(r'[^0-9]'),'')))
-    isUpdateAvailable = true;
+  String availableVersion = await globalService.getLatestVersionAvailable();
+
+  UpdateStatus getUpdateStatus(){
+    List<String> currentVersionParts = currentVersion.split('.');
+    List<String> availableVersionParts = availableVersion.split('.');
+    int currentVersionMajorPart = int.parse(currentVersionParts[0]);
+    int currentVersionMinorPart = int.parse(currentVersionParts[1]);
+    int currentVersionPatchPart = int.parse(currentVersionParts[2]);
+    int availableVersionMajorPart = int.parse(availableVersionParts[0]);
+    int availableVersionMinorPart = int.parse(availableVersionParts[1]);
+    int availableVersionPatchPart = int.parse(availableVersionParts[2]);
+
+    if(availableVersionMajorPart > currentVersionMajorPart)
+      return UpdateStatus.UpdateRequired;
+    else if (
+       (availableVersionMajorPart == currentVersionMajorPart &&
+        availableVersionMinorPart > currentVersionMinorPart) ||
+        (availableVersionMajorPart == currentVersionMajorPart &&
+         availableVersionMinorPart == currentVersionMinorPart &&
+         availableVersionPatchPart > currentVersionPatchPart)
+    )
+      return UpdateStatus.UpdateAvailable;
+    else
+      return UpdateStatus.UpToDate;
+  }
 
   Widget homeWidget(){
-    if(isUpdateAvailable)
-      return UpdatePage(availableVersion);
+    UpdateStatus updateStatus = getUpdateStatus();
+    if(availableVersion != null && updateStatus != UpdateStatus.UpToDate)
+      return UpdatePage(availableVersion, updateStatus);
     else if(isFirstTime == null || isFirstTime.toLowerCase() == 'true'){
       return IntroPage();
     }

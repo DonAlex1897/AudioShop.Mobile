@@ -38,7 +38,7 @@ class GlobalService{
     }
   }
 
-  Future<int> getLatestVersionAvailable() async{
+  Future<String> getLatestVersionAvailable() async{
     String url = configsUrl + '?title=LatestMobileAppName';
     try{
       http.Response response = await http.get(url);
@@ -46,7 +46,7 @@ class GlobalService{
         String data = response.body;
         var configMap = jsonDecode(data);
         Configuration latestMobileAppName = Configuration.fromJson(configMap);
-        return int.parse(latestMobileAppName.value.replaceAll(new RegExp(r'[^0-9]'),''));
+        return latestMobileAppName.value.replaceAll(new RegExp(r'[^0-9.]'),'');
       }
       else{
         print(response.statusCode);
