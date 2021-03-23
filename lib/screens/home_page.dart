@@ -589,6 +589,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  search(String searchElement){
+    if(searchElement != '')
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return SearchResultPage(searchElement);
+      }));
+    else
+      Fluttertoast.showToast(msg: 'لطفا قسمتی از نام '
+          'دوره را وارد کنید');
+  }
+
   Widget home() {
     return SafeArea(
       child: SingleChildScrollView(
@@ -602,12 +612,23 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 5, right: 5),
                     child: Container(
-                      width: width * 2 - 50,
+                      width: width * 2 - 10,
                       height: 40,
                       child: TextField(
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (value){
+                          search(value);
+                        },
                         style: TextStyle(color: Colors.white),
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: InkWell(
+                            onTap: (){
+                              search(searchController.text);
+                            },
+                            child: Icon(Icons.search,
+                                size: 25, color: Colors.white),
+                          ),
                           contentPadding: EdgeInsets.symmetric(horizontal: 10),
                           border: OutlineInputBorder(),
                           enabledBorder: OutlineInputBorder(
@@ -618,31 +639,13 @@ class _HomePageState extends State<HomePage> {
                             borderSide: BorderSide(
                                 color: Colors.white, width: 2.0),
                           ),
-                          labelText: 'جستجو',
+                          labelText: 'جستجو',floatingLabelBehavior: FloatingLabelBehavior.never,
                           labelStyle: TextStyle(
                             color: Colors.white,
                           ),
                         ),
                         controller: searchController,
                       ),
-                    ),
-                  ),
-                  Container(
-                    width: 30,
-                    height: 40,
-                    // color: Color(0xFF20BFA9),
-                    child: InkWell(
-                        onTap: (){
-                          if(searchController.text != '')
-                            Navigator.push(context, MaterialPageRoute(builder: (context) {
-                              return SearchResultPage(searchController.text);
-                            }));
-                          else
-                            Fluttertoast.showToast(msg: 'لطفا قسمتی از نام '
-                                'دوره را وارد کنید');
-                        },
-                        child: Icon(Icons.search,
-                            size: 25, color: Colors.white),
                     ),
                   ),
                 ],
