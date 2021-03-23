@@ -98,73 +98,76 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
         title: Text('ثبت کد معرف'),
       ),
       body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                // crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(courseStore.salespersonCouponCode == null ||
-                       courseStore.salespersonCouponCode == '' ?
-                    'در صورت در اختیار داشتن کد معرف آن را وارد کنید '
-                      'تا از تخفیف ها و مزایای آن بهره مند شوید' : descriptionText,
-                    style: TextStyle(fontSize: 20),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    height: 45,
-                  ),
-                  Container(
-                    width: 200,
-                    child: TextField(
-                      style: TextStyle(
-                          decorationColor: Colors.black, color: Colors.white),
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                          BorderSide(color: Colors.white, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                          BorderSide(color: Colors.white, width: 2.0),
-                        ),
-                        border: OutlineInputBorder(),
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        labelText: 'کد معرف',
-                      ),
-                      controller: couponCodeController,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    width: 200,
-                    child: Card(
-                      color: Color(0xFF20BFA9),
-                      child: TextButton(
-                        onPressed: () async{
-                          await addSalespersonCouponCode(couponCodeController.text);
-                        },
-                        child:
-                        Text(courseStore.salespersonCouponCode == null ||
-                             courseStore.salespersonCouponCode == '' ?
-                          'افزودن کد معرف' : 'تغییر کد معرف',
+          child: Padding(
+            padding: const EdgeInsets.all(65.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(courseStore.salespersonCouponCode == null ||
+                     courseStore.salespersonCouponCode == '' ?
+                  'در صورت در اختیار داشتن کد معرف آن را وارد کنید '
+                    'تا از تخفیف ها و مزایای آن بهره مند شوید' : descriptionText,
+                  style: TextStyle(fontSize: 20),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(
+                  height: 45,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: 200,
+                        child: TextField(
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                              decorationColor: Colors.black, color: Colors.white),
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
+                            ),
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(
+                              color: Colors.white,
+                            ),
+                            labelText: 'کد معرف',
                           ),
-                        )
+                          controller: couponCodeController,
+                        ),
                       ),
                     ),
-                  )
-                ],
-              ),
+                    Expanded(
+                      child: Container(
+                        width: 200,
+                        child: Card(
+                          color: Color(0xFF20BFA9),
+                          child: TextButton(
+                              onPressed: () async{
+                                await addSalespersonCouponCode(couponCodeController.text);
+                              },
+                              child:
+                              Text(courseStore.salespersonCouponCode == null ||
+                                  courseStore.salespersonCouponCode == '' ?
+                              'افزودن کد معرف' : 'تغییر کد معرف',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              )
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
             ),
           )),
     );
