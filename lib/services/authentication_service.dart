@@ -2,6 +2,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/register.dart';
 import 'dart:convert';
 
 import 'package:mobile/models/user.dart';
@@ -56,9 +57,17 @@ class AuthenticationService {
     return response.statusCode == 200;
   }
 
-  Future<User> signUp(String userName, String password) async {
-    var body =
-        jsonEncode({'userName': userName, 'password': password});
+  Future<User> signUp(Register registerInfo) async {
+    var body = jsonEncode({
+          'userName': registerInfo.userName,
+          'password': registerInfo.password,
+          'firstName': registerInfo.firstName,
+          'lastName': registerInfo.lastName,
+          'employed': registerInfo.employed,
+          'city': registerInfo.city,
+          'gender': registerInfo.gender.toString().split('.')[1],
+          'age': registerInfo.age,
+        });
 
     http.Response response = await http.post(Uri.encodeFull(signUpUrl),
         body: body,

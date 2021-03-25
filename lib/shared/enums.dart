@@ -20,3 +20,8 @@ enum UpdateStatus {
   UpdateAvailable,
   UpdateRequired,
 }
+
+enum Gender {
+  Male,
+  Female,
+}

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobile/models/register.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
@@ -28,8 +29,19 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   TextEditingController passwordController = new TextEditingController();
   TextEditingController confirmPasswordController = new TextEditingController();
   TextEditingController verificationCodeController =
-      new TextEditingController();
+    new TextEditingController();
   TextEditingController presenterController = new TextEditingController();
+  TextEditingController firstNameController = new TextEditingController();
+  TextEditingController lastNameController = new TextEditingController();
+  TextEditingController countryController = new TextEditingController();
+  TextEditingController cityController = new TextEditingController();
+  TextEditingController ageController = new TextEditingController();
+  TextEditingController salespersonCouponCodeController =
+    new TextEditingController();
+  bool isEmployed = false;
+  String employmentStatus = 'جویای کار';
+  Gender gender = Gender.Female;
+  String genderString = 'مذکر';
   FlutterSecureStorage secureStorage;
   CourseStore courseStore;
   Duration _timerDuration = new Duration(seconds: 60);
@@ -177,8 +189,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   Future signUp() async {
     bool isUserNotOk = await isUserNameRepetitive(userNameController.text);
     if (!isUserNotOk) {
-      User registeredUser = await authService.signUp(
-          userNameController.text, passwordController.text);
+      Register registerInfo = Register();
+      registerInfo.userName = userNameController.text;
+      registerInfo.password = passwordController.text;
+      registerInfo.firstName = firstNameController.text;
+      registerInfo.lastName = lastNameController.text;
+      registerInfo.employed = isEmployed;
+      registerInfo.city = cityController.text;
+      registerInfo.gender = gender;
+      registerInfo.age = int.parse(ageController.text);
+      User registeredUser = await authService.signUp(registerInfo);
       if (registeredUser == null)
         Fluttertoast.showToast(
             msg: 'ثبت نام با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
@@ -194,21 +214,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             value: registeredUser.salespersonCouponCode);
 
         await courseStore.setUserDetails(registeredUser.token, registeredUser.hasPhoneNumber, registeredUser.salespersonCouponCode);
-
-        // List<Course> userCourses = await authService.getUserEpisodes(
-        //     courseStore.userId, courseStore.token);
-        //
-        // List<Course> tempBasket = List.from(courseStore.basket);
-        //
-        // for (Course basketItem in courseStore.basket) {
-        //   for (Course course in userCourses) {
-        //     if (basketItem.id == course.id) {
-        //       tempBasket.remove(basketItem);
-        //     }
-        //   }
-        // }
-        //
-        // courseStore.refineUserBasket(tempBasket);
 
         Navigator.pop(context);
       }
@@ -701,6 +706,199 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         style: TextStyle(color: Colors.red[200]),
                       ),
                     ),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'نام',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: firstNameController,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'نام خانوادگی',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: lastNameController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: DropdownButton(
+                                dropdownColor: Color(0xFF44434C),
+                                value: employmentStatus,
+                                style: TextStyle(color: Colors.white),
+                                onChanged: (String newValue) {
+                                  setState(() {
+                                    employmentStatus = newValue;
+                                  });
+                                  switch(newValue){
+                                    case 'شاغل':
+                                      isEmployed = true;
+                                      break;
+                                    case 'جویای کار':
+                                      isEmployed = false;
+                                  }
+                                },
+                                items: <String>['شاغل', 'جویای کار']
+                                    .map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'شهر محل سکونت',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14
+                                  ),
+                                ),
+                                controller: cityController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: DropdownButton(
+                                dropdownColor: Color(0xFF44434C),
+                                value: genderString,
+                                style: TextStyle(color: Colors.white),
+                                onChanged: (String newValue) {
+                                  setState(() {
+                                    genderString = newValue;
+                                  });
+                                  switch(newValue){
+                                    case 'مذکر':
+                                      gender = Gender.Male;
+                                      break;
+                                    case 'مونث':
+                                      gender = Gender.Female;
+                                  }
+                                },
+                                items: <String>['مذکر', 'مونث']
+                                    .map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'سن',
+                                  labelStyle: TextStyle(
+                                      color: Colors.white,
+                                  ),
+                                ),
+                                controller: ageController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
                     Container(
                       height: 45,
                       decoration: BoxDecoration(
@@ -755,31 +953,32 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
     return Scaffold(
       body: authForm(formName),
-      persistentFooterButtons: <Widget>[
-        SizedBox(
-          width: MediaQuery.of(context).size.width / 2 - 12,
-          child: Card(
-            color: formName == FormName.SignIn
-                ? Color(0xFF20BFA9)
-                : Color(0xFF202028),
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  formName = FormName.SignIn;
-                });
-              },
-              child: Text(
-                'ورود',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+      persistentFooterButtons: formName != FormName.RegisterPhoneNumber ?
+        <Widget>[
+          SizedBox(
+            width: MediaQuery.of(context).size.width / 2 - 12,
+            child: Card(
+              color: formName == FormName.SignIn
+                  ? Color(0xFF20BFA9)
+                  : Color(0xFF202028),
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    formName = FormName.SignIn;
+                  });
+                },
+                child: Text(
+                  'ورود',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        SizedBox(
+          SizedBox(
           width: MediaQuery.of(context).size.width / 2 - 12,
           child: Card(
             color: (formName == FormName.SignUp ||
@@ -793,9 +992,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 });
               },
               child: Text(
-                formName == FormName.RegisterPhoneNumber
-                    ? 'ثبت شماره همراه'
-                    : 'ثبت نام',
+                'ثبت نام',
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
@@ -805,7 +1002,31 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             ),
           ),
         ),
-      ],
+        ] :
+        <Widget>[
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Card(
+              color: (formName == FormName.SignUp ||
+                  formName == FormName.RegisterPhoneNumber)
+                  ? Color(0xFF20BFA9)
+                  : Color(0xFF202028),
+              child: TextButton(
+                onPressed: () {
+                },
+                child: Text(
+                  'ثبت شماره همراه',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ]
+      ,
     );
   }
 }
