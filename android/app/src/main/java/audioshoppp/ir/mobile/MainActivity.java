@@ -18,6 +18,7 @@ import javax.crypto.spec.IvParameterSpec;
 import androidx.annotation.NonNull;
 import audioshoppp.ir.mobile.Utilities.MyEncrypter;
 import audioshoppp.ir.mobile.Utilities.RandomStringGenerator;
+import audioshoppp.ir.mobile.Utilities.Shared;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
@@ -53,8 +54,8 @@ public class MainActivity extends FlutterActivity {
                                     String newPath = encryptedFilePath
                                             .replace(arrayOfPath[arrayOfPath.length - 1],"");
 
-                                    String password = "1qaz2wsx";
-                                    String salt = "12345678";
+                                    String password = Shared.decryptionPassword;
+                                    String salt = Shared.decryptionSalt;
                                     String decryptedFileName = RandomStringGenerator.generateString();
                                     IvParameterSpec ivParameterSpec = MyEncrypter.generateIv();
                                     SecretKey key = MyEncrypter.getKeyFromPassword(password,salt);
