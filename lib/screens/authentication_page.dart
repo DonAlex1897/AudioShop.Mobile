@@ -38,10 +38,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   TextEditingController ageController = new TextEditingController();
   TextEditingController salespersonCouponCodeController =
     new TextEditingController();
-  bool isEmployed = false;
-  String employmentStatus = 'جویای کار';
-  Gender gender = Gender.Female;
-  String genderString = 'مذکر';
+  bool isEmployed;
+  String employmentStatus = 'اشتغال';
+  Gender gender = Gender.Default;
+  String genderString = 'جنسیت';
   FlutterSecureStorage secureStorage;
   CourseStore courseStore;
   Duration _timerDuration = new Duration(seconds: 60);
@@ -194,10 +194,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       registerInfo.password = passwordController.text;
       registerInfo.firstName = firstNameController.text;
       registerInfo.lastName = lastNameController.text;
-      registerInfo.employed = isEmployed;
+      if(isEmployed != null)
+        registerInfo.employed = isEmployed;
       registerInfo.city = cityController.text;
-      registerInfo.gender = gender;
-      registerInfo.age = int.parse(ageController.text);
+      if(gender != Gender.Default)
+        registerInfo.gender = gender;
+      if(ageController.text != '')
+        registerInfo.age = int.parse(ageController.text);
       User registeredUser = await authService.signUp(registerInfo);
       if (registeredUser == null)
         Fluttertoast.showToast(
@@ -789,9 +792,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                       break;
                                     case 'جویای کار':
                                       isEmployed = false;
+                                      break;
+                                    case 'اشتغال':
+                                      isEmployed = null;
                                   }
                                 },
-                                items: <String>['شاغل', 'جویای کار']
+                                items: <String>['اشتغال', 'شاغل', 'جویای کار']
                                     .map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
@@ -855,9 +861,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                       break;
                                     case 'مونث':
                                       gender = Gender.Female;
+                                      break;
+                                    case 'جنسیت':
+                                      gender = Gender.Default;
+                                      break;
                                   }
                                 },
-                                items: <String>['مذکر', 'مونث']
+                                items: <String>['جنسیت', 'مذکر', 'مونث']
                                     .map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,

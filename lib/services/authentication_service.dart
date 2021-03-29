@@ -63,10 +63,13 @@ class AuthenticationService {
           'password': registerInfo.password,
           'firstName': registerInfo.firstName,
           'lastName': registerInfo.lastName,
-          'employed': registerInfo.employed,
+          if (registerInfo.employed != null)
+            'employed': registerInfo.employed,
           'city': registerInfo.city,
-          'gender': registerInfo.gender.toString().split('.')[1],
-          'age': registerInfo.age,
+          if (registerInfo.gender != null)
+            'gender': registerInfo.gender.toString().split('.')[1],
+          if (registerInfo.age != null)
+            'age': registerInfo.age,
         });
 
     http.Response response = await http.post(Uri.encodeFull(signUpUrl),

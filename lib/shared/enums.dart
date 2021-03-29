@@ -22,6 +22,7 @@ enum UpdateStatus {
 }
 
 enum Gender {
+  Default,
   Male,
   Female,
 }

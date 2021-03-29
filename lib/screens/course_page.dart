@@ -94,7 +94,16 @@ class _CoursePageState extends State<CoursePage> {
     String courseKey = 'course' + courseId.toString();
     String inProgressCourseCachedValue = await secureStorage.read(key: courseKey);
     if(inProgressCourseCachedValue == null && episodeSortNumber != 0){
-      Fluttertoast.showToast(msg: 'لطفا دوره را از ابتدا شروع کنید');
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('لطفا دوره را از اولین قسمت شروع کنید'),
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
       return false;
     }
     else if(inProgressCourseCachedValue != null){
@@ -105,7 +114,16 @@ class _CoursePageState extends State<CoursePage> {
       String nextEpisode = (lastFinishedEpisodeSortNumber + 2).toString();
       if(sortDifference > 0){
         if(sortDifference > 1){
-          Fluttertoast.showToast(msg: 'هنوز قسمت $nextEpisode را گوش نداده اید');
+          AlertDialog alert = AlertDialog(
+            title: Text('توجه'),
+            content: Text('هنوز قسمت $nextEpisode را گوش نداده اید'),
+          );
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
           return false;
         }
         else{
@@ -114,8 +132,17 @@ class _CoursePageState extends State<CoursePage> {
               .difference(lastFinishedEpisodeTime).inHours;
           if(timeElapsedSinceLastEpisode < waitingTime){
             int remainedTimeToWait = waitingTime - timeElapsedSinceLastEpisode;
-            Fluttertoast.showToast(msg: 'زمان انتظار بین هر دو قسمت در این دوره، $waitingTime است.'
-                ' این قسمت $remainedTimeToWait ساعت دیگر در دسترس شما قرار میگیرد');
+            AlertDialog alert = AlertDialog(
+              title: Text('توجه'),
+              content: Text('زمان انتظار بین هر دو قسمت در این دوره، $waitingTime است.'
+                  ' این قسمت $remainedTimeToWait ساعت دیگر در دسترس شما قرار میگیرد'),
+            );
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              },
+            );
             return false;
           }
         }
