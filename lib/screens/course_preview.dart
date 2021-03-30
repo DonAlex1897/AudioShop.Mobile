@@ -76,12 +76,32 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
     if(courseStore.token != '' && courseStore.token != null){
       bool sentReview = await courseData.addReviewToCourse(review, courseStore.token);
-      if(sentReview)
-        Fluttertoast.showToast(
-            msg: 'نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.');
+      if(sentReview){
+        AlertDialog alert = AlertDialog(
+          title: Text('توجه'),
+          content: Text('نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.'),
+        );
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+        reviewController.text = '';
+      }
     }
-    else
-      Fluttertoast.showToast(msg: 'برای ثبت نظر باید وارد حساب کاربریتان شوید');
+    else{
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('برای ثبت نظر باید وارد حساب کاربریتان شوید'),
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
 
     setState(() {
       sendButtonText = 'ارسال';
@@ -452,7 +472,10 @@ class _CoursePreviewState extends State<CoursePreview> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
-                        child: Text('نظرات کاربران', style: TextStyle(fontSize: 17),),
+                        child: Text(
+                          courseReviewList.length != 0 ?
+                            'نظرات کاربران':'هنوز نظری ثبت نشده است',
+                          style: TextStyle(fontSize: 17),),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 15, top: 20, right: 15, bottom: 10),
