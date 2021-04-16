@@ -1,6 +1,8 @@
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/services/discount_service.dart';
@@ -148,20 +150,47 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                         width: 200,
                         child: Card(
                           color: Color(0xFF20BFA9),
-                          child: TextButton(
-                              onPressed: () async{
+                          child: ArgonButton(
+                            height: 50,
+                            width: 400,
+                            borderRadius: 5.0,
+                            color: Color(0xFF20BFA9),
+                            child: Text(courseStore.salespersonCouponCode == null ||
+                                courseStore.salespersonCouponCode == '' ?
+                            'افزودن کد معرف' : 'تغییر کد معرف',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            roundLoadingShape: false,
+                            loader: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SpinKitRing(
+                                color: Colors.white,
+                                lineWidth: 4,
+                              ),
+                            ),
+                            onTap:(startLoading, stopLoading, btnState) async {
+                                startLoading();
                                 await addSalespersonCouponCode(couponCodeController.text);
-                              },
-                              child:
-                              Text(courseStore.salespersonCouponCode == null ||
-                                  courseStore.salespersonCouponCode == '' ?
-                              'افزودن کد معرف' : 'تغییر کد معرف',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              )
+                                stopLoading();
+                            },
                           ),
+                          // child: TextButton(
+                          //     onPressed: () async{
+                          //       await addSalespersonCouponCode(couponCodeController.text);
+                          //     },
+                          //     child:
+                          //     Text(courseStore.salespersonCouponCode == null ||
+                          //         courseStore.salespersonCouponCode == '' ?
+                          //     'افزودن کد معرف' : 'تغییر کد معرف',
+                          //       style: TextStyle(
+                          //         color: Colors.white,
+                          //         fontSize: 16,
+                          //       ),
+                          //     )
+                          // ),
                         ),
                       ),
                     )

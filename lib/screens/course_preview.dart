@@ -1,3 +1,4 @@
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -54,10 +55,12 @@ class _CoursePreviewState extends State<CoursePreview> {
     RestartableTimer(_timerDuration, setTimerState);
     courseReviewList = await courseData.getCourseReviews(widget.courseDetails.id);
     int allReviewsRateSum = 0;
-    courseReviewList.forEach((element) {
-      allReviewsRateSum += element.rating;
-    });
-    averageCourseRate = allReviewsRateSum / courseReviewList.length;
+    if(courseReviewList != null){
+      courseReviewList.forEach((element) {
+        allReviewsRateSum += element.rating;
+      });
+      averageCourseRate = allReviewsRateSum / courseReviewList.length;
+    }
     return courseReviewList;
   }
 
@@ -592,15 +595,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     color: sendButtonColor,
                                   ),
                                   height: 55,
-                                  child: TextButton(
-                                    onPressed: () async {
-                                      if (reviewController.text.isNotEmpty && yourRate != 0)
-                                        await postReview();
-                                      else if(reviewController.text.isEmpty)
-                                        Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
-                                      else
-                                        Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
-                                    },
+                                  child: ArgonButton(
+                                    height: 50,
+                                    width: 400,
+                                    borderRadius: 5.0,
+                                    color: Color(0xFF20BFA9),
                                     child: Text(
                                       sendButtonText,
                                       style: TextStyle(
@@ -609,7 +608,43 @@ class _CoursePreviewState extends State<CoursePreview> {
                                         color: Colors.white,
                                       ),
                                     ),
+                                    roundLoadingShape: false,
+                                    loader: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: SpinKitRing(
+                                        color: Colors.white,
+                                        lineWidth: 4,
+                                      ),
+                                    ),
+                                    onTap:(startLoading, stopLoading, btnState) async {
+                                      startLoading();
+                                      if (reviewController.text.isNotEmpty && yourRate != 0)
+                                        await postReview();
+                                      else if(reviewController.text.isEmpty)
+                                        Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
+                                      else
+                                        Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
+                                      stopLoading();
+                                    },
                                   ),
+                                  // child: TextButton(
+                                  //   onPressed: () async {
+                                  //     if (reviewController.text.isNotEmpty && yourRate != 0)
+                                  //       await postReview();
+                                  //     else if(reviewController.text.isEmpty)
+                                  //       Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
+                                  //     else
+                                  //       Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
+                                  //   },
+                                  //   child: Text(
+                                  //     sendButtonText,
+                                  //     style: TextStyle(
+                                  //       fontSize: sendButtonSize,
+                                  //       fontWeight: FontWeight.bold,
+                                  //       color: Colors.white,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ),
                               ),
                             ),

@@ -1,6 +1,8 @@
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/services/discount_service.dart';
@@ -126,29 +128,66 @@ class _CheckOutPageState extends State<CheckOutPage> {
           width: MediaQuery.of(context).size.width,
           child: Card(
             color: Color(0xFF20BFA9),
-            child: TextButton(
-                onPressed: () async {
-                  orderJson = await createOrder();
-                  String paymentPageUrl = await orderService.payOrder(orderJson);
-                  if (await canLaunch(paymentPageUrl)){
-                    try{
-                      await launch(paymentPageUrl);
-                    }
-                    catch(e){
-                      print(e.toString());
-                    }
-                    finally{
-                      SystemNavigator.pop();
-                    }
-                  }
-                  else
-                    Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
-                },
-                child: Text(
-                  'پرداخت نهایی',
-                  style: TextStyle(color: Colors.white),
+            child: ArgonButton(
+              height: 50,
+              width: 400,
+              borderRadius: 5.0,
+              color: Color(0xFF20BFA9),
+              child: Text(
+                'پرداخت نهایی',
+                style: TextStyle(color: Colors.white),
+              ),
+              roundLoadingShape: false,
+              loader: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SpinKitRing(
+                  color: Colors.white,
+                  lineWidth: 4,
                 ),
+              ),
+              onTap:(startLoading, stopLoading, btnState) async {
+                startLoading();
+                orderJson = await createOrder();
+                String paymentPageUrl = await orderService.payOrder(orderJson);
+                if (await canLaunch(paymentPageUrl)){
+                  try{
+                    await launch(paymentPageUrl);
+                  }
+                  catch(e){
+                    print(e.toString());
+                  }
+                  finally{
+                    SystemNavigator.pop();
+                  }
+                }
+                else
+                  Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
+                stopLoading();
+              },
             ),
+            // child: TextButton(
+            //     onPressed: () async {
+            //       orderJson = await createOrder();
+            //       String paymentPageUrl = await orderService.payOrder(orderJson);
+            //       if (await canLaunch(paymentPageUrl)){
+            //         try{
+            //           await launch(paymentPageUrl);
+            //         }
+            //         catch(e){
+            //           print(e.toString());
+            //         }
+            //         finally{
+            //           SystemNavigator.pop();
+            //         }
+            //       }
+            //       else
+            //         Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
+            //     },
+            //     child: Text(
+            //       'پرداخت نهایی',
+            //       style: TextStyle(color: Colors.white),
+            //     ),
+            // ),
           ),
         ),
       ],

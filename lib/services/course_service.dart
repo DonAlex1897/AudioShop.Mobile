@@ -64,7 +64,7 @@ class CourseData{
         String data = response.body;
         var courseReviewsMap = jsonDecode(data);
         List<Review> courseReviewsList = List<Review>();
-        for(var courseReview in courseReviewsMap){
+        for(var courseReview in courseReviewsMap['items']){
           courseReviewsList.add(Review.fromJson(courseReview));
         }
         return courseReviewsList;
