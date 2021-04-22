@@ -44,6 +44,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   bool alertReturn = false;
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 5);
+  var pictureFile;
 
   @override
   void initState() {
@@ -52,6 +53,10 @@ class _CoursePreviewState extends State<CoursePreview> {
   }
 
   Future<List<Review>> getCourseReviews() async{
+    pictureFile = widget.courseDetails.photoAddress != '' ?
+      await DefaultCacheManager().getSingleFile(widget.courseDetails.photoAddress):
+      null;
+
     RestartableTimer(_timerDuration, setTimerState);
     courseReviewList = await courseData.getCourseReviews(widget.courseDetails.id);
     int allReviewsRateSum = 0;
@@ -305,11 +310,15 @@ class _CoursePreviewState extends State<CoursePreview> {
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.width * 0.8,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(course.photoAddress),
-                                fit: BoxFit.fill,
-                              ),
+                            child:
+                            course.photoAddress != '' ?
+                            Image.file(
+                              pictureFile,
+                              fit: BoxFit.fill,
+                            ):
+                            Image.asset(
+                            'assets/images/noPicture.png',
+                            fit: BoxFit.fill,
                             ),
                           ),
                         ),
@@ -344,11 +353,16 @@ class _CoursePreviewState extends State<CoursePreview> {
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: TextButton(
                             onPressed: () async {
-                              var pictureFile = await DefaultCacheManager()
-                                  .getSingleFile(course.photoAddress);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                return CoursePage(course, pictureFile);
-                              }));
+                              if(pictureFile != null){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                  return CoursePage(course, pictureFile);
+                                }));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                  return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
+                                }));
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(left: 20, right: 20),

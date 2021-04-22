@@ -17,8 +17,11 @@ import 'package:async/async.dart';
 
 class NowPlaying extends StatefulWidget {
   NowPlaying(this.episodeDetails, this.courseCoverUrl);
+  NowPlaying.noPicture(this.episodeDetails, this.noPictureAsset);
+
   final CourseEpisode episodeDetails;
-  final String courseCoverUrl;
+  String courseCoverUrl;
+  String noPictureAsset;
 
   @override
   _NowPlayingState createState() => _NowPlayingState();
@@ -45,7 +48,7 @@ class _NowPlayingState extends State<NowPlaying> {
   Duration musicLength = new Duration();
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 10);
-
+  var pictureFile;
 
   @override
   void setState(fn) {
@@ -99,7 +102,7 @@ class _NowPlayingState extends State<NowPlaying> {
         "file://$decryptedFilePath",
         title: widget.episodeDetails.name,
         desc: widget.episodeDetails.description,
-        coverUrl: "assets/images/dummy.png"));
+        coverUrl: "assets/images/appMainIcon.png"));
 
     audioManagerInstance.audioList = tempList;
 
@@ -113,6 +116,9 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Future<dynamic> setAudioFile() async{
+    pictureFile = widget.courseCoverUrl != '' ?
+      await DefaultCacheManager().getSingleFile(widget.courseCoverUrl):
+      null;
     RestartableTimer(_timerDuration, setTimerState);
     try{
 
@@ -422,7 +428,9 @@ class _NowPlayingState extends State<NowPlaying> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(courseCover),
+                      image: pictureFile != null ?
+                        NetworkImage(courseCover) :
+                        AssetImage(widget.noPictureAsset),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -442,7 +450,9 @@ class _NowPlayingState extends State<NowPlaying> {
                                   height: MediaQuery.of(context).size.width * 0.8,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: NetworkImage(courseCover),
+                                      image: pictureFile != null ?
+                                        NetworkImage(courseCover) :
+                                        AssetImage(widget.noPictureAsset),
                                       fit: BoxFit.fill,
                                     ),
                                   ),

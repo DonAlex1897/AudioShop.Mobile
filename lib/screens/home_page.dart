@@ -310,13 +310,16 @@ class _HomePageState extends State<HomePage> {
       String picUrl = course.photoAddress;
       String courseName = course.name;
       String courseDescription = course.description;
-      var pictureFile = await DefaultCacheManager().getSingleFile(picUrl);
+      var pictureFile = picUrl != '' ?
+        await DefaultCacheManager().getSingleFile(picUrl):
+        null;
       coursesList.add(
         Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
           color: Color(0xFF2c3335),
+          child: TextButton(
           child: TextButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all(
@@ -331,10 +334,15 @@ class _HomePageState extends State<HomePage> {
               children: <Widget>[
                 ClipRRect(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                  child: Image.file(
-                    pictureFile,
-                    fit: BoxFit.fill,
-                  ),
+                  child: pictureFile != null ?
+                    Image.file(
+                      pictureFile,
+                      fit: BoxFit.fill,
+                    ):
+                    Image.asset(
+                      'assets/images/noPicture.png',
+                      fit: BoxFit.fill,
+                    ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
@@ -356,6 +364,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      )
       );
     }
 

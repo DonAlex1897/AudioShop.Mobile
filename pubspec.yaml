@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 3.0.0
+version: 3.0.2
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -42,7 +42,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/dummy.png
+    - assets/images/appMainIcon.png
     - assets/images/1.jpg
     - assets/images/2.jpg
     - assets/images/3.jpg
@@ -53,6 +53,7 @@ flutter:
     - assets/images/support.png
     - assets/images/16personalities.png
     - assets/images/internetdown.png
+    - assets/images/noPicture.png
   #   - images/a_dot_ham.jpeg
 
   fonts:

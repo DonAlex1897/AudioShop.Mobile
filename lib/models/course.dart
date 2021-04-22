@@ -13,7 +13,9 @@ class Course {
         name = json['name'],
         price = json['price'],
         waitingTimeBetweenEpisodes = json['waitingTimeBetweenEpisodes'],
-        photoAddress = photoUrl +json['id'].toString() + '/'+ json['photoFileName'],
+        photoAddress = json['photoFileName'] != null ?
+          photoUrl +json['id'].toString() + '/'+ json['photoFileName'] :
+          '',
         description = json['description'];
 
   Map<String, dynamic> toJson() => {

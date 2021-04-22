@@ -19,9 +19,11 @@ import 'checkout_page.dart';
 
 class CoursePage extends StatefulWidget {
   CoursePage(this.courseDetails, this.courseCover);
+  CoursePage.noPhoto(this.courseDetails, this.noPictureAsset);
 
   final Course courseDetails;
-  final courseCover;
+  var courseCover;
+  String noPictureAsset;
 
   @override
   _CoursePageState createState() => _CoursePageState();
@@ -303,9 +305,12 @@ class _CoursePageState extends State<CoursePage> {
                     },
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.file(
-                        picFile,
-                        height: height/10,),
+                      child: picFile != null ?
+                        Image.file(
+                          picFile,
+                          height: height/10,
+                        ):
+                        Image.asset(widget.noPictureAsset),
                     ),
                   ),
                 ),
@@ -415,7 +420,9 @@ class _CoursePageState extends State<CoursePage> {
             background: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: FileImage(widget.courseCover),
+                  image: widget.courseCover != null ?
+                    FileImage(widget.courseCover) :
+                    AssetImage(widget.noPictureAsset),
                   fit: BoxFit.fitWidth,
                 ),
               ),
@@ -432,9 +439,13 @@ class _CoursePageState extends State<CoursePage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.file(
-                    widget.courseCover,
-                  ),
+                  widget.courseCover != null ?
+                    Image.file(
+                      widget.courseCover,
+                    ):
+                    Image.asset(
+                      widget.noPictureAsset,
+                    ),
                 ],
               ),
             ),
