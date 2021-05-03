@@ -17,7 +17,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   Future<List<Course>> coursesFuture;
   List<Course> coursesList = List<Course>();
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 5);
+  Duration _timerDuration = new Duration(seconds: 10);
 
   @override
   void initState() {

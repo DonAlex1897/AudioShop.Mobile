@@ -28,6 +28,9 @@ dependencies:
   http: ^0.12.2
   carousel_slider: ^2.3.1
   flutter_spinkit: ^3.1.0
+#  firebase_core:
+#  firebase_messaging:
+#  firebase_analytics:
   flutter:
     sdk: flutter
 

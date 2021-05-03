@@ -28,10 +28,10 @@ import 'add_salesperson_coupon_code.dart';
 import 'course_page.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage(this.courses);
-  HomePage.basic();
+  HomePage(this.currentVersion);
+  //HomePage.basic();
 
-  dynamic courses;
+  final String currentVersion;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
   int currentSlideIndex = 0;
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 5);
+  Duration _timerDuration = new Duration(seconds: 10);
 
   @override
   void setState(fn) {
@@ -189,10 +189,42 @@ class _HomePageState extends State<HomePage> {
 
   Widget spinner(){
     return Scaffold(
-      body: !isTakingMuchTime ? SpinKitWave(
-        type: SpinKitWaveType.center,
-        color: Color(0xFF20BFA9),
-        size: 65.0,
+      body: !isTakingMuchTime ?
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 20,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Image.asset(
+                      'assets/images/appMainIcon.png',
+                      width: MediaQuery.of(context).size.width * 0.2,
+                    ),
+                  ),
+                  Text(
+                    'لطفا منتظر بمانید ...',
+                    style: TextStyle(fontSize: 18),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                'نسخه ' + widget.currentVersion,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white70
+                ),
+              ),
+            )
+          ],
+        ),
       ) :
       Center(
         child: Column(
@@ -265,8 +297,8 @@ class _HomePageState extends State<HomePage> {
     courseStore.setAllCourses(courseList);
     if (courseList != null)
       await updateUI(courseList, sliderItemList);
-    else
-      await updateUI(widget.courses, sliderItemList);
+    // else
+    //   await updateUI(widget.courses, sliderItemList);
     return courseList;
   }
 
@@ -320,7 +352,6 @@ class _HomePageState extends State<HomePage> {
           ),
           color: Color(0xFF2c3335),
           child: TextButton(
-          child: TextButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all(
                   EdgeInsets.symmetric(vertical: 0, horizontal: 0)),
@@ -355,7 +386,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: Text(
-                    'بیطرف',
+                    course.instructor != null ? course.instructor : 'اِستارشو',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
@@ -363,7 +394,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-        ),
       )
       );
     }

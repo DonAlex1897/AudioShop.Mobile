@@ -8,9 +8,10 @@ import 'package:mobile/shared/enums.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdatePage extends StatefulWidget {
-  UpdatePage(this.lastAvailableVersion, this.updateStatus);
+  UpdatePage(this.lastAvailableVersion, this.updateStatus, this.currentVersion);
   final String lastAvailableVersion;
   final UpdateStatus updateStatus;
+  final String currentVersion;
 
   @override
   _UpdatePageState createState() => _UpdatePageState();
@@ -79,7 +80,7 @@ class _UpdatePageState extends State<UpdatePage> {
                         onPressed: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context){
-                                return HomePage.basic();
+                                return HomePage(widget.currentVersion);
                               })
                           );
                         },

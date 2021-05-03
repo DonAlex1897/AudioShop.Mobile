@@ -5,8 +5,9 @@ class Course {
   int waitingTimeBetweenEpisodes;
   String photoAddress;
   String description;
+  String instructor;
 
-  Course({this.id, this.name, this.price,this.waitingTimeBetweenEpisodes, this.photoAddress, this.description});
+  Course({this.id, this.name, this.price,this.waitingTimeBetweenEpisodes, this.photoAddress, this.description, this.instructor});
 
   Course.fromJson(Map<String, dynamic> json, String photoUrl)
       : id = json['id'],
@@ -16,7 +17,8 @@ class Course {
         photoAddress = json['photoFileName'] != null ?
           photoUrl +json['id'].toString() + '/'+ json['photoFileName'] :
           '',
-        description = json['description'];
+        description = json['description'],
+        instructor = json['instructor'];
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -24,6 +26,7 @@ class Course {
         'price': price,
         'waitingTimeBetweenEpisodes': waitingTimeBetweenEpisodes,
         //'photoFileName': photoAddress,
-        'description': description
+        'description': description,
+        'instructor': instructor
       };
 }

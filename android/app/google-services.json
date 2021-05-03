@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "80367188587",
+    "project_id": "starshow-9cb5f",
+    "storage_bucket": "starshow-9cb5f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80367188587:android:01e1f04ce8d12a06688f2e",
+        "android_client_info": {
+          "package_name": "audioshoppp.ir.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80367188587-v06idev5hcdk8qek51o7tmne2hp47cj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC92omrjKJNVVlKgiT56EZtXdiT34psF4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80367188587-v06idev5hcdk8qek51o7tmne2hp47cj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

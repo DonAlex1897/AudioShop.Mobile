@@ -43,7 +43,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   bool isWholeCourseAvailable = true;
   bool alertReturn = false;
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 5);
+  Duration _timerDuration = new Duration(seconds: 10);
   var pictureFile;
 
   @override
@@ -149,7 +149,12 @@ class _CoursePreviewState extends State<CoursePreview> {
         }
         List<CourseEpisode> finaleEpisodeIds =
           await eliminateRepetitiveEpisodes(episodesToBePurchased);
-        if(finaleEpisodeIds.length == 0){
+        if(course.price == 0){
+          Fluttertoast
+              .showToast(msg: 'این دوره رایگان می باشد');
+          return;
+        }
+        else if(finaleEpisodeIds.length == 0){
           Fluttertoast
               .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
           return;
@@ -324,13 +329,28 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.fromLTRB(20,20,20,0),
                         child: Center(
                           child: Text(
                             course.name,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 21.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20,5,20,20),
+                        child: Center(
+                          child: Text(
+                            course.instructor != null ?
+                            'سازنده: ' + course.instructor :
+                            'سازنده: ' + 'اِستارشو',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
                               fontWeight: FontWeight.w400,
                             ),
                           ),

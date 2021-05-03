@@ -5,6 +5,9 @@ import 'package:intro_slider/slide_object.dart';
 import 'package:mobile/screens/home_page.dart';
 
 class IntroPage extends StatefulWidget {
+  IntroPage(this.currentVersion);
+  final String currentVersion;
+
   @override
   _IntroPageState createState() => _IntroPageState();
 }
@@ -108,7 +111,7 @@ class _IntroPageState extends State<IntroPage> {
     // Back to the first tab
     // this.goToTab(0);
     Navigator.push(context, MaterialPageRoute(builder: (context){
-      return HomePage.basic();
+      return HomePage(widget.currentVersion);
     }));
   }
 

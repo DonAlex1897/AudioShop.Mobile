@@ -44,7 +44,7 @@ class _CoursePageState extends State<CoursePage> {
   int purchasedEpisodesCount = 0;
   final secureStorage = FlutterSecureStorage();
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 5);
+  Duration _timerDuration = new Duration(seconds: 10);
 
   @override
   void setState(fn) {
