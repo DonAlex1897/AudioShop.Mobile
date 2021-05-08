@@ -149,19 +149,20 @@ class _CheckOutPageState extends State<CheckOutPage> {
                 startLoading();
                 orderJson = await createOrder();
                 String paymentPageUrl = await orderService.payOrder(orderJson);
-                if (await canLaunch(paymentPageUrl)){
+                // if (await canLaunch(paymentPageUrl)){
                   try{
                     await launch(paymentPageUrl);
                   }
                   catch(e){
                     print(e.toString());
+                    Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
                   }
                   finally{
                     SystemNavigator.pop();
                   }
-                }
-                else
-                  Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
+                // }
+                // else
+                //   Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
                 stopLoading();
               },
             ),

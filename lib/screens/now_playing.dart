@@ -47,7 +47,7 @@ class _NowPlayingState extends State<NowPlaying> {
   Duration position = new Duration();
   Duration musicLength = new Duration();
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 10);
+  Duration _timerDuration = new Duration(seconds: 15);
   var pictureFile;
 
   @override

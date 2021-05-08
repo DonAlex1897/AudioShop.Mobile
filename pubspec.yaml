@@ -3,19 +3,23 @@ description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 3.0.2
+version: 3.1.5
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  open_file:
+  permission_handler:
+  path_provider: ^2.0.1
+  flutter_downloader: ^1.6.0
   argon_buttons_flutter: ^1.0.6
   intro_slider: ^2.3.4
   package_info:
   smooth_star_rating: ^1.1.1
   flutter_local_notifications: ^4.0.1
   audio_manager: ^0.7.3
-  url_launcher: ^5.7.10
+  url_launcher: ^6.0.3
   jwt_decoder: ^1.0.3
   flutter_secure_storage: ^3.3.5
   intl: ">=0.14.0"

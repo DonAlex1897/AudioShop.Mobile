@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,21 +24,21 @@ class _StartPageState extends State<StartPage> {
   navigateToNextPage(){
     UpdateStatus updateStatus = getUpdateStatus();
     if(availableVersion != null && updateStatus != UpdateStatus.UpToDate) {
-      // return UpdatePage(availableVersion, updateStatus);
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return UpdatePage(availableVersion, updateStatus, currentVersion);
       }));
+      return;
     }
     else if(isFirstTime == null || isFirstTime.toLowerCase() == 'true'){
       // return IntroPage();
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return IntroPage(currentVersion);
       }));
+      return;
     }
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return HomePage(currentVersion);
     }));
-    // return HomePage.basic();
   }
 
   UpdateStatus getUpdateStatus(){
@@ -103,7 +104,11 @@ class _StartPageState extends State<StartPage> {
                       ),
                     ),
                     Text(
-                      'اِستارشو',
+                      'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      'با اِستارشو، ستاره شو',
                       style: TextStyle(fontSize: 18),
                     )
                   ],

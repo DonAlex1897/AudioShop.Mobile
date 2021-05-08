@@ -43,7 +43,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   bool isWholeCourseAvailable = true;
   bool alertReturn = false;
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 10);
+  Duration _timerDuration = new Duration(seconds: 15);
   var pictureFile;
 
   @override

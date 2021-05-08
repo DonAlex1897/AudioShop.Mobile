@@ -61,7 +61,9 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
   int currentSlideIndex = 0;
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 10);
+  Duration _timerDuration = new Duration(seconds: 15);
+  Widget appBarTitle = new Text("اِستارشو");
+  Icon actionIcon = new Icon(Icons.search);
 
   @override
   void setState(fn) {
@@ -207,7 +209,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Text(
-                    'لطفا منتظر بمانید ...',
+                    'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    'با اِستارشو، ستاره شو',
                     style: TextStyle(fontSize: 18),
                   )
                 ],
@@ -644,52 +650,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 5, right: 5),
-                    child: Container(
-                      width: width * 2 - 10,
-                      height: 40,
-                      child: TextField(
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (value){
-                          search(value);
-                        },
-                        style: TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                          prefixIcon: InkWell(
-                            onTap: (){
-                              search(searchController.text);
-                            },
-                            child: Icon(Icons.search,
-                                size: 25, color: Colors.white),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          border: OutlineInputBorder(),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white, width: 2.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.white, width: 2.0),
-                          ),
-                          labelText: 'جستجو',floatingLabelBehavior: FloatingLabelBehavior.never,
-                          labelStyle: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        controller: searchController,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             CarouselSlider(
                 options: CarouselOptions(
                     height: width * 1.2,
@@ -1167,6 +1127,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _handleSearchStart() {
+    setState(() {
+      // _IsSearching = true;
+    });
+  }
+
+  void _handleSearchEnd() {
+    setState(() {
+      this.actionIcon = new Icon(Icons.search, color: Colors.white,);
+      this.appBarTitle =
+      new Text("اِستارشو", style: new TextStyle(color: Colors.white),);
+      // _IsSearching = false;
+      // _searchQuery.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // courseStore = Provider.of<CourseStore>(context);
@@ -1189,6 +1165,47 @@ class _HomePageState extends State<HomePage> {
           if (data.hasData)
             return WillPopScope(
                 child: Scaffold(
+                  appBar: AppBar(
+                    leading: Container(),
+                      centerTitle: true,
+                      title: appBarTitle,
+                      actions: <Widget>[
+                        new IconButton(icon: actionIcon,onPressed:(){
+                          setState(() {
+                            if (this.actionIcon.icon == Icons.search) {
+                              this.actionIcon = new Icon(Icons.close, color: Colors.white,);
+                              this.appBarTitle = new TextField(
+                                textInputAction: TextInputAction.search,
+                                onSubmitted: (value){
+                                  search(value);
+                                },
+                                controller: searchController,
+                                style: new TextStyle(
+                                  color: Colors.white,
+
+                                ),
+                                decoration: new InputDecoration(
+                                    prefixIcon: InkWell(
+                                      onTap: (){
+                                        search(searchController.text);
+                                      },
+                                      child: Icon(Icons.search,
+                                          size: 25, color: Colors.white),
+                                    ),
+                                    hintText: "جستجو...",
+                                    hintStyle: new TextStyle(color: Colors.white),
+                                ),
+                              );
+                              _handleSearchStart();
+                            }
+                            else {
+                              _handleSearchEnd();
+                            }
+                          });
+                        } ,
+                        ),
+                      ]
+                  ),
                     bottomNavigationBar: Padding(
                       padding: const EdgeInsets.only(bottom: 0),
                       child: CurvedNavigationBar(
