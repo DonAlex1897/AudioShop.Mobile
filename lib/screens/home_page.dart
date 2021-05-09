@@ -385,7 +385,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(3.0),
                   child: Text(
                     courseName,
-                    overflow: TextOverflow.ellipsis,
+                    // overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 14, color: Colors.white),
                   ),
                 ),
@@ -692,7 +692,7 @@ class _HomePageState extends State<HomePage> {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               padding: const EdgeInsets.all(5),
-              crossAxisCount: 3,
+              crossAxisCount: 2,
               childAspectRatio: (width / height),
               children: coursesList,
               physics: ScrollPhysics(),
@@ -708,6 +708,7 @@ class _HomePageState extends State<HomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          leading: Container(),
           bottom: TabBar(
             tabs: [
               Tab(text: 'دوره های من',),
@@ -770,9 +771,10 @@ class _HomePageState extends State<HomePage> {
             child: Padding(
               padding: const EdgeInsets.all(28.0),
               child: Text(
-                'این بخش مخصوص کاربرانی است که ثبت نام کرده اند.'
-                  'اگر قبلا ثبت نام کرده اید وارد شوید. در غیر اینصورت'
-                  'ثبت نام کنید',
+                ' این بخش مخصوص کاربرانی است که ثبت نام کرده اند.'
+                  ' اگر قبلا ثبت نام کرده اید وارد شوید. در غیر اینصورت'
+                  ' ثبت نام کنید',
+                textAlign: TextAlign.justify,
                 style: TextStyle(
                   fontSize: 20,
                 ),
@@ -1165,7 +1167,7 @@ class _HomePageState extends State<HomePage> {
           if (data.hasData)
             return WillPopScope(
                 child: Scaffold(
-                  appBar: AppBar(
+                    appBar: AppBar(
                     leading: Container(),
                       centerTitle: true,
                       title: appBarTitle,

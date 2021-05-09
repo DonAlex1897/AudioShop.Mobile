@@ -47,7 +47,7 @@ class _NowPlayingState extends State<NowPlaying> {
   Duration position = new Duration();
   Duration musicLength = new Duration();
   bool isTakingMuchTime = false;
-  Duration _timerDuration = new Duration(seconds: 15);
+  Duration _timerDuration = new Duration(seconds: 5);
   var pictureFile;
 
   @override
@@ -174,7 +174,7 @@ class _NowPlayingState extends State<NowPlaying> {
           "file://$decryptedFilePath",
           title: widget.episodeDetails.name,
           desc: widget.episodeDetails.description,
-          coverUrl: "assets/images/dummy.png"));
+          coverUrl: 'https://star-show.ir/assets/logo.webp'));
 
     }
   }
@@ -319,43 +319,45 @@ class _NowPlayingState extends State<NowPlaying> {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: Image.asset('assets/images/internetdown.png')
+                SpinKitWave(
+                  type: SpinKitWaveType.center,
+                  color: Color(0xFF20BFA9),
+                  size: 65.0,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                    'لطفا منتظر بمانید. '
+                        'در حال بارگیری فایل دوره',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      isTakingMuchTime = false;
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => super.widget));
-                    });
-                  },
-                  child: Card(
-                    color: Color(0xFF20BFA9),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'تلاش مجدد',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),),
-                    ),
-                  ),
-                )
+                // InkWell(
+                //   onTap: (){
+                //     setState(() {
+                //       isTakingMuchTime = false;
+                //       Navigator.pushReplacement(
+                //           context,
+                //           MaterialPageRoute(
+                //               builder: (BuildContext context) => super.widget));
+                //     });
+                //   },
+                //   child: Card(
+                //     color: Color(0xFF20BFA9),
+                //     child: Padding(
+                //       padding: const EdgeInsets.all(8.0),
+                //       child: Text(
+                //         'تلاش مجدد',
+                //         style: TextStyle(
+                //             color: Colors.white,
+                //             fontSize: 18
+                //         ),),
+                //     ),
+                //   ),
+                // )
               ]
           ),
         )
@@ -465,11 +467,11 @@ class _NowPlayingState extends State<NowPlaying> {
                                 child: Directionality(
                                   textDirection: ui.TextDirection.rtl,
                                   child: Text(
-                                    episode.name + ' (' +
+                                    episode.name + ' - فایل ' +
                                         (audioManagerInstance.curIndex + 1)
-                                            .toString() + ' / ' +
+                                            .toString() + ' از ' +
                                         (audioManagerInstance
-                                          .audioList.length).toString() + ')'
+                                          .audioList.length).toString()
                                     ,
                                     style: TextStyle(
                                       color: Colors.white,

@@ -22,6 +22,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
   double width = 0;
   TextEditingController searchController = TextEditingController();
   bool isSearching = false;
+  Widget appBarTitle = new Text("اِستارشو");
+  Icon actionIcon = new Icon(Icons.search);
+
   @override
   void initState() {
     super.initState();
@@ -209,84 +212,142 @@ class _SearchResultPageState extends State<SearchResultPage> {
     );
   }
 
+  void _handleSearchEnd() {
+    setState(() {
+      this.actionIcon = new Icon(Icons.search, color: Colors.white,);
+      this.appBarTitle =
+      new Text("اِستارشو", style: new TextStyle(color: Colors.white),);
+      // _IsSearching = false;
+      // _searchQuery.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: coursesFuture,
       builder: (context, data){
         if(data.hasData)
-          return SafeArea(
-            child: Scaffold(
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 28.0),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 10,
-                            height: 40,
-                            child: TextField(
-                              textInputAction: TextInputAction.search,
-                              onSubmitted: (value) async{
+          return Scaffold(
+            appBar: AppBar(
+                centerTitle: true,
+                title: appBarTitle,
+                actions: <Widget>[
+                  new IconButton(icon: actionIcon,onPressed:(){
+                    setState(() {
+                      if (this.actionIcon.icon == Icons.search) {
+                        this.actionIcon = new Icon(Icons.close, color: Colors.white,);
+                        this.appBarTitle = new TextField(
+                          textInputAction: TextInputAction.search,
+                          onSubmitted: (value) async{
+                            isFirstSearch = false;
+                            setState(() {
+                              isSearching = true;
+                            });
+                            coursesList = await getCourses(value);
+                            setState(() {
+                              isSearching = false;
+                            });
+                          },
+                          controller: searchController,
+                          style: new TextStyle(
+                            color: Colors.white,
+
+                          ),
+                          decoration: new InputDecoration(
+                            prefixIcon: InkWell(
+                              onTap: () async{
                                 isFirstSearch = false;
                                 setState(() {
                                   isSearching = true;
                                 });
-                                coursesList = await getCourses(value);
+                                coursesList = await getCourses(searchController.text);
                                 setState(() {
                                   isSearching = false;
                                 });
                               },
-                              style: TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.text,
-                              decoration: InputDecoration(
-                                prefixIcon: InkWell(
-                                  onTap: () async {
-                                    isFirstSearch = false;
-                                    setState(() {
-                                      isSearching = true;
-                                    });
-                                    coursesList = await getCourses(searchController.text);
-                                    setState(() {
-                                      isSearching = false;
-                                    });
-                                  },
-                                  child: Icon(Icons.search,
-                                      size: 25, color: Colors.white),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                border: OutlineInputBorder(),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                labelText: 'جستجو',floatingLabelBehavior: FloatingLabelBehavior.never,
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              controller: searchController,
+                              child: Icon(Icons.search,
+                                  size: 25, color: Colors.white),
                             ),
+                            hintText: "جستجو...",
+                            hintStyle: new TextStyle(color: Colors.white),
                           ),
-                        ),
-                      ],
-                    ),
+                        );
+                      }
+                      else {
+                        _handleSearchEnd();
+                      }
+                    });
+                  } ,
                   ),
-                  searchResult(),
-                ],
-              ),
+                ]
             ),
+            body: searchResult(),
           );
         else
           return spinner();
       });
   }
 }
+
+
+//Former Search Widget
+// Padding(
+// padding: const EdgeInsets.only(top: 8.0, bottom: 0.8),
+// child: Row(
+// children: [
+// Padding(
+// padding: const EdgeInsets.only(left: 5, right: 5),
+// child: Container(
+// width: MediaQuery.of(context).size.width - 10,
+// child: TextField(
+// textInputAction: TextInputAction.search,
+// onSubmitted: (value) async{
+// isFirstSearch = false;
+// setState(() {
+// isSearching = true;
+// });
+// coursesList = await getCourses(value);
+// setState(() {
+// isSearching = false;
+// });
+// },
+// style: TextStyle(color: Colors.white),
+// keyboardType: TextInputType.text,
+// decoration: InputDecoration(
+// prefixIcon: InkWell(
+// onTap: () async {
+// isFirstSearch = false;
+// setState(() {
+// isSearching = true;
+// });
+// coursesList = await getCourses(searchController.text);
+// setState(() {
+// isSearching = false;
+// });
+// },
+// child: Icon(Icons.search,
+// size: 25, color: Colors.white),
+// ),
+// contentPadding: EdgeInsets.symmetric(horizontal: 10),
+// border: OutlineInputBorder(),
+// enabledBorder: OutlineInputBorder(
+// borderSide: BorderSide(
+// color: Colors.white, width: 2.0),
+// ),
+// focusedBorder: OutlineInputBorder(
+// borderSide: BorderSide(
+// color: Colors.white, width: 2.0),
+// ),
+// labelText: 'جستجو',floatingLabelBehavior: FloatingLabelBehavior.never,
+// labelStyle: TextStyle(
+// color: Colors.white,
+// ),
+// ),
+// controller: searchController,
+// ),
+// ),
+// ),
+// ],
+// ),
+// ),

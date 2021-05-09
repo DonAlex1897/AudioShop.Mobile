@@ -515,7 +515,7 @@ class _CoursePageState extends State<CoursePage> {
                       }
                     },
                     icon: Icon(
-                      Icons.library_add_outlined,
+                      Icons.favorite_border,
                       size: 20,
                       color: Colors.white,
                     ),

@@ -1,6 +1,7 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -35,7 +36,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   CourseStore courseStore;
   double yourRate = 0;
   double averageCourseRate = 0;
-  String favoriteButtonText = 'افزودن';
+  String favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
   final secureStorage = FlutterSecureStorage();
   String sendButtonText = 'ارسال';
   double sendButtonSize = 20;
@@ -44,6 +45,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   bool alertReturn = false;
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 15);
+  IconData favoriteIcon = Icons.favorite_border;
   var pictureFile;
 
   @override
@@ -296,9 +298,14 @@ class _CoursePreviewState extends State<CoursePreview> {
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
     Course course = widget.courseDetails;
-    courseStore.userFavoriteCourses.contains(widget.courseDetails) ?
-      favoriteButtonText = 'حذف':
-      favoriteButtonText = 'افزودن';
+    if(courseStore.userFavoriteCourses.contains(widget.courseDetails)) {
+      favoriteIcon = Icons.favorite;
+      favoriteButtonText = 'حذف دوره از علاقه مندی ها';
+    }
+    else{
+      favoriteIcon = Icons.favorite_border;
+      favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
+    }
 
     return FutureBuilder(
       future: courseReviews,
@@ -329,10 +336,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20,20,20,0),
+                        padding: const EdgeInsets.fromLTRB(35,20,35,0),
                         child: Center(
                           child: Text(
                             course.name,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 21.0,
@@ -342,12 +350,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20,5,20,20),
+                        padding: const EdgeInsets.fromLTRB(35,5,35,20),
                         child: Center(
                           child: Text(
                             course.instructor != null ?
-                            'سازنده: ' + course.instructor :
-                            'سازنده: ' + 'اِستارشو',
+                            'مدرس: ' + course.instructor :
+                            'مدرس: ' + 'اِستارشو',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18.0,
@@ -387,7 +395,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 20, right: 20),
                               child: Text(
-                                'ادامه به دوره',
+                                'نمایش دوره آموزشی',
                                 style: TextStyle(
                                   fontSize: 19,
                                   fontWeight: FontWeight.bold,
@@ -413,92 +421,110 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  color: Color(0xFF20BFA9),
-                                  child: TextButton(
-                                    onPressed: () async {
-                                      String userFavoriteCourseIds = await secureStorage
-                                          .read(key: 'UserFavoriteCourseIds');
-                                      if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
-                                        Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                                        String courseId = widget.courseDetails.id.toString();
-                                        userFavoriteCourseIds == null ?
-                                          userFavoriteCourseIds = courseId :
-                                          userFavoriteCourseIds += ',' + courseId;
-                                        await secureStorage.write(
-                                            key: 'UserFavoriteCourseIds',
-                                            value: userFavoriteCourseIds);
-                                      }
-                                      else{
-                                        Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
-                                        List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                                        userFavoriteCourseIds = '';
-                                        favCourseIds.forEach((element) {
-                                          if(element != widget.courseDetails.id.toString())
-                                            userFavoriteCourseIds += element + ',';
-                                        });
-                                        await secureStorage.write(
-                                            key: 'UserFavoriteCourseIds',
-                                            value: userFavoriteCourseIds);
-                                      }
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Color(0xFF20BFA9),
+                            child: TextButton(
+                              onPressed: () async{
+                                await createBasket(course);
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Icon(
+                                      Icons.add_shopping_cart,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Center(
+                                      child: Text(
+                                        'خریــــد  کــــامل  دوره',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            color: Color(0xFF20BFA9),
+                            child: TextButton(
+                              onPressed: () async {
+                                String userFavoriteCourseIds = await secureStorage
+                                    .read(key: 'UserFavoriteCourseIds');
+                                if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
+                                  Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
+                                  String courseId = widget.courseDetails.id.toString();
+                                  userFavoriteCourseIds == null ?
+                                  userFavoriteCourseIds = courseId :
+                                  userFavoriteCourseIds += ',' + courseId;
+                                  await secureStorage.write(
+                                      key: 'UserFavoriteCourseIds',
+                                      value: userFavoriteCourseIds);
+                                }
+                                else{
+                                  Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
+                                  List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                                  userFavoriteCourseIds = '';
+                                  favCourseIds.forEach((element) {
+                                    if(element != widget.courseDetails.id.toString())
+                                      userFavoriteCourseIds += element + ',';
+                                  });
+                                  await secureStorage.write(
+                                      key: 'UserFavoriteCourseIds',
+                                      value: userFavoriteCourseIds);
+                                }
 
-                                      if(courseStore.userFavoriteCourses.contains(widget.courseDetails))
-                                        setState(() {
-                                          favoriteButtonText = 'حذف';
-                                        });
-                                      else
-                                        setState(() {
-                                          favoriteButtonText = 'افزودن';
-                                        });
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Icon(
-                                          Icons.library_add,
-                                          color: Colors.white,
-                                        ),
-                                        Text(
-                                          favoriteButtonText,
-                                          style: TextStyle(color: Colors.white),)
-                                      ],
+                                if(courseStore.userFavoriteCourses.contains(widget.courseDetails))
+                                  setState(() {
+                                    favoriteButtonText = 'حذف دوره از علاقه مندی ها';
+                                  });
+                                else
+                                  setState(() {
+                                    favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
+                                  });
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Icon(
+                                      favoriteIcon,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  color: Color(0xFF20BFA9),
-                                  child: TextButton(
-                                    onPressed: () async{
-                                      await createBasket(course);
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Icon(
-                                          Icons.add_shopping_cart,
+                                  Expanded(
+                                    flex: 3,
+                                    child: Center(
+                                      child: Text(
+                                        favoriteButtonText,
+                                        style: TextStyle(
                                           color: Colors.white,
+                                          fontSize: 18
                                         ),
-                                        Text(
-                                          'خرید',
-                                          style: TextStyle(color: Colors.white),)
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
+                                  )
+                                ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                       SizedBox(
