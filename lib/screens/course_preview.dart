@@ -1,4 +1,5 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,9 +7,11 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/review.dart';
+import 'package:mobile/screens/authentication_page.dart';
 import 'package:mobile/screens/checkout_page.dart';
 import 'package:mobile/screens/course_page.dart';
 import 'package:mobile/services/course_episode_service.dart';
@@ -19,6 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'dart:ui' as ui;
 import 'package:async/async.dart';
+import 'package:http/http.dart' as http;
 
 class CoursePreview extends StatefulWidget {
 
@@ -47,6 +51,13 @@ class _CoursePreviewState extends State<CoursePreview> {
   Duration _timerDuration = new Duration(seconds: 15);
   IconData favoriteIcon = Icons.favorite_border;
   var pictureFile;
+  bool isSendingReview = false;
+  bool isVpnConnected = false;
+  int nonFreeEpisodesCount = 0;
+  int purchasedEpisodesCount = 0;
+  double totalEpisodesPrice = 0;
+  final currencyFormat = new NumberFormat("#,##0");
+
 
   @override
   void initState() {
@@ -68,12 +79,31 @@ class _CoursePreviewState extends State<CoursePreview> {
       });
       averageCourseRate = allReviewsRateSum / courseReviewList.length;
     }
+    CourseEpisodeData courseEpisodeData = CourseEpisodeData();
+    List<CourseEpisode> courseEpisodes =
+      await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
+
+    courseEpisodes.forEach((episode) {
+      if(episode.price != 0 && episode.price != null){
+        totalEpisodesPrice += episode.price;
+        nonFreeEpisodesCount++;
+      }
+
+      if(courseStore.userEpisodes != null){
+        for(CourseEpisode tempEpisode in courseStore.userEpisodes){
+          if(tempEpisode.id == episode.id)
+          {
+            purchasedEpisodesCount++;
+            break;
+          }
+        }
+      }
+    });
     return courseReviewList;
   }
 
   Future postReview() async{
     setState(() {
-      sendButtonText = 'در حال ارسال';
       sendButtonSize = 18;
       sendButtonColor = Color(0xff2afcdd);
     });
@@ -86,10 +116,15 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
     if(courseStore.token != '' && courseStore.token != null){
       bool sentReview = await courseData.addReviewToCourse(review, courseStore.token);
+      setState(() {
+        isSendingReview = false;
+      });
       if(sentReview){
+        Widget cancelB = cancelButton('باشه');
         AlertDialog alert = AlertDialog(
           title: Text('توجه'),
           content: Text('نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.'),
+          actions: [cancelB],
         );
         await showDialog(
           context: context,
@@ -101,9 +136,15 @@ class _CoursePreviewState extends State<CoursePreview> {
       }
     }
     else{
+      setState(() {
+        isSendingReview = false;
+      });
+      Widget cancelB = cancelButton('بعدا');
+      Widget continueB = continueButton('ورود', null, FormName.SignIn);
       AlertDialog alert = AlertDialog(
         title: Text('توجه'),
         content: Text('برای ثبت نظر باید وارد حساب کاربریتان شوید'),
+        actions: [cancelB, continueB],
       );
       await showDialog(
         context: context,
@@ -114,6 +155,7 @@ class _CoursePreviewState extends State<CoursePreview> {
     }
 
     setState(() {
+      isSendingReview = false;
       sendButtonText = 'ارسال';
       sendButtonSize = 20;
       sendButtonColor = Color(0xFF20BFA9);
@@ -161,44 +203,122 @@ class _CoursePreviewState extends State<CoursePreview> {
               .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
           return;
         }
-
-        if(!isWholeCourseAvailable){
-          Widget cancelB = cancelButton('خیر');
-          Widget continueB =
-          continueButton('بله', Alert.LogOut, null);
-          AlertDialog alertD = alert('هشدار',
-              'با توجه به اینکه قبلا یک یا چند قسمت از'
-                  ' این دوره را خریداری کرده اید، قیمت دوره'
-                  ' به صورت مجموع قیمت تمام قسمتها محاسبه'
-                  ' می شود. ادامه خرید؟',
-              [cancelB, continueB]);
-
-          await showBasketAlertDialog(context, alertD);
-
-          if(alertReturn){
-            await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return CheckOutPage();
-                })
-            );
-          }
-          alertReturn = false;
-        }
-        else{
-          await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return CheckOutPage();
-              })
-          );
-        }
+        await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            })
+        );
+    }
+    else{
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) {
+            return AuthenticationPage(FormName.SignUp);
+          }));
     }
   }
 
+  Widget coursePurchaseButton(Course course){
+    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+      return SizedBox();
+    else
+      return
+        TextButton(
+          onPressed: () async{
+            await createBasket(course);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                flex: 1,
+                child: Icon(
+                  Icons.add_shopping_cart,
+                  color: Colors.white,
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Text(
+                    'خریــــد  کــــامل  دوره',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+  }
+
+  Widget priceTagWidget(){
+    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+      return SizedBox();
+    else
+      return
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'قیمت دوره کامل:',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'قیمت دوره (قسمت به قسمت):',
+                      style: TextStyle(color: Colors.red),),
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      currencyFormat.format(widget.courseDetails.price/10000).toString() + " هزار تومن",
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      currencyFormat.format(totalEpisodesPrice/10000).toString() + " هزار تومن",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+          // Column(
+          //   children: [
+          //     Text(
+          //       'قیمت خرید دوره بصورت کامل: ${currencyFormat.format(widget.courseDetails.price)} ریال',
+          //       style: TextStyle(color: Colors.red),
+          //     ),
+          //     Text('قیمت خرید دوره بصورت قسمت به قسمت: ${currencyFormat.format(totalEpisodesPrice)} ریال' )
+          //   ],
+          // );
+  }
+
   Widget cancelButton(String cancelText){
-    return FlatButton(
-      child: Text(cancelText),
+    return TextButton(
+      child: Text(cancelText, style: TextStyle(color: Colors.white),),
       onPressed: () {
         Navigator.of(context).pop();
         alertReturn = false;
@@ -206,14 +326,25 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
   }
 
-  Widget continueButton(String continueText, Alert alert, int index){
-    return FlatButton(
-      child: Text(continueText),
-      onPressed: () {
-        Navigator.of(context).pop();
-        alertReturn = true;
-      },
-    );
+  Widget continueButton(String continueText, Alert alert, FormName formName){
+    if(alert != null)
+      return TextButton(
+        child: Text(continueText, style: TextStyle(color: Colors.white),),
+        onPressed: () {
+          Navigator.of(context).pop();
+          alertReturn = true;
+        },
+      );
+    else{
+      return TextButton(
+        child: Text(continueText, style: TextStyle(color: Colors.white),),
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AuthenticationPage(formName);
+          }));
+        },
+      );
+    }
   }
 
   AlertDialog alert(String titleText, String contentText, List<Widget> actions){
@@ -250,11 +381,13 @@ class _CoursePreviewState extends State<CoursePreview> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                  child: Text(!isVpnConnected ?
+                    'لطفا اتصال اینترنت خود را بررسی کنید' :
+                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20
+                        fontSize: 16
                     ),
                   ),
                 ),
@@ -291,8 +424,26 @@ class _CoursePreviewState extends State<CoursePreview> {
     setState(() {
       isTakingMuchTime = true;
     });
+    checkVpnConnection();
   }
 
+  Future checkVpnConnection() async{
+    setState(() {
+      isVpnConnected = false;
+    });
+    try {
+      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+      if(response.statusCode == 200 &&
+          json.decode(response.body)['location']['country']['name']
+              .toString().toLowerCase() != 'iran'){
+        setState(() {
+          isVpnConnected = true;
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +501,8 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(35,5,35,20),
+                        padding: const EdgeInsets.
+                        fromLTRB(35,5,35,20),
                         child: Center(
                           child: Text(
                             course.instructor != null ?
@@ -407,57 +559,44 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            left: 40,
+                            top: 20,
+                            right: 40,
+                            bottom: 10),
                         child: Center(
                           child: Text(
                             course.description,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 23.0,
+                              fontSize: 21.0,
                               fontWeight: FontWeight.w400,
                             ),
                             textAlign: TextAlign.center,
                           ),
                         ),
                       ),
+                      Card(
+                        elevation: 10,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: priceTagWidget(),
+                          ),
+                        ),
+                      ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
                             color: Color(0xFF20BFA9),
-                            child: TextButton(
-                              onPressed: () async{
-                                await createBasket(course);
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Icon(
-                                      Icons.add_shopping_cart,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Center(
-                                      child: Text(
-                                        'خریــــد  کــــامل  دوره',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
+                            child: coursePurchaseButton(course),
                           ),
                         ),
-                      ),Padding(
+                      ),
+                      Padding(
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -515,8 +654,8 @@ class _CoursePreviewState extends State<CoursePreview> {
                                       child: Text(
                                         favoriteButtonText,
                                         style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18
+                                            color: Colors.white,
+                                            fontSize: 18
                                         ),
                                       ),
                                     ),
@@ -655,56 +794,34 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     color: sendButtonColor,
                                   ),
                                   height: 55,
-                                  child: ArgonButton(
-                                    height: 50,
-                                    width: 400,
-                                    borderRadius: 5.0,
-                                    color: Color(0xFF20BFA9),
-                                    child: Text(
-                                      sendButtonText,
-                                      style: TextStyle(
-                                        fontSize: sendButtonSize,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    roundLoadingShape: false,
-                                    loader: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: SpinKitRing(
-                                        color: Colors.white,
-                                        lineWidth: 4,
-                                      ),
-                                    ),
-                                    onTap:(startLoading, stopLoading, btnState) async {
-                                      startLoading();
+                                  child: TextButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        isSendingReview = true;
+                                      });
                                       if (reviewController.text.isNotEmpty && yourRate != 0)
                                         await postReview();
                                       else if(reviewController.text.isEmpty)
                                         Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
                                       else
                                         Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
-                                      stopLoading();
+                                      setState(() {
+                                        isSendingReview = false;
+                                      });
                                     },
+                                    child: !isSendingReview ?
+                                      Text(
+                                        sendButtonText,
+                                        style: TextStyle(
+                                          fontSize: sendButtonSize,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ) :
+                                      SpinKitRing(
+                                        lineWidth: 5,
+                                        color: Colors.white),
                                   ),
-                                  // child: TextButton(
-                                  //   onPressed: () async {
-                                  //     if (reviewController.text.isNotEmpty && yourRate != 0)
-                                  //       await postReview();
-                                  //     else if(reviewController.text.isEmpty)
-                                  //       Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
-                                  //     else
-                                  //       Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
-                                  //   },
-                                  //   child: Text(
-                                  //     sendButtonText,
-                                  //     style: TextStyle(
-                                  //       fontSize: sendButtonSize,
-                                  //       fontWeight: FontWeight.bold,
-                                  //       color: Colors.white,
-                                  //     ),
-                                  //   ),
-                                  // ),
                                 ),
                               ),
                             ),

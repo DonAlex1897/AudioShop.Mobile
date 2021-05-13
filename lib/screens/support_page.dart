@@ -37,7 +37,7 @@ class _SupportPageState extends State<SupportPage> {
                         //       "+989012416905",
                         //       "سلام. در مورد اپلیکیشن مهارت های ارتباطی"
                         //           " سوال داشتم ازتون.");
-                        String chatUrl = 'https://api.whatsapp.com/send/?phone=989012416905&text&app_absent=0';
+                        String chatUrl = 'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
                         if (await canLaunch(chatUrl)){
                           try{
                             await launch(chatUrl);
@@ -56,7 +56,7 @@ class _SupportPageState extends State<SupportPage> {
                   Expanded(
                     child: TextButton(
                       onPressed: () async{
-                        String chatUrl = 'https://telegram.me/aminkaviyani';
+                        String chatUrl = 'https://telegram.me/StarShow_ir';
                         if (await canLaunch(chatUrl)){
                           try{
                             await launch(chatUrl);

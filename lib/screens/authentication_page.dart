@@ -57,6 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   String verificationCodeError = '';
   String userNameError = '';
   String passwordError = '';
+  FocusNode focusRepeatPassword = new FocusNode();
 
   @override
   void setState(fn) {
@@ -70,6 +71,19 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     super.initState();
     formName = widget.baseForm;
     secureStorage = FlutterSecureStorage();
+    focusRepeatPassword.addListener(onFocusChange);
+  }
+
+  void onFocusChange(){
+    if(passwordController.text.length < 6)
+      setState(() {
+        passwordError = 'رمز عبور حداقل باید 6 کاراکتر باشد';
+      });
+    else{
+      setState(() {
+        passwordError = '';
+      });
+    }
   }
 
   Future<bool> receiveCode() async {
@@ -255,7 +269,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     }
   }
 
-  Future signUp() async {
+  Future<bool> signUp() async {
     bool isUserNotOk = await isUserNameRepetitive(userNameController.text);
     if (!isUserNotOk) {
       Register registerInfo = Register();
@@ -271,10 +285,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       if(ageController.text != '')
         registerInfo.age = int.parse(ageController.text);
       User registeredUser = await authService.signUp(registerInfo);
-      if (registeredUser == null)
+      if (registeredUser == null) {
         Fluttertoast.showToast(
             msg: 'ثبت نام با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
-      else {
+        return false;
+      } else {
         await secureStorage.write(
             key: 'token',
             value: registeredUser.token);
@@ -286,8 +301,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             value: registeredUser.salespersonCouponCode);
 
         await courseStore.setUserDetails(registeredUser.token, registeredUser.hasPhoneNumber, registeredUser.salespersonCouponCode);
+        return true;
       }
     }
+    return false;
   }
 
   Future signIn() async {
@@ -824,6 +841,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4.0),
                               child: TextField(
+                                onChanged: (text){
+                                  if(text.length >= 6)
+                                    setState(() {
+                                      passwordError = '';
+                                    });
+                                },
                                 style: TextStyle(color: Colors.white),
                                 keyboardType: TextInputType.visiblePassword,
                                 decoration: InputDecoration(
@@ -850,6 +873,17 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             child: Padding(
                               padding: const EdgeInsets.only(right: 4.0),
                               child: TextField(
+                                onChanged: (text){
+                                  if(text != passwordController.text)
+                                    setState(() {
+                                      passwordError = 'رمز عبور مطابقت ندارد';
+                                    });
+                                  else
+                                    setState(() {
+                                      passwordError = '';
+                                    });
+                                },
+                                focusNode: focusRepeatPassword,
                                 style: TextStyle(color: Colors.white),
                                 keyboardType: TextInputType.visiblePassword,
                                 decoration: InputDecoration(
@@ -1129,9 +1163,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           });
                           if(isQualified){
                             startLoading();
-                            await signUp();
+                            if(await signUp()) {
+                              stopLoading();
+                              Navigator.pop(context);
+                            }
                             stopLoading();
-                            Navigator.pop(context);
                           }
                         },
                       ),

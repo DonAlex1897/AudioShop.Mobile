@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:audio_manager/audio_manager.dart';
@@ -14,6 +15,7 @@ import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'package:async/async.dart';
+import 'package:http/http.dart' as http;
 
 class NowPlaying extends StatefulWidget {
   NowPlaying(this.episodeDetails, this.courseCoverUrl);
@@ -49,6 +51,7 @@ class _NowPlayingState extends State<NowPlaying> {
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 5);
   var pictureFile;
+  bool isVpnConnected = false;
 
   @override
   void setState(fn) {
@@ -59,17 +62,37 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Widget slider() {
     return Container(
-        child: Slider(
-            activeColor: Color(0xFF20BFA9),
-            inactiveColor: Colors.grey[350],
-            value: position.inMilliseconds.toDouble(),
-            max: audioManagerInstance.duration.inMilliseconds.toDouble(),
-            onChanged: (value) {
-              seekToSec(value.toInt());
-              setState(() {
-                position = Duration(milliseconds: value.toInt());
-              });
-            }));
+        child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: Color(0xFF20BFA9),
+            inactiveTrackColor: Color(0xFFd3fff8),
+            trackShape: RoundedRectSliderTrackShape(),
+            trackHeight: 2.0,
+            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+            thumbColor: Color(0xFF169985),
+            overlayColor: Color(0xFFd3fff8).withAlpha(25),
+            overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+            tickMarkShape: RoundSliderTickMarkShape(),
+            activeTickMarkColor: Color(0xFF169985),
+            inactiveTickMarkColor: Color(0xFFd3fff8),
+            valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+            valueIndicatorColor: Color(0xFF169985),
+            valueIndicatorTextStyle: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          child: Slider(
+              value: position.inMilliseconds.toDouble(),
+              max: audioManagerInstance.duration.inMilliseconds.toDouble(),
+              divisions: 500,
+              label: "${position.inMinutes}:${position.inSeconds.remainder(60)}",
+              onChanged: (value) {
+                seekToSec(value.toInt());
+                setState(() {
+                  position = Duration(milliseconds: value.toInt());
+                });
+              }),
+        ));
   }
 
   void seekToSec(int milliSec) {
@@ -335,6 +358,17 @@ class _NowPlayingState extends State<NowPlaying> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                  child: Text(!isVpnConnected ? '' :
+                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
+                    ),
+                  ),
+                ),
                 // InkWell(
                 //   onTap: (){
                 //     setState(() {
@@ -368,8 +402,26 @@ class _NowPlayingState extends State<NowPlaying> {
     setState(() {
       isTakingMuchTime = true;
     });
+    checkVpnConnection();
   }
 
+  Future checkVpnConnection() async{
+    setState(() {
+      isVpnConnected = false;
+    });
+    try {
+      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+      if(response.statusCode == 200 &&
+          json.decode(response.body)['location']['country']['name']
+              .toString().toLowerCase() != 'iran'){
+        setState(() {
+          isVpnConnected = true;
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,25 +444,29 @@ class _NowPlayingState extends State<NowPlaying> {
                 ),
               ),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Card(
-                    color: isDrivingMode? Color(0xFF20BFA9) : Colors.white,
-                    child: TextButton(
-                      child: Text(
-                        'حالت رانندگی',
-                        style: TextStyle(
-                            color: isDrivingMode ? Colors.white : Color(0xFF20BFA9)
-                        ),
-                      ),
-                      onPressed: (){
+                Row(
+                  children: [
+                    Icon(
+                      Icons.directions_car_outlined,
+                    ),
+                    Switch(
+                      inactiveTrackColor: Colors.white30,
+                      value: isDrivingMode,
+                      // child: Text(
+                      //   'حالت رانندگی',
+                      //   style: TextStyle(
+                      //       color: isDrivingMode ? Colors.white : Color(0xFF20BFA9)
+                      //   ),
+                      // ),
+                      onChanged: (value){
                         setState(() {
-                          isDrivingMode ?
-                            isDrivingMode = false : isDrivingMode = true;
+                          isDrivingMode = value;
+                          // isDrivingMode ?
+                          //   isDrivingMode = false : isDrivingMode = true;
                         });
                       },
                     ),
-                  ),
+                  ],
                 )
               ],
             ),

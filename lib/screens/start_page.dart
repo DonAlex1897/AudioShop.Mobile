@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,7 @@ import 'package:mobile/screens/update_page.dart';
 import 'package:mobile/services/global_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:package_info/package_info.dart';
+import 'package:http/http.dart' as http;
 
 class StartPage extends StatefulWidget {
   @override
@@ -72,12 +75,48 @@ class _StartPageState extends State<StartPage> {
   }
 
   Future startApplication() async {
+    // try {
+    //   http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+    //   if(response.statusCode == 200 &&
+    //      json.decode(response.body)['location']['country']['name']
+    //          .toString().toLowerCase() != 'iran'){
+    //     Widget cancelB = TextButton(
+    //       child: Text('باشه', style: TextStyle(color: Colors.white),),
+    //       onPressed: () {
+    //         Navigator.of(context).pop();
+    //       },
+    //     );
+    //     Widget continueB = TextButton(
+    //       child: Text('بعدا', style: TextStyle(color: Colors.white),),
+    //       onPressed: () {
+    //         Navigator.of(context).pop();
+    //       },
+    //     );
+    //     AlertDialog alert = AlertDialog(
+    //       title: Text('توجه'),
+    //       content: Text('لطفا جهت برخورداری از سرعت بیشتر،'
+    //           ' فیلترشکن خود را خاموش کنید.'),
+    //       actions: [cancelB, continueB],
+    //     );
+    //     await showDialog(
+    //       context: context,
+    //       builder: (BuildContext context) {
+    //         return alert;
+    //       },
+    //     );
+    //   }
+    // } catch (err) {
+    //     print(err.toString());
+    // }
+
     const platform = const MethodChannel("audioshoppp.ir.mobile/main");
     await platform.invokeMethod('launchBatch');
     var secureStorage = FlutterSecureStorage();
     isFirstTime = await secureStorage.read(key: 'isFirstTime');
     info = await PackageInfo.fromPlatform();
-    currentVersion = info.version;
+    setState(() {
+      currentVersion = info.version;
+    });
     availableVersion = await globalService.getLatestVersionAvailable();
 
     navigateToNextPage();

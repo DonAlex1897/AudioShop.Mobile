@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -13,7 +14,7 @@ import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'package:async/async.dart';
-
+import 'package:http/http.dart' as http;
 import 'authentication_page.dart';
 import 'checkout_page.dart';
 
@@ -45,6 +46,7 @@ class _CoursePageState extends State<CoursePage> {
   final secureStorage = FlutterSecureStorage();
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 15);
+  bool isVpnConnected = false;
 
   @override
   void setState(fn) {
@@ -351,49 +353,102 @@ class _CoursePageState extends State<CoursePage> {
                   ),
                 ),
                 Expanded(
-                  flex: 4,
-                  child: TextButton(
-                      onPressed: () async {
-                        AlertDialog alert = AlertDialog(
-                          title: Text(episodeName),
-                          content: Text(episodeDescription),
-                        );
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return alert;
+                  flex: 12,
+                  child: Column(
+                    children: [
+                      TextButton(
+                          onPressed: () async {
+                            AlertDialog alert = AlertDialog(
+                              title: Text(episodeName),
+                              content: Text(episodeDescription),
+                            );
+                            await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return alert;
+                              },
+                            );
                           },
-                        );
-                      },
-                    child: Icon(
-                      Icons.preview,
-                      size: 25,
-                      color: Color(0xFFFFFFFF),
-                    ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Icon(
+                                Icons.preview,
+                                size: 20,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
+                            Text(
+                              'توضیحات',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),)
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async{
+                          await playEpisode(course, episode);
+                        },
+                        child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            (isEpisodePurchasedBefore ||
+                                episode.price == 0 ||
+                                episode.price == null) ?
+                            Icon(
+                              Icons.play_arrow_outlined,
+                              size: 30,
+                              color: Color(0xFFFFFFFF),
+                            ):
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Icon(
+                                Icons.add_shopping_cart,
+                                size: 25,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
+                            Text(
+                              (isEpisodePurchasedBefore ||
+                                  episode.price == 0 ||
+                                  episode.price == null)  ? 'پخش' : 'خرید',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),)
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  flex: 4,
-                  child: TextButton(
-                    onPressed: () async{
-                      await playEpisode(course, episode);
-                    },
-                    child:
-                      (isEpisodePurchasedBefore ||
-                       episode.price == 0 ||
-                       episode.price == null) ?
-                          Icon(
-                            Icons.play_arrow_outlined,
-                            size: 35,
-                            color: Color(0xFFFFFFFF),
-                          ):
-                          Icon(
-                            Icons.add_shopping_cart,
-                            size: 25,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                  ),
-                )
+                // Expanded(
+                //   flex: 4,
+                //   child: TextButton(
+                //     onPressed: () async{
+                //       await playEpisode(course, episode);
+                //     },
+                //     child:
+                //       (isEpisodePurchasedBefore ||
+                //        episode.price == 0 ||
+                //        episode.price == null) ?
+                //           Icon(
+                //             Icons.play_arrow_outlined,
+                //             size: 35,
+                //             color: Color(0xFFFFFFFF),
+                //           ):
+                //           Icon(
+                //             Icons.add_shopping_cart,
+                //             size: 25,
+                //             color: Color(0xFFFFFFFF),
+                //           ),
+                //   ),
+                // )
               ],
             ),
             SizedBox(
@@ -577,34 +632,34 @@ class _CoursePageState extends State<CoursePage> {
             episodesToBePurchased.add(episode);
         }
         List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
-        if(!isWholeCourseAvailable){
-          Widget cancelB = cancelButton('خیر');
-          Widget continueB =
-          continueButton('بله', Alert.LogOut, null);
-          AlertDialog alertD = alert('هشدار',
-              'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
-              [cancelB, continueB]);
-
-          await showBasketAlertDialog(context, alertD);
-
-          if(alertReturn){
-            await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return CheckOutPage();
-                })
-            );
-          }
-          alertReturn = false;
-        }
-        else{
-          await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+        // if(!isWholeCourseAvailable){
+        //   Widget cancelB = cancelButton('خیر');
+        //   Widget continueB =
+        //   continueButton('بله', Alert.LogOut, null);
+        //   AlertDialog alertD = alert('هشدار',
+        //       'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
+        //       [cancelB, continueB]);
+        //
+        //   await showBasketAlertDialog(context, alertD);
+        //
+        //   if(alertReturn){
+        //     await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
+        //     Navigator.push(context,
+        //         MaterialPageRoute(builder: (context) {
+        //           return CheckOutPage();
+        //         })
+        //     );
+        //   }
+        //   alertReturn = false;
+        // }
+        // else{
+          await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) {
                 return CheckOutPage();
               })
           );
-        }
+        // }
       }
       else{
         if(courseStore.userEpisodes.contains(episodes[0]))
@@ -675,11 +730,13 @@ class _CoursePageState extends State<CoursePage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                  child: Text(!isVpnConnected ?
+                    'لطفا اتصال اینترنت خود را بررسی کنید' :
+                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20
+                        fontSize: 16
                     ),
                   ),
                 ),
@@ -716,8 +773,26 @@ class _CoursePageState extends State<CoursePage> {
     setState(() {
       isTakingMuchTime = true;
     });
+    checkVpnConnection();
   }
 
+  Future checkVpnConnection() async{
+    setState(() {
+      isVpnConnected = false;
+    });
+    try {
+      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+      if(response.statusCode == 200 &&
+          json.decode(response.body)['location']['country']['name']
+              .toString().toLowerCase() != 'iran'){
+        setState(() {
+          isVpnConnected = true;
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

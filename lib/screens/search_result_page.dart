@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:mobile/services/course_service.dart';
 import 'package:async/async.dart';
+import 'package:http/http.dart' as http;
 
 class SearchResultPage extends StatefulWidget {
   SearchResultPage(this.courseName);
@@ -24,6 +26,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   bool isSearching = false;
   Widget appBarTitle = new Text("اِستارشو");
   Icon actionIcon = new Icon(Icons.search);
+  bool isVpnConnected = false;
 
   @override
   void initState() {
@@ -38,6 +41,23 @@ class _SearchResultPageState extends State<SearchResultPage> {
     return coursesList;
   }
 
+  Future checkVpnConnection() async{
+    setState(() {
+      isVpnConnected = false;
+    });
+    try {
+      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+      if(response.statusCode == 200 &&
+          json.decode(response.body)['location']['country']['name']
+              .toString().toLowerCase() != 'iran'){
+        setState(() {
+          isVpnConnected = true;
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
 
   goToCoursePreview(Course course){
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -64,11 +84,13 @@ class _SearchResultPageState extends State<SearchResultPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'لطفا اتصال اینترنت خود را بررسی کنید',
+                  child: Text(!isVpnConnected ?
+                    'لطفا اتصال اینترنت خود را بررسی کنید' :
+                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20
+                        fontSize: 16
                     ),
                   ),
                 ),
@@ -115,11 +137,13 @@ class _SearchResultPageState extends State<SearchResultPage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'لطفا اتصال اینترنت خود را بررسی کنید',
+                child: Text(!isVpnConnected ?
+                  'لطفا اتصال اینترنت خود را بررسی کنید' :
+                  'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20
+                      fontSize: 16
                   ),
                 ),
               ),
@@ -155,6 +179,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
     setState(() {
       isTakingMuchTime = true;
     });
+    checkVpnConnection();
   }
 
   Widget searchResult(){

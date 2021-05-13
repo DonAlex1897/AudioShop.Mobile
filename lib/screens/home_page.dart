@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -6,14 +8,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:async/async.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
 import 'package:mobile/screens/course_preview.dart';
-import 'package:mobile/screens/psychological_tests_page.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -64,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   Duration _timerDuration = new Duration(seconds: 15);
   Widget appBarTitle = new Text("اِستارشو");
   Icon actionIcon = new Icon(Icons.search);
+  bool isVpnConnected = false;
 
   @override
   void setState(fn) {
@@ -242,11 +244,13 @@ class _HomePageState extends State<HomePage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'لطفا اتصال اینترنت خود را بررسی کنید',
+                child: Text(!isVpnConnected ?
+                  'لطفا اتصال اینترنت خود را بررسی کنید' :
+                  'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20
+                      color: Colors.white,
+                      fontSize: 16
                   ),
                 ),
               ),
@@ -283,7 +287,27 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isTakingMuchTime = true;
     });
+    checkVpnConnection();
   }
+
+  Future checkVpnConnection() async{
+    setState(() {
+      isVpnConnected = false;
+    });
+    try {
+      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
+      if(response.statusCode == 200 &&
+          json.decode(response.body)['location']['country']['name']
+              .toString().toLowerCase() != 'iran'){
+        setState(() {
+          isVpnConnected = true;
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
+
 
   Future<List<Course>> getCourses() async {
     RestartableTimer(_timerDuration, setTimerState);
@@ -411,8 +435,10 @@ class _HomePageState extends State<HomePage> {
         carouselSlider.add(
           InkWell(
             onTap: () async {
-              Course course = await courseData.getCourseById(sliderItem.courseId);
-              goToCoursePreview(course);
+              if(sliderItem.courseId != null){
+                Course course = await courseData.getCourseById(sliderItem.courseId);
+                goToCoursePreview(course);
+              }
             },
             child: Stack(children: <Widget>[
               Container(
@@ -613,10 +639,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context){
-                            return PsychologicalTestsPage();
-                          })
+                      // Navigator.push(context,
+                      //     MaterialPageRoute(builder: (context){
+                      //       return PsychologicalTestsPage();
+                      //     })
+                      // );
+                      Fluttertoast.showToast(
+                          msg: 'این قسمت به زودی بارگذاری خواهد شد'
                       );
                     },
                     child: Text(
