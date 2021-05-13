@@ -311,7 +311,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومن"),
+                                    Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
                                   ],
                                 ),
                               ),
@@ -319,7 +319,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومن"),
+                                    Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
                                   ],
                                 ),
                               ),
@@ -327,7 +327,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 flex: 1,
                                 child: Row(
                                   children: [
-                                    Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومن"),
+                                    Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
                                   ],
                                 ),
                               ),

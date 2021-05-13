@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:async/async.dart';
 import 'package:mobile/models/configuration.dart';
@@ -217,7 +218,12 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     'با اِستارشو، ستاره شو',
                     style: TextStyle(fontSize: 18),
-                  )
+                  ),
+                  SpinKitWave(
+                    type: SpinKitWaveType.center,
+                    color: Color(0xFF20BFA9),
+                    size: 20.0,
+                  ),
                 ],
               ),
             ),
@@ -238,19 +244,43 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: width * 1.5,
-                child: Image.asset('assets/images/internetdown.png')
+              SpinKitWave(
+                type: SpinKitWaveType.center,
+                color: Color(0xFF20BFA9),
+                size: 65.0,
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(!isVpnConnected ?
-                  'لطفا اتصال اینترنت خود را بررسی کنید' :
-                  'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                child: Text(//!isVpnConnected ?
+                  'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                  //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                child: Text(//!isVpnConnected ? '' :
+                  'جهت تجربه سرعت بهتر،',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                child: Text(//!isVpnConnected ? '' :
+                  'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -287,7 +317,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isTakingMuchTime = true;
     });
-    checkVpnConnection();
+    // checkVpnConnection();
   }
 
   Future checkVpnConnection() async{
@@ -391,34 +421,66 @@ class _HomePageState extends State<HomePage> {
               goToCoursePreview(course);
             },
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                  child: pictureFile != null ?
-                    Image.file(
-                      pictureFile,
-                      fit: BoxFit.fill,
-                    ):
-                    Image.asset(
-                      'assets/images/noPicture.png',
-                      fit: BoxFit.fill,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                      child: pictureFile != null ?
+                        Image.file(
+                          pictureFile,
+                          fit: BoxFit.fill,
+                        ):
+                        Image.asset(
+                          'assets/images/noPicture.png',
+                          fit: BoxFit.fill,
+                        ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Text(
+                        courseName,
+                        // overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Text(
-                    courseName,
-                    // overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                    course.instructor != null ? course.instructor : 'اِستارشو',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.white70),
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Text(
+                          course.instructor != null ? course.instructor : 'اِستارشو',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12, color: Colors.white70),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            size: 14,
+                            color: Colors.yellow[300],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left:3, right:2,),
+                            child: Text(
+                              course.averageScore != null ?
+                                course.averageScore.toStringAsFixed(1):'5.0',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ],

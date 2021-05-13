@@ -360,12 +360,24 @@ class _NowPlayingState extends State<NowPlaying> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(!isVpnConnected ? '' :
-                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                  child: Text(//!isVpnConnected ? '' :
+                  'جهت تجربه سرعت بهتر،',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                  child: Text(//!isVpnConnected ? '' :
+                  'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -402,7 +414,7 @@ class _NowPlayingState extends State<NowPlaying> {
     setState(() {
       isTakingMuchTime = true;
     });
-    checkVpnConnection();
+    // checkVpnConnection();
   }
 
   Future checkVpnConnection() async{

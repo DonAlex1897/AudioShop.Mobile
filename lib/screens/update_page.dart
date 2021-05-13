@@ -31,6 +31,7 @@ class _UpdatePageState extends State<UpdatePage> {
   String filePath = '';
   String downloadButtonText = 'به روز رسانی';
   DownloadTaskStatus downloadTaskStatus;
+  bool isDownloading = false;
 
   Future downloadFile() async{
     GlobalService globalService = GlobalService();
@@ -122,12 +123,14 @@ class _UpdatePageState extends State<UpdatePage> {
                     padding: const EdgeInsets.only(left:15, right: 15),
                     child: TextButton(
                       onPressed: () async {
-                        if(downloadProgress == 0){
+                        if(downloadProgress == 0 && !isDownloading){
                           // setState(() {
                           //   downloadButtonText = 'در حال به روز رسانی';
                           //   downloadProgress++;
                           // });
+                          isDownloading = true;
                           await downloadFile();
+                          isDownloading = false;
                         }
                         else if (downloadProgress == 100){
                           await FlutterDownloader.open(taskId: taskId);
