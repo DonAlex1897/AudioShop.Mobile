@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/services/global_service.dart';
@@ -32,6 +33,8 @@ class _UpdatePageState extends State<UpdatePage> {
   String downloadButtonText = 'به روز رسانی';
   DownloadTaskStatus downloadTaskStatus;
   bool isDownloading = false;
+  bool isWaitingToStartDownload = false;
+  ReceivePort receivePort = ReceivePort();
 
   Future downloadFile() async{
     GlobalService globalService = GlobalService();
@@ -63,35 +66,44 @@ class _UpdatePageState extends State<UpdatePage> {
 
   @override
   void initState() {
-    ReceivePort receivePort = ReceivePort();
-    IsolateNameServer.registerPortWithName(receivePort.sendPort, 'downloadingFile');
+    super.initState();
+    IsolateNameServer.registerPortWithName(receivePort.sendPort, 'downloader_send_port');
     receivePort.listen((dynamic data) {
-      // String id = data[0];
-      // DownloadTaskStatus status = data[1];
-      int progress = data;
-      setState(() {
-        // taskId = id;
-        // downloadTaskStatus = status;
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState((){
         downloadProgress = progress;
-        if(downloadProgress == 100)
+        if(status == DownloadTaskStatus.complete){
           downloadButtonText = 'نصب';
-        else if(downloadProgress != 0)
+          isDownloading = false;
+        }
+        else if(downloadProgress != 0 && status != DownloadTaskStatus.failed){
+          isWaitingToStartDownload = false;
           downloadButtonText = '$downloadProgress %';
+        }
+        else if(status == DownloadTaskStatus.failed){
+          Fluttertoast.showToast(msg: 'مشکل در برقراری ارتباط. لطفا اتصال اینترنت خود را بررسی کنید');
+          isWaitingToStartDownload = false;
+          downloadButtonText = 'تلاش مجدد';
+          isDownloading = false;
+          downloadProgress = 0;
+        }
       });
     });
+
     FlutterDownloader.registerCallback(downloadCallback);
-    super.initState();
   }
 
   @override
   void dispose() {
-    IsolateNameServer.removePortNameMapping('downloadingFile');
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
     super.dispose();
   }
 
-  static downloadCallback(id, status, progress){
-    SendPort sendPort = IsolateNameServer.lookupPortByName('downloadingFile');
-    sendPort.send(progress);
+  static void downloadCallback(String id, DownloadTaskStatus status, int progress) {
+    final SendPort send = IsolateNameServer.lookupPortByName('downloader_send_port');
+    send.send([id, status, progress]);
   }
 
   @override
@@ -117,69 +129,62 @@ class _UpdatePageState extends State<UpdatePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Card(
-                  color: Color(0xFF20BFA9),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Color(0xFF20BFA9),
+                  ),
+                  height: 55,
                   child: Padding(
                     padding: const EdgeInsets.only(left:15, right: 15),
                     child: TextButton(
                       onPressed: () async {
                         if(downloadProgress == 0 && !isDownloading){
-                          // setState(() {
-                          //   downloadButtonText = 'در حال به روز رسانی';
-                          //   downloadProgress++;
-                          // });
+                          setState(() {
+                            isWaitingToStartDownload = true;
+                          });
                           isDownloading = true;
                           await downloadFile();
-                          isDownloading = false;
                         }
                         else if (downloadProgress == 100){
                           await FlutterDownloader.open(taskId: taskId);
-                          // final _result = await OpenFile.open(filePath);
-                          // print(_result.message);
-                          // IsolateNameServer.removePortNameMapping('downloadingFile');
                         }
-                        // if (await canLaunch(downloadUrl)){
-                        // GlobalService globalService = GlobalService();
-                        // var downloadUrl = await globalService.getDownloadUrl();
-                        //   try{
-                        //     await launch(downloadUrl);
-                        //   }
-                        //   catch(e){
-                        //     Fluttertoast.showToast(msg: 'مشکل در دانلود فایل.'
-                        //         'لطفا اتصال اینترنت خود را بررسی کنید');
-                        //     print(e.toString());
-                        //   }
-                        //   finally{
-                        //     SystemNavigator.pop();
-                        //   }
-                        // }
-                        // else
-                        //   Fluttertoast.showToast(msg: 'مشکل در دانلود فایل.'
-                        //       'لطفا اتصال اینترنت خود را بررسی کنید');
                       },
-                      child: Text(
-                        downloadButtonText,
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: !isWaitingToStartDownload ?
+                        Text(
+                          downloadButtonText,
+                          style: TextStyle(color: Colors.white),
+                        ) :
+                        SpinKitRing(
+                            lineWidth: 5,
+                            color: Colors.white
+                        ),
                     ),
                   ),
                 ),
                 widget.updateStatus == UpdateStatus.UpdateAvailable ?
-                  Card(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left:15, right: 15),
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context){
-                                return HomePage(widget.currentVersion);
-                              })
-                          );
-                        },
-                        child: Text(
-                          'بعدا',
-                          style: TextStyle(color: Color(0xFF20BFA9)),
+                  Padding(
+                    padding: const EdgeInsets.only(right:8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white
+                      ),
+                      height: 55,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:15, right: 15),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context){
+                                  return HomePage(widget.currentVersion);
+                                })
+                            );
+                          },
+                          child: Text(
+                            'بعدا',
+                            style: TextStyle(color: Color(0xFF20BFA9)),
+                          ),
                         ),
                       ),
                     ),

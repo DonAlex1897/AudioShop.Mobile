@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 3.1.16
+version: 3.1.18
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -61,6 +61,8 @@ flutter:
     - assets/images/16personalities.png
     - assets/images/internetdown.png
     - assets/images/noPicture.png
+    - assets/images/Etemad.png
+    - assets/images/purchase.png
   #   - images/a_dot_ham.jpeg
 
   fonts:

@@ -4,13 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/screens/update_page.dart';
 import 'package:mobile/services/global_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:package_info/package_info.dart';
-import 'package:http/http.dart' as http;
+import 'package:async/async.dart';
 
 class StartPage extends StatefulWidget {
   @override
@@ -23,6 +24,9 @@ class _StartPageState extends State<StartPage> {
   String currentVersion;
   GlobalService globalService = GlobalService();
   String availableVersion;
+  Duration _timerDuration = new Duration(seconds: 5);
+  bool isTakingMuchTime = false;
+  bool shouldRetry = false;
 
   navigateToNextPage(){
     UpdateStatus updateStatus = getUpdateStatus();
@@ -117,9 +121,21 @@ class _StartPageState extends State<StartPage> {
     setState(() {
       currentVersion = info.version;
     });
+    RestartableTimer(_timerDuration, setTimerState);
     availableVersion = await globalService.getLatestVersionAvailable();
 
-    navigateToNextPage();
+    if(availableVersion != null)
+      navigateToNextPage();
+    else
+      setState(() {
+        shouldRetry = true;
+      });
+  }
+  setTimerState() {
+    setState(() {
+      isTakingMuchTime = true;
+    });
+    // checkVpnConnection();
   }
 
   @override
@@ -149,7 +165,44 @@ class _StartPageState extends State<StartPage> {
                     Text(
                       'با اِستارشو، ستاره شو',
                       style: TextStyle(fontSize: 18),
-                    )
+                    ),
+                    SizedBox(
+                      child: !isTakingMuchTime ?
+                        Text('') :
+                        !shouldRetry ?
+                          SpinKitWave(
+                            type: SpinKitWaveType.center,
+                            color: Color(0xFF20BFA9),
+                            size: 20.0,
+                          ) :
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: InkWell(
+                            onTap: (){
+                              setState(() {
+                                isTakingMuchTime = false;
+                                shouldRetry = false;
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) => super.widget));
+                              });
+                            },
+                            child: Card(
+                              color: Color(0xFF20BFA9),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  'تلاش مجدد',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14
+                                  ),),
+                              ),
+                            ),
+                        ),
+                          ),
+                    ),
                   ],
                 ),
               ),

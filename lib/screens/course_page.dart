@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/now_playing.dart';
@@ -47,6 +48,11 @@ class _CoursePageState extends State<CoursePage> {
   bool isTakingMuchTime = false;
   Duration _timerDuration = new Duration(seconds: 15);
   bool isVpnConnected = false;
+  final currencyFormat = new NumberFormat("#,##0");
+  int totalEpisodesCount = 0;
+  double totalEpisodesPrice = 0;
+
+
 
   @override
   void setState(fn) {
@@ -274,6 +280,8 @@ class _CoursePageState extends State<CoursePage> {
           seconds: episode.totalEpisodeAudio != 0 ?
               episode.totalEpisodeAudio.toInt() : 0);
 
+      totalEpisodesCount++;
+      totalEpisodesPrice += episode.price;
       String episodeDuration = getEpisodeDuration(duration);
       var picFile = widget.courseCover;
 
@@ -662,15 +670,111 @@ class _CoursePageState extends State<CoursePage> {
         // }
       }
       else{
-        if(courseStore.userEpisodes.contains(episodes[0]))
-          Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
-        else{
-          await courseStore.setUserBasket(episodes, null);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return CheckOutPage();
-              })
-          );
+        bool isAgree = false;
+        AlertDialog alert = AlertDialog(
+          backgroundColor: Colors.white70,
+          title: Text('توجه', style: TextStyle(color: Colors.black,)),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('این دوره شامل $totalEpisodesCount قسمت می باشد.', style: TextStyle(color: Colors.black,)),
+              Text('در صورت خرید دوره بصورت یکجا، خرید شما شامل ', style: TextStyle(color: Colors.black,)),
+              Text('${(100 - widget.courseDetails.price / totalEpisodesPrice * 100).toStringAsFixed(1)} درصد تخفیف خواهد شد.', style: TextStyle(color: Colors.black,)),
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'قیمت دوره کامل:',
+                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'قیمت دوره (قسمت به قسمت):',
+                        style: TextStyle(color: Colors.red),),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 18.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currencyFormat.format(widget.courseDetails.price/10000).toString() + " هزار تومان",
+                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          currencyFormat.format(totalEpisodesPrice/10000).toString() + " هزار تومان",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                width: 250,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(5),
+
+                ),
+                child: TextButton(
+                  onPressed: (){
+                    isAgree = false;
+                    Navigator.of(context).pop();
+                  },
+                  child:
+                  Text(
+                      'خرید دوره به صورت کامل',
+                      style: TextStyle(color: Colors.black,)
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 250,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+
+              ),
+              child: TextButton(
+                onPressed: (){
+                  isAgree = true;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'خرید قسمت انتخاب شده',
+                    style: TextStyle(color: Colors.black,)
+                ),
+              ),
+            ),
+          ],
+        );
+
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+
+        if(isAgree) {
+          if (courseStore.userEpisodes.contains(episodes[0]))
+            Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
+          else {
+            await courseStore.setUserBasket(episodes, null);
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            }));
+          }
         }
       }
     }

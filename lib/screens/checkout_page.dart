@@ -28,6 +28,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
   TextEditingController discountCodeController = TextEditingController();
   DiscountService discountService = DiscountService();
   final currencyFormat = new NumberFormat("#,##0");
+  bool isAgree = false;
 
 
   @override
@@ -147,22 +148,104 @@ class _CheckOutPageState extends State<CheckOutPage> {
               ),
               onTap:(startLoading, stopLoading, btnState) async {
                 startLoading();
-                orderJson = await createOrder();
-                String paymentPageUrl = await orderService.payOrder(orderJson);
-                // if (await canLaunch(paymentPageUrl)){
-                  try{
+                AlertDialog alert = AlertDialog(
+                  backgroundColor: Colors.white70,
+                  title: Text(
+                    'درباره زرین پال',
+                    style: TextStyle(color: Colors.black),),
+                  content: Column(
+                    children: [
+                      Text(
+                        'زرین‌پال، اولین پرداخت‌یار پیشگامِ کشور است که'
+                            ' با سبک و استانداردهای جدید، سرویس‌های'
+                            ' پرداخت الکترونیک را برای کسب‌ وکارها'
+                            ' ارائه کرده است. ما هر روزه، میلیاردها'
+                            ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
+                            'خطایی به گردش درمی‌آوریم، با این هدف که در'
+                            ' افزایش سهم تجارت الکترونیکی در تولید'
+                            ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
+                            ' وکارها، نقش سازنده و موثری داشته باشیم.',
+                        style: TextStyle(fontSize: 20, color: Colors.black),
+                        textAlign: TextAlign.justify,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 28.0),
+                        child: Container(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: InkWell(
+                                child: Image.asset('assets/images/Etemad.png'),
+                              onTap: () async {
+                                String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
+                                try{
+                                  await launch(zarinPalUrl);
+                                }
+                                catch(e){
+                                  print(e.toString());
+                                  Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
+                                }
+                              },
+                            )
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  actions: [
+                    Row (
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.24,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(5),
+
+                            ),
+                            child: TextButton(
+                              onPressed: (){
+                                isAgree = true;
+                                Navigator.of(context).pop();
+                              },
+                              child:
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(20,0,20,0),
+                                child: Text(
+                                    'متوجه شدم',
+                                    style: TextStyle(color: Colors.black,)
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.24,
+                          ),
+                        ]
+                    ),
+
+                  ],
+                );
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return alert;
+                  },
+                );
+                if(isAgree) {
+                  orderJson = await createOrder();
+                  String paymentPageUrl =
+                      await orderService.payOrder(orderJson);
+                  try {
                     await launch(paymentPageUrl);
-                  }
-                  catch(e){
+                  } catch (e) {
                     print(e.toString());
-                    Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
-                  }
-                  finally{
+                    Fluttertoast.showToast(
+                        msg: 'خطا در انتقال به درگاه پرداخت');
+                  } finally {
                     SystemNavigator.pop();
                   }
-                // }
-                // else
-                //   Fluttertoast.showToast(msg: 'خطا در انتقال به درگاه پرداخت');
+                }
                 stopLoading();
               },
             ),
@@ -193,152 +276,146 @@ class _CheckOutPageState extends State<CheckOutPage> {
         ),
       ],
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Center(
-                    child: Text(
-                        'زرین‌پال، اولین پرداخت‌یار پیشگامِ کشور است که'
-                        ' با سبک و استانداردهای جدید، سرویس‌های'
-                        ' پرداخت الکترونیک را برای کسب‌ وکارها'
-                        ' ارائه کرده است. ما هر روزه، میلیاردها'
-                        ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
-                        'خطایی به گردش درمی‌آوریم، با این هدف که در'
-                        ' افزایش سهم تجارت الکترونیکی در تولید'
-                        ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
-                        ' وکارها، نقش سازنده و موثری داشته باشیم.',
-                      style: TextStyle(fontSize: 20),
-                      textAlign: TextAlign.justify,
-                    ),
+                    child: Image.asset('assets/images/purchase.png'),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: verifyCodeButton(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          height: 40,
-                          child: TextField(
-                            style: TextStyle(color: Colors.white),
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                              border: OutlineInputBorder(),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                BorderSide(color: Colors.white, width: 2.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                BorderSide(color: Colors.white, width: 2.0),
-                              ),
-                              labelText: 'کد تخفیف',
-                              labelStyle: TextStyle(
-                                color: Colors.white,
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            flex: 1,
+                            child: verifyCodeButton(),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Container(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                    BorderSide(color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                    BorderSide(color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'کد تخفیف',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: discountCodeController,
                               ),
                             ),
-                            controller: discountCodeController,
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15.0, left: 15),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Color(0xFF403F44),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 15.0),
+                            child: SizedBox(
+                              height: 120,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text('مبلغ اصلی (بدون تخفیف)'),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text('تخفیف شما از این خرید'),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text('مبلغ قابل پرداخت'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: SizedBox(
+                              height: 120,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 15.0, left: 15),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Color(0xFF403F44),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15.0),
-                        child: SizedBox(
-                          height: 120,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text('مبلغ اصلی (بدون تخفیف)'),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text('تخفیف شما از این خرید'),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text('مبلغ قابل پرداخت'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
-                        child: SizedBox(
-                          height: 120,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
             ],
           ),
         ),
