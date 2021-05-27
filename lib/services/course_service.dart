@@ -56,18 +56,21 @@ class CourseData{
     }
   }
 
-  Future<List<Review>> getCourseReviews(int courseId) async{
+  Future<List> getCourseReviews(
+      [int courseId, int pageNumber = 1, int pageSize = 10]) async{ //https://star-show.ir//api/courses/1/reviews?pageNumber=2&&pageSize=20
     try{
-      String url = coursesUrl + courseId.toString() + '/reviews';
+      String url = coursesUrl +
+          '$courseId/reviews?pageNumber=$pageNumber&&pageSize=$pageSize';
       http.Response response = await http.get(url);
       if(response.statusCode == 200){
         String data = response.body;
         var courseReviewsMap = jsonDecode(data);
         List<Review> courseReviewsList = List<Review>();
+        int totalItemsCount = courseReviewsMap['totalItems'];
         for(var courseReview in courseReviewsMap['items']){
           courseReviewsList.add(Review.fromJson(courseReview));
         }
-        return courseReviewsList;
+        return [totalItemsCount, courseReviewsList];
       }
       else{
         print(response.statusCode);

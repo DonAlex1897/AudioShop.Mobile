@@ -149,6 +149,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
               onTap:(startLoading, stopLoading, btnState) async {
                 startLoading();
                 AlertDialog alert = AlertDialog(
+                  scrollable: true,
                   backgroundColor: Colors.white70,
                   title: Text(
                     'درباره زرین پال',
@@ -191,37 +192,28 @@ class _CheckOutPageState extends State<CheckOutPage> {
                   ),
 
                   actions: [
-                    Row (
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.24,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(5),
+                    Container(
+                      width: 400,
+                      height: 70,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(5),
 
-                            ),
-                            child: TextButton(
-                              onPressed: (){
-                                isAgree = true;
-                                Navigator.of(context).pop();
-                              },
-                              child:
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(20,0,20,0),
-                                child: Text(
-                                    'متوجه شدم',
-                                    style: TextStyle(color: Colors.black,)
-                                ),
-                              ),
-                            ),
+                      ),
+                      child: TextButton(
+                        onPressed: (){
+                          isAgree = true;
+                          Navigator.of(context).pop();
+                        },
+                        child:
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20,0,20,0),
+                          child: Text(
+                              'متوجه شدم',
+                              style: TextStyle(color: Colors.black,)
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.24,
-                          ),
-                        ]
+                        ),
+                      ),
                     ),
 
                   ],
@@ -343,7 +335,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           Padding(
                             padding: const EdgeInsets.only(right: 15.0),
                             child: SizedBox(
-                              height: 120,
+                              height: 100,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -378,7 +370,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           Padding(
                             padding: const EdgeInsets.only(left: 15.0),
                             child: SizedBox(
-                              height: 120,
+                              height: 100,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

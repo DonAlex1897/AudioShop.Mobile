@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -14,6 +15,7 @@ import 'package:mobile/models/review.dart';
 import 'package:mobile/screens/authentication_page.dart';
 import 'package:mobile/screens/checkout_page.dart';
 import 'package:mobile/screens/course_page.dart';
+import 'package:mobile/screens/review_page.dart';
 import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/services/course_service.dart';
 import 'package:mobile/shared/enums.dart';
@@ -35,6 +37,7 @@ class CoursePreview extends StatefulWidget {
 class _CoursePreviewState extends State<CoursePreview> {
   Future<List<Review>> courseReviews;
   List<Review> courseReviewList;
+  int totalReviewsCount = 0;
   CourseData courseData = CourseData();
   TextEditingController reviewController = TextEditingController();
   CourseStore courseStore;
@@ -71,7 +74,10 @@ class _CoursePreviewState extends State<CoursePreview> {
       null;
 
     RestartableTimer(_timerDuration, setTimerState);
-    courseReviewList = await courseData.getCourseReviews(widget.courseDetails.id);
+    List reviewsResult =
+      await courseData.getCourseReviews(widget.courseDetails.id);
+    totalReviewsCount = reviewsResult[0];
+    courseReviewList = reviewsResult[1];
     int allReviewsRateSum = 0;
     if(courseReviewList != null){
       courseReviewList.forEach((element) {
@@ -708,7 +714,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                           style: TextStyle(fontSize: 17),),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 15, top: 20, right: 15, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            left: 15,
+                            top: 20,
+                            right: 15,
+                            bottom: 5),
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
@@ -762,6 +772,42 @@ class _CoursePreviewState extends State<CoursePreview> {
                           },
                         ),
                       ),
+                      totalReviewsCount > 0 ?
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 15,
+                                top: 5,
+                                right: 15,
+                                bottom: 15),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white54),
+                                borderRadius: BorderRadius.circular(5),
+                                color: Color(0xFF34333A),
+                              ),
+                              height: 35,
+                              child: TextButton(
+                                onPressed: () async {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                        return ReviewPage(widget.courseDetails.id);
+                                      })
+                                  );
+                                },
+                                child: Text(
+                                  'نمایش  تمام نظرات ($totalReviewsCount)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                          :
+                          SizedBox(
+                          ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
                         child: Divider(

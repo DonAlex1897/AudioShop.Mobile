@@ -59,7 +59,7 @@ public class MainActivity extends FlutterActivity {
                         (call, result) -> {
                             if(call.method.equals("launchBatch")){
                                 Batch.User.editor()
-                                        .setAttribute("installationfinalsource", "FinalVersion") // Set an attribute
+                                        .setAttribute("starshow2705", "StarShow17") // Set an attribute
                                         .save();
                                 result.success("OK");
                             }

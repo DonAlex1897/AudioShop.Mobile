@@ -449,7 +449,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.fromLTRB(5,0,5,0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

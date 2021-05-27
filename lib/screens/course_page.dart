@@ -51,6 +51,7 @@ class _CoursePageState extends State<CoursePage> {
   final currencyFormat = new NumberFormat("#,##0");
   int totalEpisodesCount = 0;
   double totalEpisodesPrice = 0;
+  List<CourseEpisode> courseEpisodes = List<CourseEpisode>();
 
 
 
@@ -70,7 +71,7 @@ class _CoursePageState extends State<CoursePage> {
   Future<List<CourseEpisode>> getCourseEpisodes() async{
     RestartableTimer(_timerDuration, setTimerState);
     CourseEpisodeData courseEpisodeData = CourseEpisodeData();
-    List<CourseEpisode> courseEpisodes =
+    courseEpisodes =
       await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
 
     if(courseEpisodes != null)
@@ -205,7 +206,7 @@ class _CoursePageState extends State<CoursePage> {
         if(!isEpisodePurchasedBefore){
           List<CourseEpisode> tempEpisodes = [];
           tempEpisodes.add(episode);
-          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
         }
         else{
           if(await isEpisodeAccessible(
@@ -236,7 +237,7 @@ class _CoursePageState extends State<CoursePage> {
         if(!isEpisodePurchasedBefore){
           List<CourseEpisode> tempEpisodes = [];
           tempEpisodes.add(episode);
-          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, null);
+          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
         }
         else{
           if(await isEpisodeAccessible(
@@ -640,38 +641,18 @@ class _CoursePageState extends State<CoursePage> {
             episodesToBePurchased.add(episode);
         }
         List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
-        // if(!isWholeCourseAvailable){
-        //   Widget cancelB = cancelButton('خیر');
-        //   Widget continueB =
-        //   continueButton('بله', Alert.LogOut, null);
-        //   AlertDialog alertD = alert('هشدار',
-        //       'با توجه به اینکه قبلا یک یا چند قسمت از این دوره را خریداری کرده اید، قیمت دوره به صورت مجموع قیمت تمام قسمتها محاسبه می شود. ادامه خرید؟',
-        //       [cancelB, continueB]);
-        //
-        //   await showBasketAlertDialog(context, alertD);
-        //
-        //   if(alertReturn){
-        //     await courseStore.setUserBasket(finaleEpisodeIds, isWholeCourseAvailable ? course : null);
-        //     Navigator.push(context,
-        //         MaterialPageRoute(builder: (context) {
-        //           return CheckOutPage();
-        //         })
-        //     );
-        //   }
-        //   alertReturn = false;
-        // }
-        // else{
           await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) {
                 return CheckOutPage();
               })
           );
-        // }
       }
       else{
         bool isAgree = false;
+        bool isCancelled = true;
         AlertDialog alert = AlertDialog(
+          scrollable: true,
           backgroundColor: Colors.white70,
           title: Text('توجه', style: TextStyle(color: Colors.black,)),
           content: Column(
@@ -680,45 +661,58 @@ class _CoursePageState extends State<CoursePage> {
               Text('این دوره شامل $totalEpisodesCount قسمت می باشد.', style: TextStyle(color: Colors.black,)),
               Text('در صورت خرید دوره بصورت یکجا، خرید شما شامل ', style: TextStyle(color: Colors.black,)),
               Text('${(100 - widget.courseDetails.price / totalEpisodesPrice * 100).toStringAsFixed(1)} درصد تخفیف خواهد شد.', style: TextStyle(color: Colors.black,)),
+              SizedBox(
+                height: 40,
+              ),
+              Text(
+                'قیمت این قسمت:',
+                style: TextStyle(color: Colors.red),
+              ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'قیمت دوره کامل:',
-                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'قیمت دوره (قسمت به قسمت):',
-                        style: TextStyle(color: Colors.red),),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 18.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          currencyFormat.format(widget.courseDetails.price/10000).toString() + " هزار تومان",
-                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          currencyFormat.format(totalEpisodesPrice/10000).toString() + " هزار تومان",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
+                  Text(
+                      currencyFormat.format(episodes[0].price/10000)
+                          + " هزار تومان",
+                      style: TextStyle(color: Colors.red)),
+                ],
+              ),
+              Text(
+                'قیمت دوره کامل:',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                      currencyFormat.format(widget.courseDetails.price/10000)
+                          + " هزار تومان",
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Text(
+                'قیمت دوره (قسمت به قسمت):',
+                style: TextStyle(color: Colors.red),),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    currencyFormat.format(totalEpisodesPrice/10000).toString() + " هزار تومان",
+                    style: TextStyle(color: Colors.red),
                   ),
                 ],
-              )
+              ),
+              SizedBox(
+                height: 10,
+              ),
             ],
           ),
           actions: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
-                width: 250,
+                width: 400,
+                height: 70,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(5),
@@ -726,6 +720,7 @@ class _CoursePageState extends State<CoursePage> {
                 ),
                 child: TextButton(
                   onPressed: (){
+                    isCancelled = false;
                     isAgree = false;
                     Navigator.of(context).pop();
                   },
@@ -738,7 +733,8 @@ class _CoursePageState extends State<CoursePage> {
               ),
             ),
             Container(
-              width: 250,
+              width: 400,
+              height: 70,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(5),
@@ -746,6 +742,7 @@ class _CoursePageState extends State<CoursePage> {
               ),
               child: TextButton(
                 onPressed: (){
+                  isCancelled = false;
                   isAgree = true;
                   Navigator.of(context).pop();
                 },
@@ -766,7 +763,7 @@ class _CoursePageState extends State<CoursePage> {
           },
         );
 
-        if(isAgree) {
+        if(!isCancelled && isAgree) {
           if (courseStore.userEpisodes.contains(episodes[0]))
             Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
           else {
@@ -775,6 +772,58 @@ class _CoursePageState extends State<CoursePage> {
               return CheckOutPage();
             }));
           }
+        }
+        else if(!isCancelled){
+          // List<CourseEpisode> episodesToBePurchased = [];
+          // for(var episode in courseEpisodes){
+          //   if(episode.price != null || episode.price != 0)
+          //     episodesToBePurchased.add(episode);
+          // }
+          // List<CourseEpisode> basketEpisodes = List.from(episodes);
+          // List<int> courseEpisodeIds = List<int>();
+          // basketEpisodes.forEach((episode) {
+          //   courseEpisodeIds.add(episode.id);
+          // });
+          // courseStore.userEpisodes.forEach((episode) {
+          //   if(courseEpisodeIds.contains(episode.id)){
+          //     basketEpisodes.removeWhere((ep) => ep.id == episode.id);
+          //     isWholeCourseAvailable = false;
+          //   }
+          // });
+          // basketEpisodes.removeWhere((ep) => ep.price == 0);
+          // await courseStore.setUserBasket(basketEpisodes, widget.courseDetails /*isWholeCourseAvailable ? course : null*/);
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (context) {
+          //       return CheckOutPage();
+          //     })
+          // );
+          List<CourseEpisode> episodes = List<CourseEpisode>();
+          CourseEpisodeData courseEpisodeData = CourseEpisodeData();
+          episodes = await courseEpisodeData.getCourseEpisodes(course.id);
+
+          List<CourseEpisode> episodesToBePurchased = [];
+          for(var episode in episodes){
+            if(episode.price != null || episode.price != 0)
+              episodesToBePurchased.add(episode);
+          }
+          List<CourseEpisode> finaleEpisodeIds =
+          await eliminateRepetitiveEpisodes(episodesToBePurchased);
+          if(course.price == 0){
+            Fluttertoast
+                .showToast(msg: 'این دوره رایگان می باشد');
+            return;
+          }
+          else if(finaleEpisodeIds.length == 0){
+            Fluttertoast
+                .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
+            return;
+          }
+          await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
         }
       }
     }

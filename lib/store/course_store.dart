@@ -32,8 +32,8 @@ class CourseStore extends ChangeNotifier{
   bool _isLoggedIn = false;
   bool _hasPhoneNumber = false;
   String _salespersonCouponCode;
-
   int _salespersonDefaultDiscountPercent = 0;
+  String _supportPhoneNumber = '';
 
   CourseStore(){
     notifyListeners();
@@ -56,6 +56,7 @@ class CourseStore extends ChangeNotifier{
   String get salespersonCouponCode => _salespersonCouponCode;
 
   int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
+  String get supportPhoneNumber => _supportPhoneNumber;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -154,6 +155,9 @@ class CourseStore extends ChangeNotifier{
     var config = configs.firstWhere((x) => x.titleEn == 'DefaultDiscountPercentage', orElse: () => null); //TODO change the titleEn in database to SalespersonDefaultDiscountPercent
     if(config != null)
       this._salespersonDefaultDiscountPercent = int.parse(config.value);
+    config = configs.firstWhere((x) => x.titleEn == 'PhoneNumber', orElse: () => null);
+    if(config != null)
+      this._supportPhoneNumber = config.value;
   }
 
   bool addToUserFavoriteCourses(Course course){

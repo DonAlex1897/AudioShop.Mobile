@@ -30,7 +30,7 @@ class _IntroPageState extends State<IntroPage> {
             fontWeight: FontWeight.bold,
             fontFamily: 'IranSans'),
         description:
-        "سلام به نرم افزار اموزشی ما خوش امدید. "
+        "سلام به نرم افزار آموزشی ما خوش آمدید. "
             "این برنامه جهت افزایش مهارت و توانمندی شما"
             " در روابط اجتماعی و ارتباط با جنس مخالف تهیه شده است.",
         styleDescription: TextStyle(
