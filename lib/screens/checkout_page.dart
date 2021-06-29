@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'dart:ui' as ui;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -148,50 +151,45 @@ class _CheckOutPageState extends State<CheckOutPage> {
               ),
               onTap:(startLoading, stopLoading, btnState) async {
                 startLoading();
+                bool payWithPanel = false;
+
                 AlertDialog alert = AlertDialog(
-                  scrollable: true,
                   backgroundColor: Colors.white70,
                   title: Text(
-                    'درباره زرین پال',
+                    'پرداخت نهایی',
                     style: TextStyle(color: Colors.black),),
-                  content: Column(
-                    children: [
-                      Text(
-                        'زرین‌پال، اولین پرداخت‌یار پیشگامِ کشور است که'
-                            ' با سبک و استانداردهای جدید، سرویس‌های'
-                            ' پرداخت الکترونیک را برای کسب‌ وکارها'
-                            ' ارائه کرده است. ما هر روزه، میلیاردها'
-                            ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
-                            'خطایی به گردش درمی‌آوریم، با این هدف که در'
-                            ' افزایش سهم تجارت الکترونیکی در تولید'
-                            ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
-                            ' وکارها، نقش سازنده و موثری داشته باشیم.',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                        textAlign: TextAlign.justify,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 28.0),
-                        child: Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: InkWell(
-                                child: Image.asset('assets/images/Etemad.png'),
-                              onTap: () async {
-                                String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
-                                try{
-                                  await launch(zarinPalUrl);
-                                }
-                                catch(e){
-                                  print(e.toString());
-                                  Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
-                                }
-                              },
-                            )
-                        ),
-                      ),
-                    ],
+                  content: Text(
+                    'پرداخت از طریق کارت به کارت و یا ورود به درگاه'
+                        'پرداخت امکان پذیر می باشد.'
+                        'لطفا گزینه مورد نظر خود را انتخاب کنید.',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                    textAlign: TextAlign.justify,
                   ),
 
                   actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Container(
+                        width: 400,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(5),
+
+                        ),
+                        child: TextButton(
+                          onPressed: (){
+                            payWithPanel = false;
+                            Navigator.of(context).pop();
+                          },
+                          child:
+                          Text(
+                              'کارت به کارت',
+                              style: TextStyle(color: Colors.black,)
+                          ),
+                        ),
+                      ),
+                    ),
                     Container(
                       width: 400,
                       height: 70,
@@ -202,20 +200,16 @@ class _CheckOutPageState extends State<CheckOutPage> {
                       ),
                       child: TextButton(
                         onPressed: (){
-                          isAgree = true;
+                          payWithPanel = true;
                           Navigator.of(context).pop();
                         },
                         child:
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20,0,20,0),
-                          child: Text(
-                              'متوجه شدم',
-                              style: TextStyle(color: Colors.black,)
-                          ),
+                        Text(
+                            'درگاه پرداخت',
+                            style: TextStyle(color: Colors.black,)
                         ),
                       ),
                     ),
-
                   ],
                 );
                 await showDialog(
@@ -224,20 +218,271 @@ class _CheckOutPageState extends State<CheckOutPage> {
                     return alert;
                   },
                 );
-                if(isAgree) {
-                  orderJson = await createOrder();
-                  String paymentPageUrl =
-                      await orderService.payOrder(orderJson);
-                  try {
-                    await launch(paymentPageUrl);
-                  } catch (e) {
-                    print(e.toString());
-                    Fluttertoast.showToast(
-                        msg: 'خطا در انتقال به درگاه پرداخت');
-                  } finally {
-                    SystemNavigator.pop();
+                if(payWithPanel) {
+                  AlertDialog alert2 = AlertDialog(
+                    scrollable: true,
+                    backgroundColor: Colors.white70,
+                    title: Text(
+                      'درباره زرین پال',
+                      style: TextStyle(color: Colors.black),),
+                    content: Column(
+                      children: [
+                        Text(
+                          'زرین‌پال، اولین پرداخت‌یار پیشگامِ کشور است که'
+                              ' با سبک و استانداردهای جدید، سرویس‌های'
+                              ' پرداخت الکترونیک را برای کسب‌ وکارها'
+                              ' ارائه کرده است. ما هر روزه، میلیاردها'
+                              ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
+                              'خطایی به گردش درمی‌آوریم، با این هدف که در'
+                              ' افزایش سهم تجارت الکترونیکی در تولید'
+                              ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
+                              ' وکارها، نقش سازنده و موثری داشته باشیم.',
+                          style: TextStyle(fontSize: 20, color: Colors.black),
+                          textAlign: TextAlign.justify,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28.0),
+                          child: Container(
+                              width: MediaQuery.of(context).size.width * 0.25,
+                              child: InkWell(
+                                child: Image.asset('assets/images/Etemad.png'),
+                                onTap: () async {
+                                  String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
+                                  try{
+                                    await launch(zarinPalUrl);
+                                  }
+                                  catch(e){
+                                    print(e.toString());
+                                    Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
+                                  }
+                                },
+                              )
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    actions: [
+                      Container(
+                        width: 400,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(5),
+
+                        ),
+                        child: TextButton(
+                          onPressed: (){
+                            isAgree = true;
+                            Navigator.of(context).pop();
+                          },
+                          child:
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20,0,20,0),
+                            child: Text(
+                                'متوجه شدم',
+                                style: TextStyle(color: Colors.black,)
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  );
+                  await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert2;
+                    },
+                  );
+                  if(isAgree) {
+                    orderJson = await createOrder();
+                    String paymentPageUrl =
+                    await orderService.payOrder(orderJson);
+                    try {
+                      await launch(paymentPageUrl);
+                    } catch (e) {
+                      print(e.toString());
+                      Fluttertoast.showToast(
+                          msg: 'خطا در انتقال به درگاه پرداخت');
+                    } finally {
+                      SystemNavigator.pop();
+                    }
                   }
                 }
+                else{
+                  orderJson = await createOrder();
+                  var orderMap = jsonDecode(orderJson);
+
+                  AlertDialog alert3 = AlertDialog(
+                    scrollable: true,
+                    backgroundColor: Colors.white70,
+                    title: Text(
+                      'پرداخت کارت به کارت',
+                      style: TextStyle(color: Colors.black),),
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'لطفا پس از پرداخت مبلغ سفارش، '
+                              'رسید پرداخت و شماره سفارش خود را به پشتیبانی '
+                              'ارسال کنید.',
+                          style: TextStyle(fontSize: 18, color: Colors.black),
+                          textAlign: TextAlign.justify,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              ' شماره سفارش:',
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                              textAlign: TextAlign.justify,
+                            ),
+                            TextButton(
+                              onPressed: (){
+                                Clipboard.setData(ClipboardData
+                                  (text: orderMap['id'].toString()));
+                                Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
+                              },
+                              child: Text(
+                                orderMap['id'].toString(),
+                                style: TextStyle(fontSize: 16, color: Colors.black),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'مبلغ قابل پرداخت:',
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                              textAlign: TextAlign.justify,
+                            ),
+                            TextButton(
+                              onPressed: (){
+                                Clipboard.setData(ClipboardData
+                                  (text: courseStore.basket.priceToPay.toString()));
+                                Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
+                              },
+                              child: Text(
+                                currencyFormat.format(courseStore.basket.priceToPay/10000)
+                                    + ' هزار تومان',
+                                style: TextStyle(fontSize: 16, color: Colors.black),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'شماره کارت:',
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                              textAlign: TextAlign.justify,
+                            ),
+                            TextButton(
+                              onPressed: (){
+                                Clipboard.setData(ClipboardData
+                                  (text: '5022123456789090'));
+                                Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
+                              },
+                              child: Text(
+                                '5022 - 1234 - 5678 - 9090',
+                                style: TextStyle(fontSize: 16, color: Colors.black),
+                                textAlign: TextAlign.left,
+                                textDirection: ui.TextDirection.ltr,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 18.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  onPressed: () async{
+                                    String chatUrl = 'https://telegram.me/StarShow_ir';
+                                    //if (await canLaunch(chatUrl)){
+                                    try{
+                                      await launch(chatUrl);
+                                    }
+                                    catch(e){
+                                      print(e.toString());
+                                    }
+                                  },
+                                  child: Image.asset('assets/images/telegram.png'),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  onPressed: () async{
+                                    String chatUrl = 'https://instagram.com/starshow_ir?utm_medium=copy_link';
+                                    //if (await canLaunch(chatUrl)){
+                                    try{
+                                      await launch(chatUrl);
+                                    }
+                                    catch(e){
+                                      print(e.toString());
+                                    }
+                                    //}
+                                  },
+                                  child: Image.asset('assets/images/instagram.png'),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  onPressed: () async{
+                                    String chatUrl = 'tel://${courseStore.supportPhoneNumber}';
+                                    //if (await canLaunch(chatUrl)){
+                                    try{
+                                      await launch(chatUrl);
+                                    }
+                                    catch(e){
+                                      print(e.toString());
+                                    }
+                                    //}
+                                  },
+                                  child: Image.asset('assets/images/phone.png'),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  onPressed: () async{
+                                    String chatUrl = 'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
+                                    // if (await canLaunch(chatUrl)){
+                                    try{
+                                      await launch(chatUrl);
+                                    }
+                                    catch(e){
+                                      print(e.toString());
+                                    }
+                                  },
+                                  child: Image.asset('assets/images/whatsapp.png'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                  await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert3;
+                    },
+                  );
+                }
+
+
                 stopLoading();
               },
             ),
