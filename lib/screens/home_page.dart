@@ -18,6 +18,7 @@ import 'package:mobile/screens/course_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
+import 'package:mobile/services/statistics_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -67,6 +68,7 @@ class _HomePageState extends State<HomePage> {
   Widget appBarTitle = new Text("اِستارشو");
   Icon actionIcon = new Icon(Icons.search);
   bool isVpnConnected = false;
+  StatisticsService statisticsService = StatisticsService();
 
   @override
   void setState(fn) {
@@ -80,6 +82,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     globalService = GlobalService();
     setFirstTimeTrue();
+    statisticsService.enteredApplication();
     // courseData = CourseData();
     // courses = getCourses();
     // loginStatement();

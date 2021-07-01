@@ -18,6 +18,7 @@ import 'package:mobile/screens/course_page.dart';
 import 'package:mobile/screens/review_page.dart';
 import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/services/course_service.dart';
+import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
@@ -60,12 +61,14 @@ class _CoursePreviewState extends State<CoursePreview> {
   int purchasedEpisodesCount = 0;
   double totalEpisodesPrice = 0;
   final currencyFormat = new NumberFormat("#,##0");
+  StatisticsService statisticsService = StatisticsService();
 
 
   @override
   void initState() {
     super.initState();
     courseReviews = getCourseReviews();
+    statisticsService.enteredCoursePage(widget.courseDetails.id);
   }
 
   Future<List<Review>> getCourseReviews() async{

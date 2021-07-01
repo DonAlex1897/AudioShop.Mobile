@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/services/discount_service.dart';
 import 'package:mobile/services/payment_service.dart';
+import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,6 +34,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
   DiscountService discountService = DiscountService();
   final currencyFormat = new NumberFormat("#,##0");
   bool isAgree = false;
+  StatisticsService statisticsService = StatisticsService();
 
 
   @override
@@ -159,7 +162,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                     'پرداخت نهایی',
                     style: TextStyle(color: Colors.black),),
                   content: Text(
-                    'پرداخت از طریق کارت به کارت و یا ورود به درگاه'
+                    'پرداخت از طریق کارت به کارت و یا ورود به درگاه '
                         'پرداخت امکان پذیر می باشد.'
                         'لطفا گزینه مورد نظر خود را انتخاب کنید.',
                     style: TextStyle(fontSize: 20, color: Colors.black),
@@ -247,14 +250,14 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               child: InkWell(
                                 child: Image.asset('assets/images/Etemad.png'),
                                 onTap: () async {
-                                  String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
-                                  try{
-                                    await launch(zarinPalUrl);
-                                  }
-                                  catch(e){
-                                    print(e.toString());
-                                    Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
-                                  }
+                                  // String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
+                                  // try{
+                                  //   await launch(zarinPalUrl);
+                                  // }
+                                  // catch(e){
+                                  //   print(e.toString());
+                                  //   Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
+                                  // }
                                 },
                               )
                           ),
@@ -267,9 +270,9 @@ class _CheckOutPageState extends State<CheckOutPage> {
                         width: 400,
                         height: 70,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
+                          //border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(5),
-
+                          color: Color(0xFF20BFA9)
                         ),
                         child: TextButton(
                           onPressed: (){
@@ -280,8 +283,11 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(20,0,20,0),
                             child: Text(
-                                'متوجه شدم',
-                                style: TextStyle(color: Colors.black,)
+                                'انتقال به درگاه پرداخت',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18
+                                ),
                             ),
                           ),
                         ),
@@ -300,6 +306,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                     String paymentPageUrl =
                     await orderService.payOrder(orderJson);
                     try {
+                      statisticsService.enteredPaymentPage();
                       await launch(paymentPageUrl);
                     } catch (e) {
                       print(e.toString());
@@ -321,7 +328,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                       'پرداخت کارت به کارت',
                       style: TextStyle(color: Colors.black),),
                     content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           'لطفا پس از پرداخت مبلغ سفارش، '
@@ -344,13 +351,51 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   (text: orderMap['id'].toString()));
                                 Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
                               },
-                              child: Text(
-                                orderMap['id'].toString(),
-                                style: TextStyle(fontSize: 16, color: Colors.black),
-                                textAlign: TextAlign.left,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black45),
+                                  borderRadius: BorderRadius.circular(5),
+                                  //color: Color(0xFF403F44),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 8
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: Icon(
+                                          Icons.copy,
+                                          color: Colors.black45,
+                                          size: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'کپی',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black45),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
+                        ),
+                        TextButton(
+                          onPressed: (){
+                            Clipboard.setData(ClipboardData
+                              (text: orderMap['id'].toString()));
+                            Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
+                          },
+                          child: Text(
+                            orderMap['id'].toString(),
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -366,20 +411,58 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   (text: courseStore.basket.priceToPay.toString()));
                                 Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
                               },
-                              child: Text(
-                                currencyFormat.format(courseStore.basket.priceToPay/10000)
-                                    + ' هزار تومان',
-                                style: TextStyle(fontSize: 16, color: Colors.black),
-                                textAlign: TextAlign.left,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black45),
+                                  borderRadius: BorderRadius.circular(5),
+                                  //color: Color(0xFF403F44),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 8
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: Icon(
+                                          Icons.copy,
+                                          color: Colors.black45,
+                                          size: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'کپی',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black45),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
+                        ),
+                        TextButton(
+                          onPressed: (){
+                            Clipboard.setData(ClipboardData
+                              (text: courseStore.basket.priceToPay.toString()));
+                            Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
+                          },
+                          child: Text(
+                            currencyFormat.format(courseStore.basket.priceToPay/10000)
+                                + ' هزار تومان',
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                          ),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'شماره کارت:',
+                              'شماره کارت (سیاوش آریا):',
                               style: TextStyle(fontSize: 16, color: Colors.black),
                               textAlign: TextAlign.justify,
                             ),
@@ -389,14 +472,52 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   (text: '5022123456789090'));
                                 Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
                               },
-                              child: Text(
-                                '5022 - 1234 - 5678 - 9090',
-                                style: TextStyle(fontSize: 16, color: Colors.black),
-                                textAlign: TextAlign.left,
-                                textDirection: ui.TextDirection.ltr,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black45),
+                                  borderRadius: BorderRadius.circular(5),
+                                  //color: Color(0xFF403F44),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 8
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: Icon(
+                                          Icons.copy,
+                                          color: Colors.black45,
+                                          size: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'کپی',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black45),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
+                        ),
+                        TextButton(
+                          onPressed: (){
+                            Clipboard.setData(ClipboardData
+                              (text: '5022123456789090'));
+                            Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
+                          },
+                          child: Text(
+                            '5022 - 1234 - 5678 - 9090',
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            textAlign: TextAlign.left,
+                            textDirection: ui.TextDirection.ltr,
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 18.0),
@@ -512,148 +633,153 @@ class _CheckOutPageState extends State<CheckOutPage> {
           ),
         ),
       ],
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(
-                    child: Image.asset('assets/images/purchase.png'),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Center(
+                      child: Image.asset(
+                        'assets/images/purchase.png',
+                        width: MediaQuery.of(context).size.width * 0.6,
+                      ),
+                  ),
                 ),
-              ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 1,
-                            child: verifyCodeButton(),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              height: 40,
-                              child: TextField(
-                                style: TextStyle(color: Colors.white),
-                                keyboardType: TextInputType.text,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                  border: OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                    BorderSide(color: Colors.white, width: 2.0),
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: verifyCodeButton(),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                height: 40,
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Colors.white, width: 2.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                      BorderSide(color: Colors.white, width: 2.0),
+                                    ),
+                                    labelText: 'کد تخفیف',
+                                    labelStyle: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                    BorderSide(color: Colors.white, width: 2.0),
-                                  ),
-                                  labelText: 'کد تخفیف',
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                  controller: discountCodeController,
                                 ),
-                                controller: discountCodeController,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 15.0, left: 15),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Color(0xFF403F44),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 15.0),
-                            child: SizedBox(
-                              height: 100,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text('مبلغ اصلی (بدون تخفیف)'),
-                                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(right: 15.0, left: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Color(0xFF403F44),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 15.0),
+                              child: SizedBox(
+                                height: 100,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text('مبلغ اصلی (بدون تخفیف)'),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text('تخفیف شما از این خرید'),
-                                      ],
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text('تخفیف شما از این خرید'),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text('مبلغ قابل پرداخت'),
-                                      ],
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text('مبلغ قابل پرداخت'),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: SizedBox(
-                              height: 100,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
-                                      ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: SizedBox(
+                                height: 100,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
-                                      ],
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
-                                      ],
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
