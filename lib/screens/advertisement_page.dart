@@ -126,7 +126,7 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
               height: MediaQuery.of(context).size.width,
               child: ClipRRect(
                 child: FlickMultiPlayer(
-                  url: tempURL,
+                  advertisementURL: tempURL,
                   flickMultiManager: flickMultiManager,
                   image: 'assets/images/appMainIcon.png',
                 ),

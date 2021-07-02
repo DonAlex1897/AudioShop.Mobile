@@ -11,12 +11,12 @@ import 'package:video_player/video_player.dart';
 class FlickMultiPlayer extends StatefulWidget {
   const FlickMultiPlayer(
       {Key key,
-      this.url,
+      this.advertisementURL,
       this.image,
       this.flickMultiManager})
       : super(key: key);
 
-  final String url;
+  final String advertisementURL;
   final String image;
   final FlickMultiManager flickMultiManager;
 
@@ -30,7 +30,7 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
   @override
   void initState() {
     flickManager = FlickManager(
-      videoPlayerController: VideoPlayerController.network(widget.url)
+      videoPlayerController: VideoPlayerController.network(widget.advertisementURL)
         ..setLooping(true),
       autoPlay: false,
     );
