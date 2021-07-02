@@ -337,6 +337,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           style: TextStyle(fontSize: 18, color: Colors.black),
                           textAlign: TextAlign.justify,
                         ),
+                        SizedBox(height: 20,),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -345,8 +346,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               style: TextStyle(fontSize: 16, color: Colors.black),
                               textAlign: TextAlign.justify,
                             ),
-                            TextButton(
-                              onPressed: (){
+                            InkWell(
+                              onTap: (){
                                 Clipboard.setData(ClipboardData
                                   (text: orderMap['id'].toString()));
                                 Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
@@ -385,17 +386,25 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             ),
                           ],
                         ),
-                        TextButton(
-                          onPressed: (){
+                        InkWell(
+                          onTap: (){
                             Clipboard.setData(ClipboardData
                               (text: orderMap['id'].toString()));
                             Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
                           },
                           child: Text(
                             orderMap['id'].toString(),
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                            ),
                             textAlign: TextAlign.left,
                           ),
+                        ),
+                        SizedBox(height: 20,),
+                        Divider(
+                          color: Colors.black54,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -405,8 +414,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               style: TextStyle(fontSize: 16, color: Colors.black),
                               textAlign: TextAlign.justify,
                             ),
-                            TextButton(
-                              onPressed: (){
+                            InkWell(
+                              onTap: (){
                                 Clipboard.setData(ClipboardData
                                   (text: courseStore.basket.priceToPay.toString()));
                                 Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
@@ -445,8 +454,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             ),
                           ],
                         ),
-                        TextButton(
-                          onPressed: (){
+                        InkWell(
+                          onTap: (){
                             Clipboard.setData(ClipboardData
                               (text: courseStore.basket.priceToPay.toString()));
                             Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
@@ -454,9 +463,16 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           child: Text(
                             currencyFormat.format(courseStore.basket.priceToPay/10000)
                                 + ' هزار تومان',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
                             textAlign: TextAlign.left,
                           ),
+                        ),
+                        SizedBox(height: 20,),
+                        Divider(
+                          color: Colors.black54,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -466,8 +482,8 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               style: TextStyle(fontSize: 16, color: Colors.black),
                               textAlign: TextAlign.justify,
                             ),
-                            TextButton(
-                              onPressed: (){
+                            InkWell(
+                              onTap: (){
                                 Clipboard.setData(ClipboardData
                                   (text: '5022123456789090'));
                                 Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
@@ -506,92 +522,149 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             ),
                           ],
                         ),
-                        TextButton(
-                          onPressed: (){
+                        InkWell(
+                          onTap: (){
                             Clipboard.setData(ClipboardData
                               (text: '5022123456789090'));
                             Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
                           },
                           child: Text(
                             '5022 - 1234 - 5678 - 9090',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
                             textAlign: TextAlign.left,
                             textDirection: ui.TextDirection.ltr,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 18.0),
+                        SizedBox(height: 30,),
+                        Center(
+                          child: Text(
+                            'ارتباط با پشتیبانی:',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+
+                        SizedBox(height: 5,),
+                        Container(
+                          padding: const EdgeInsets.all(3.0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.white60)
+                          ),
                           child: Row(
                             children: [
                               Expanded(
                                 flex: 1,
-                                child: TextButton(
-                                  onPressed: () async{
-                                    String chatUrl = 'https://telegram.me/StarShow_ir';
-                                    //if (await canLaunch(chatUrl)){
-                                    try{
-                                      await launch(chatUrl);
-                                    }
-                                    catch(e){
-                                      print(e.toString());
-                                    }
-                                  },
-                                  child: Image.asset('assets/images/telegram.png'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextButton(
+                                    onPressed: () async{
+                                      String chatUrl = 'https://telegram.me/StarShow_ir';
+                                      //if (await canLaunch(chatUrl)){
+                                      try{
+                                        await launch(chatUrl);
+                                      }
+                                      catch(e){
+                                        print(e.toString());
+                                      }
+                                    },
+                                    child: Image.asset('assets/images/telegram.png'),
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 flex: 1,
-                                child: TextButton(
-                                  onPressed: () async{
-                                    String chatUrl = 'https://instagram.com/starshow_ir?utm_medium=copy_link';
-                                    //if (await canLaunch(chatUrl)){
-                                    try{
-                                      await launch(chatUrl);
-                                    }
-                                    catch(e){
-                                      print(e.toString());
-                                    }
-                                    //}
-                                  },
-                                  child: Image.asset('assets/images/instagram.png'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextButton(
+                                    onPressed: () async{
+                                      String chatUrl = 'https://instagram.com/starshow_ir?utm_medium=copy_link';
+                                      //if (await canLaunch(chatUrl)){
+                                      try{
+                                        await launch(chatUrl);
+                                      }
+                                      catch(e){
+                                        print(e.toString());
+                                      }
+                                      //}
+                                    },
+                                    child: Image.asset('assets/images/instagram.png'),
+                                  ),
                                 ),
                               ),
                               Expanded(
                                 flex: 1,
-                                child: TextButton(
-                                  onPressed: () async{
-                                    String chatUrl = 'tel://${courseStore.supportPhoneNumber}';
-                                    //if (await canLaunch(chatUrl)){
-                                    try{
-                                      await launch(chatUrl);
-                                    }
-                                    catch(e){
-                                      print(e.toString());
-                                    }
-                                    //}
-                                  },
-                                  child: Image.asset('assets/images/phone.png'),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: TextButton(
-                                  onPressed: () async{
-                                    String chatUrl = 'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
-                                    // if (await canLaunch(chatUrl)){
-                                    try{
-                                      await launch(chatUrl);
-                                    }
-                                    catch(e){
-                                      print(e.toString());
-                                    }
-                                  },
-                                  child: Image.asset('assets/images/whatsapp.png'),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextButton(
+                                    onPressed: () async{
+                                      String chatUrl = 'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
+                                      // if (await canLaunch(chatUrl)){
+                                      try{
+                                        await launch(chatUrl);
+                                      }
+                                      catch(e){
+                                        print(e.toString());
+                                      }
+                                    },
+                                    child: Image.asset('assets/images/whatsapp.png'),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        )
+                        ),
+                        SizedBox(height: 5,),
+                        Container(
+                          padding: const EdgeInsets.all(3.0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.white60)
+                          ),
+                          child: TextButton(
+                            onPressed: () async{
+                              String chatUrl = 'tel://${courseStore.supportPhoneNumber}';
+                              //if (await canLaunch(chatUrl)){
+                              try{
+                                await launch(chatUrl);
+                              }
+                              catch(e){
+                                print(e.toString());
+                              }
+                              //}
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                    flex: 5,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'تلفن تماس اِستارشو',
+                                          style: TextStyle(fontSize: 16, color: Colors.black),),
+                                        Text(
+                                          courseStore.supportPhoneNumber,
+                                          style: TextStyle(fontSize: 16, color: Colors.black),),
+                                      ],
+                                    )
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Image.asset('assets/images/phone.png'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
