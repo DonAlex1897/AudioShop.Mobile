@@ -28,6 +28,7 @@ import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'add_salesperson_coupon_code.dart';
+import 'advertisement_page.dart';
 import 'course_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -396,7 +397,8 @@ class _HomePageState extends State<HomePage> {
 
   goToCoursePreview(Course course){
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CoursePreview(course);
+      //return CoursePreview(course); TODO: correct this
+      return AdvertisementPage();
     }));
   }
 

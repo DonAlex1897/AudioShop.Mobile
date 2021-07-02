@@ -9,6 +9,9 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  visibility_detector: ^0.2.0
+  video_player: ^2.1.6
+  flick_video_player: ^0.3.1
   open_file:
   permission_handler:
   path_provider: ^2.0.1
@@ -23,7 +26,7 @@ dependencies:
   jwt_decoder: ^1.0.3
   flutter_secure_storage: ^3.3.5
   intl: ">=0.14.0"
-  provider: ^4.3.2+3
+  provider:
   flutter_cache_manager: ^2.1.0
   curved_navigation_bar: ^0.3.7
   fluttertoast: ^7.1.6
@@ -66,7 +69,7 @@ flutter:
     - assets/images/purchase.png
     - assets/images/instagram.png
     - assets/images/phone.png
-  #   - images/a_dot_ham.jpeg
+    - assets/images/rio_from_above_poster.jpg
 
   fonts:
     - family: IranSans
