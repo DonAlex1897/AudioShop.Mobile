@@ -26,3 +26,7 @@ enum Gender {
   Male,
   Female,
 }
+
+enum NavigatedPage{
+  CoursePreview
+}

@@ -76,6 +76,7 @@ class _FeedPlayerPortraitControls extends State<FeedPlayerPortraitControls> {
         downloadProgress = progress;
         if(status == DownloadTaskStatus.complete){
           isDownloading = false;
+          FlutterDownloader.open(taskId: taskId);
         }
         else if(downloadProgress != 0 && status != DownloadTaskStatus.failed){
           isWaitingToStartDownload = false;
@@ -142,11 +143,13 @@ class _FeedPlayerPortraitControls extends State<FeedPlayerPortraitControls> {
                     await FlutterDownloader.open(taskId: taskId);
                   }
                 }
-                try{
-                  await launch(widget.redirectUrl);
-                }
-                catch(e){
-                  print(e.toString());
+                else{
+                  try{
+                    await launch(widget.redirectUrl);
+                  }
+                  catch(e){
+                    print(e.toString());
+                  }
                 }
               },
               child: FlickSeekVideoAction(

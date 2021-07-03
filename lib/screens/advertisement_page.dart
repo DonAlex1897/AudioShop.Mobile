@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/utilities/multi_manager/flick_multi_manager.dart';
 import 'package:mobile/utilities/multi_manager/flick_multi_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:async/async.dart';
 
+import 'course_preview.dart';
+
 class AdvertisementPage extends StatefulWidget {
+
+  AdvertisementPage(this.navigatedPage, this.details);
+  final navigatedPage;
+  final details;
+
   @override
   _AdvertisementPageState createState() => _AdvertisementPageState();
 }
@@ -14,6 +22,7 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   FlickMultiManager flickMultiManager;
   String tempURL = 'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov';
   // String tempURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
+  String redirectURL = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
   Duration _timerDuration = new Duration(seconds: 5);
   RestartableTimer _timer;
   bool isTimerActive = true;
@@ -81,6 +90,15 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
             ),
           ),
           onTap:() async {
+            if(widget.navigatedPage == NavigatedPage.CoursePreview){
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return CoursePreview(widget.details);
+              // }));
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => CoursePreview(widget.details)),
+                  (route) => route.isFirst);
+            }
           },
         ),
       ),
@@ -101,7 +119,8 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
         child: InkWell(
           child: Center(
             child: Text(
-              'نمایش',
+              redirectURL.toLowerCase().contains('.apk') ?
+                'نصب' : 'نمایش',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -129,6 +148,8 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
                   advertisementURL: tempURL,
                   flickMultiManager: flickMultiManager,
                   image: 'assets/images/appMainIcon.png',
+                  redirectURL: redirectURL,
+                  isAPK: true,
                 ),
               )
           ),

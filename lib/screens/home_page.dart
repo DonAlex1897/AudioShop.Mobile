@@ -398,7 +398,7 @@ class _HomePageState extends State<HomePage> {
   goToCoursePreview(Course course){
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       //return CoursePreview(course); TODO: correct this
-      return AdvertisementPage();
+      return AdvertisementPage(NavigatedPage.CoursePreview, course);
     }));
   }
 

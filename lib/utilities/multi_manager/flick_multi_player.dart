@@ -13,10 +13,14 @@ class FlickMultiPlayer extends StatefulWidget {
       {Key key,
       this.advertisementURL,
       this.image,
-      this.flickMultiManager})
+      this.flickMultiManager,
+      this.redirectURL,
+      this.isAPK})
       : super(key: key);
 
   final String advertisementURL;
+  final String redirectURL;
+  final bool isAPK;
   final String image;
   final FlickMultiManager flickMultiManager;
 
@@ -85,6 +89,8 @@ class _FlickMultiPlayerState extends State<FlickMultiPlayer> {
             controls: FeedPlayerPortraitControls(
               flickMultiManager: widget.flickMultiManager,
               flickManager: flickManager,
+              isAPK: widget.isAPK,
+              redirectUrl: widget.redirectURL,
             ),
           ),
           flickVideoWithControlsFullscreen: FlickVideoWithControls(
