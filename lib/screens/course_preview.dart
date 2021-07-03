@@ -220,10 +220,66 @@ class _CoursePreviewState extends State<CoursePreview> {
         );
     }
     else{
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) {
-            return AuthenticationPage(FormName.SignUp);
-          }));
+      bool goToSignUpPage = false;
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('برای خرید دوره آموزشی، ابتدا باید ثبت نام کنید'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xFF20BFA9),
+              ),
+              child: TextButton(
+                onPressed: (){
+                  goToSignUpPage = true;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'ثبت نام',
+                    style: TextStyle(color: Colors.white,)
+                ),
+              ),
+            ),
+          ),
+          Container(
+            width: 400,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70),
+              borderRadius: BorderRadius.circular(5),
+
+            ),
+            child: TextButton(
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              child:
+              Text(
+                  'انصراف',
+                  style: TextStyle(color: Colors.white70,)
+              ),
+            ),
+          ),
+        ],
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+      if(goToSignUpPage)
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return AuthenticationPage(FormName.SignUp);
+            }));
     }
   }
 
