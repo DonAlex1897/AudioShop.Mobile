@@ -12,6 +12,7 @@ dependencies:
   visibility_detector: ^0.2.0
   video_player: ^2.1.6
   flick_video_player: ^0.3.1
+  expandable: ^5.0.1
   open_file:
   permission_handler:
   path_provider: ^2.0.1
@@ -69,7 +70,7 @@ flutter:
     - assets/images/purchase.png
     - assets/images/instagram.png
     - assets/images/phone.png
-    - assets/images/rio_from_above_poster.jpg
+  #   - images/a_dot_ham.jpeg
 
   fonts:
     - family: IranSans

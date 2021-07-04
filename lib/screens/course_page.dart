@@ -224,33 +224,91 @@ class _CoursePageState extends State<CoursePage> {
         }
       }
       else {
-        await Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return AuthenticationPage(FormName.SignUp);
-            }));
-        isEpisodePurchasedBefore = false;
-        courseStore.userEpisodes.forEach((element) {
-          if(element.id == episode.id){
-            isEpisodePurchasedBefore = true;
+        bool goToSignUpPage = false;
+        AlertDialog alert = AlertDialog(
+          title: Text('توجه'),
+          content: Text('برای خرید دوره آموزشی، ابتدا باید ثبت نام کنید'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                width: 400,
+                height: 70,
+                decoration: BoxDecoration(
+                  //border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(5),
+                  color: Color(0xFF20BFA9),
+                ),
+                child: TextButton(
+                  onPressed: (){
+                    goToSignUpPage = true;
+                    Navigator.of(context).pop();
+                  },
+                  child:
+                  Text(
+                      'ثبت نام',
+                      style: TextStyle(color: Colors.white,)
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 400,
+              height: 70,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(5),
+
+              ),
+              child: TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'انصراف',
+                    style: TextStyle(color: Colors.white70,)
+                ),
+              ),
+            ),
+          ],
+        );
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+        if(goToSignUpPage){
+
+          await Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return AuthenticationPage(FormName.SignUp);
+              }));
+          isEpisodePurchasedBefore = false;
+          courseStore.userEpisodes.forEach((element) {
+            if(element.id == episode.id){
+              isEpisodePurchasedBefore = true;
+            }
+          });
+          if(!isEpisodePurchasedBefore){
+            List<CourseEpisode> tempEpisodes = [];
+            tempEpisodes.add(episode);
+            await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
           }
-        });
-        if(!isEpisodePurchasedBefore){
-          List<CourseEpisode> tempEpisodes = [];
-          tempEpisodes.add(episode);
-          await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
-        }
-        else{
-          if(await isEpisodeAccessible(
-              episode.courseId,
-              episode.sort,
-              course.waitingTimeBetweenEpisodes))
-          {
-            if(!(await isEpisodePlayedBefore(episode)))
-              await writeInProgressCourseInCache(episode);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return NowPlaying(episode, course.photoAddress);
-                }));
+          else{
+            if(await isEpisodeAccessible(
+                episode.courseId,
+                episode.sort,
+                course.waitingTimeBetweenEpisodes))
+            {
+              if(!(await isEpisodePlayedBefore(episode)))
+                await writeInProgressCourseInCache(episode);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return NowPlaying(episode, course.photoAddress);
+                  }));
+            }
           }
         }
       }
@@ -615,13 +673,69 @@ class _CoursePageState extends State<CoursePage> {
             await createBasket(PurchaseType.WholeCourse, episodes, course);
           }
           else {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return AuthenticationPage(FormName.SignUp);
-                }));
+            bool goToSignUpPage = false;
+            AlertDialog alert = AlertDialog(
+              title: Text('توجه'),
+              content: Text('برای خرید دوره آموزشی، ابتدا باید ثبت نام کنید'),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    width: 400,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      //border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(5),
+                      color: Color(0xFF20BFA9),
+                    ),
+                    child: TextButton(
+                      onPressed: (){
+                        goToSignUpPage = true;
+                        Navigator.of(context).pop();
+                      },
+                      child:
+                      Text(
+                          'ثبت نام',
+                          style: TextStyle(color: Colors.white,)
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 400,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white70),
+                    borderRadius: BorderRadius.circular(5),
 
-            await createBasket(PurchaseType.WholeCourse, episodes, course);
+                  ),
+                  child: TextButton(
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
+                    child:
+                    Text(
+                        'انصراف',
+                        style: TextStyle(color: Colors.white70,)
+                    ),
+                  ),
+                ),
+              ],
+            );
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              },
+            );
+            if(goToSignUpPage){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return AuthenticationPage(FormName.SignUp);
+                  }));
 
+              await createBasket(PurchaseType.WholeCourse, episodes, course);
+            }
           }
         },
         icon: Icon(
