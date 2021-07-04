@@ -34,6 +34,7 @@ class CourseStore extends ChangeNotifier{
   String _salespersonCouponCode;
   int _salespersonDefaultDiscountPercent = 0;
   String _supportPhoneNumber = '';
+  bool _isAdsEnabled = false;
 
   CourseStore(){
     notifyListeners();
@@ -57,6 +58,7 @@ class CourseStore extends ChangeNotifier{
 
   int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
   String get supportPhoneNumber => _supportPhoneNumber;
+  bool get isAdsEnabled => _isAdsEnabled;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -158,6 +160,9 @@ class CourseStore extends ChangeNotifier{
     config = configs.firstWhere((x) => x.titleEn == 'PhoneNumber', orElse: () => null);
     if(config != null)
       this._supportPhoneNumber = config.value;
+    config = configs.firstWhere((x) => x.titleEn == 'IsAdsEnabled', orElse: () => null);
+    if(config != null)
+      this._isAdsEnabled = config.value == '1';
   }
 
   bool addToUserFavoriteCourses(Course course){

@@ -1,12 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui';
-
-import 'package:flick_video_player/flick_video_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/utilities/multi_manager/flick_multi_manager.dart';
@@ -14,7 +16,6 @@ import 'package:mobile/utilities/multi_manager/flick_multi_player.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:async/async.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
 import 'course_preview.dart';
@@ -32,25 +33,39 @@ class AdvertisementPage extends StatefulWidget {
 class _AdvertisementPageState extends State<AdvertisementPage> {
 
   FlickMultiManager flickMultiManager;
-  String tempURL = 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov';
+  String adURL = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
   // String tempURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
   String redirectURL = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
-  Duration _timerDuration = new Duration(seconds: 5);
-  RestartableTimer _timer;
   bool isTimerActive = true;
   bool isMuted = false;
-
-
   int downloadProgress = 0;
   String taskId = '';
   String filePath = '';
-  String downloadButtonText = 'به روز رسانی';
+  String downloadButtonText = 'دانلود';
   DownloadTaskStatus downloadTaskStatus;
   bool isDownloading = false;
   bool isWaitingToStartDownload = false;
   ReceivePort receivePort = ReceivePort();
-  bool isAPK = true;
+  Timer _timer;
+  int _timerDuration = 2;
 
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+          (Timer timer) {
+        if (_timerDuration == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _timerDuration--;
+          });
+        }
+      },
+    );
+  }
   Future downloadFile() async{
     final permissionStatus = await Permission.storage.request();
     if(permissionStatus.isGranted){
@@ -81,7 +96,8 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   void initState() {
     super.initState();
     flickMultiManager = FlickMultiManager();
-    _timer = RestartableTimer(_timerDuration, setTimerState);
+    //_timer = RestartableTimer(_timerDuration, setTimerState);
+    startTimer();
     IsolateNameServer.registerPortWithName(receivePort.sendPort, 'downloader_send_port');
     receivePort.listen((dynamic data) {
       String id = data[0];
@@ -90,15 +106,17 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
       setState((){
         downloadProgress = progress;
         if(status == DownloadTaskStatus.complete){
+          downloadButtonText = 'نصب';
           isDownloading = false;
-          FlutterDownloader.open(taskId: taskId);
         }
         else if(downloadProgress != 0 && status != DownloadTaskStatus.failed){
           isWaitingToStartDownload = false;
+          downloadButtonText = '$downloadProgress %';
         }
         else if(status == DownloadTaskStatus.failed){
           Fluttertoast.showToast(msg: 'مشکل در برقراری ارتباط. لطفا اتصال اینترنت خود را بررسی کنید');
           isWaitingToStartDownload = false;
+          downloadButtonText = 'تلاش مجدد';
           isDownloading = false;
           downloadProgress = 0;
         }
@@ -111,6 +129,7 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   @override
   void dispose() {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
+    _timer.cancel();
     super.dispose();
   }
 
@@ -166,8 +185,8 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
         ),
         child: InkWell(
           child: Center(
-            child: Text(!isTimerActive?
-              'بستن' : _timer.tick.toString(),
+            child: Text(_timerDuration == 0 ?
+              'بستن' : _timerDuration.toString(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -175,14 +194,13 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
             ),
           ),
           onTap:() async {
-            if(widget.navigatedPage == NavigatedPage.CoursePreview){
-              // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //   return CoursePreview(widget.details);
-              // }));
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => CoursePreview(widget.details)),
-                  (route) => route.isFirst);
+            if(_timerDuration == 0){
+              if(widget.navigatedPage == NavigatedPage.CoursePreview){
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return CoursePreview(widget.details);
+                }));
+              }
             }
           },
         ),
@@ -203,9 +221,23 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
         ),
         child: InkWell(
           child: Center(
-            child: Text(
-              redirectURL.toLowerCase().contains('.apk') ?
-                'نصب' : 'نمایش',
+            child:
+            redirectURL.toLowerCase().contains('.apk') ?
+            (!isWaitingToStartDownload ?
+              Text(
+                downloadButtonText,
+                style: TextStyle(color: Colors.white),
+              ) :
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SpinKitRing(
+                    lineWidth: 3,
+                    color: Colors.white
+                ),
+              )
+            ) :
+            Text(
+              'نمایش',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -214,6 +246,26 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
             ),
           ),
           onTap:() async {
+            if(redirectURL.toLowerCase().contains('.apk')){
+              if(downloadProgress == 0 && !isDownloading){
+                setState(() {
+                  isWaitingToStartDownload = true;
+                });
+                isDownloading = true;
+                await downloadFile();
+              }
+              else if (downloadProgress == 100){
+                await FlutterDownloader.open(taskId: taskId);
+              }
+            }
+            else{
+              try{
+                await launch(redirectURL);
+              }
+              catch(e){
+                print(e.toString());
+              }
+            }
           },
         ),
       ),
@@ -221,48 +273,48 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   }
 
   Widget advertisement(){
-    if(tempURL.toLowerCase().contains('.mov') ||
-       tempURL.toLowerCase().contains('.mp4')){
+    if(adURL.toLowerCase().contains('.mov') ||
+        adURL.toLowerCase().contains('.mp4')){
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Stack(
             children: [
-              Container(
-                  height: MediaQuery.of(context).size.width,
-                  child: ClipRRect(
-                    child: InkWell(
-                      onTap: () async{
-                        if(isAPK){
-                          if(downloadProgress == 0 &&
-                              !isDownloading &&
-                              !isWaitingToStartDownload){
-                            isWaitingToStartDownload = true;
-                            isDownloading = true;
-                            await downloadFile();
-                          }
-                          else if (downloadProgress == 100){
-                            await FlutterDownloader.open(taskId: taskId);
-                          }
-                        }
-                        else{
-                          try{
-                            await launch(redirectURL);
-                          }
-                          catch(e){
-                            print(e.toString());
-                          }
-                        }
-                      },
+              InkWell(
+                onTap: () async {
+                  if(redirectURL.toLowerCase().contains('.apk')){
+                    if(downloadProgress == 0 && !isDownloading){
+                      setState(() {
+                        isWaitingToStartDownload = true;
+                      });
+                      isDownloading = true;
+                      await downloadFile();
+                    }
+                    else if (downloadProgress == 100){
+                      await FlutterDownloader.open(taskId: taskId);
+                    }
+                  }
+                  else{
+                    try{
+                      await launch(redirectURL);
+                    }
+                    catch(e){
+                      print(e.toString());
+                    }
+                  }
+                },
+                child: IgnorePointer(
+                  child: SizedBox(
+                      height: MediaQuery.of(context).size.width,
                       child: FlickMultiPlayer(
-                        advertisementURL: tempURL,
+                        advertisementURL: adURL,
                         flickMultiManager: flickMultiManager,
                         image: 'assets/images/appMainIcon.png',
                         redirectURL: redirectURL,
-                        isAPK: true,
-                      ),
-                    ),
-                  )
+                        isAPK: redirectURL.toLowerCase().contains('.apk'),
+                      )
+                  ),
+                ),
               ),
               Align(
                 alignment: Alignment.topLeft,
@@ -276,13 +328,24 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
                     });
                   },
                   icon: Icon(
-                    !isMuted?
+                    isMuted?
                     Icons.volume_off_sharp : Icons.volume_up,
                     color: Colors.white,
                   ),
                 )
               )
             ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 50, right: 50),
+            child: Text(
+              'Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
+                'و در عین حال بسیار سرگرم کننده',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 28.0),
@@ -305,9 +368,13 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
               height: MediaQuery.of(context).size.width,
               width: MediaQuery.of(context).size.width,
               child: ClipRRect(
-                child: Image.network(tempURL)
+                child: Image.network(adURL)
               )
           ),
+          Text('Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
+              'و در عین حال بسیار سرگرم کننده'
+              ' در سبک تخته ای از بازی معروف دوز یا XO می باشد که در دو نسخه'
+              ' رایگان و پولی منتشر شده است که شما می توانید نسخه پولی و بدو'),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

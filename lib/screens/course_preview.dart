@@ -62,6 +62,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   double totalEpisodesPrice = 0;
   final currencyFormat = new NumberFormat("#,##0");
   StatisticsService statisticsService = StatisticsService();
+  RestartableTimer _timer;
 
 
   @override
@@ -76,7 +77,7 @@ class _CoursePreviewState extends State<CoursePreview> {
       await DefaultCacheManager().getSingleFile(widget.courseDetails.photoAddress):
       null;
 
-    RestartableTimer(_timerDuration, setTimerState);
+    _timer = RestartableTimer(_timerDuration, setTimerState);
     List reviewsResult =
       await courseData.getCourseReviews(widget.courseDetails.id);
     totalReviewsCount = reviewsResult[0];
@@ -514,6 +515,7 @@ class _CoursePreviewState extends State<CoursePreview> {
   }
 
   setTimerState() {
+    if(_timer.isActive)
     setState(() {
       isTakingMuchTime = true;
     });
