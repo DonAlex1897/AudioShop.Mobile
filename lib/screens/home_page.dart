@@ -19,6 +19,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:mobile/services/statistics_service.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -70,6 +71,9 @@ class _HomePageState extends State<HomePage> {
   Icon actionIcon = new Icon(Icons.search);
   bool isVpnConnected = false;
   StatisticsService statisticsService = StatisticsService();
+  GlobalKey searchKey = GlobalKey();
+  GlobalKey profileKey = GlobalKey();
+  BuildContext myContext;
 
   @override
   void setState(fn) {
@@ -84,6 +88,12 @@ class _HomePageState extends State<HomePage> {
     globalService = GlobalService();
     setFirstTimeTrue();
     statisticsService.enteredApplication();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ShowCaseWidget.of(myContext).startShowCase([
+        searchKey, profileKey
+      ]);
+    });
     // courseData = CourseData();
     // courses = getCourses();
     // loginStatement();
@@ -1259,83 +1269,106 @@ class _HomePageState extends State<HomePage> {
     //       ..load()
     //       ..show(anchorType: AnchorType.bottom));
 
+
+
+
     width = MediaQuery.of(context).size.width / 2;
     height = (MediaQuery.of(context).size.width / 2) * 1.5;
-    return FutureBuilder(
-        future: courses,
-        builder: (context, data) {
-          if (data.hasData)
-            return WillPopScope(
-                child: Scaffold(
-                    appBar: AppBar(
-                    leading: Container(),
-                      centerTitle: true,
-                      title: appBarTitle,
-                      actions: <Widget>[
-                        new IconButton(icon: actionIcon,onPressed:(){
-                          setState(() {
-                            if (this.actionIcon.icon == Icons.search) {
-                              this.actionIcon = new Icon(Icons.close, color: Colors.white,);
-                              this.appBarTitle = new TextField(
-                                textInputAction: TextInputAction.search,
-                                onSubmitted: (value){
-                                  search(value);
-                                },
-                                controller: searchController,
-                                style: new TextStyle(
-                                  color: Colors.white,
+    return ShowCaseWidget(
+      builder: Builder(builder: (context){
+        myContext = context;
+        return FutureBuilder(
+            future: courses,
+            builder: (context, data) {
+              if (data.hasData)
+                return WillPopScope(
+                    child: Scaffold(
+                        appBar: AppBar(
+                            leading: Container(),
+                            centerTitle: true,
+                            title: appBarTitle,
+                            actions: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Showcase(
+                                  showcaseBackgroundColor: Colors.black,
+                                  textColor: Colors.white,
+                                  overlayColor: Colors.white54,
+                                  key: searchKey,
+                                  description: 'دوره مورد نظر خود را اینجا جستجو کنید',
+                                  child: IconButton(icon: actionIcon,onPressed:(){
+                                    setState(() {
+                                      if (this.actionIcon.icon == Icons.search) {
+                                        this.actionIcon = new Icon(Icons.close, color: Colors.white,);
+                                        this.appBarTitle = new TextField(
+                                          textInputAction: TextInputAction.search,
+                                          onSubmitted: (value){
+                                            search(value);
+                                          },
+                                          controller: searchController,
+                                          style: new TextStyle(
+                                            color: Colors.white,
 
+                                          ),
+                                          decoration: new InputDecoration(
+                                            prefixIcon: InkWell(
+                                              onTap: (){
+                                                search(searchController.text);
+                                              },
+                                              child: Icon(Icons.search,
+                                                  size: 25, color: Colors.white),
+                                            ),
+                                            hintText: "جستجو...",
+                                            hintStyle: new TextStyle(color: Colors.white),
+                                          ),
+                                        );
+                                        _handleSearchStart();
+                                      }
+                                      else {
+                                        _handleSearchEnd();
+                                      }
+                                    });
+                                  } ,
+                                  ),
                                 ),
-                                decoration: new InputDecoration(
-                                    prefixIcon: InkWell(
-                                      onTap: (){
-                                        search(searchController.text);
-                                      },
-                                      child: Icon(Icons.search,
-                                          size: 25, color: Colors.white),
-                                    ),
-                                    hintText: "جستجو...",
-                                    hintStyle: new TextStyle(color: Colors.white),
-                                ),
-                              );
-                              _handleSearchStart();
-                            }
-                            else {
-                              _handleSearchEnd();
-                            }
-                          });
-                        } ,
+                              ),
+                            ]
                         ),
-                      ]
-                  ),
-                    bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.only(bottom: 0),
-                      child: CurvedNavigationBar(
-                        color: Color(0xFF202028),
-                        buttonBackgroundColor: Color(0xFF202028),
-                        animationDuration: Duration(milliseconds: 200),
-                        height: 50,
-                        backgroundColor: Color(0xFF34333A),
-                        items: <Widget>[
-                          Icon(Icons.my_library_music,
-                              size: 25, color: Color(0xFF20BFA9)),
-                          Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
-                          Icon(Icons.person,
-                              size: 25, color: Color(0xFF20BFA9)),
-                        ],
-                        onTap: (index) => {
-                          setState(() {
-                            tabIndex = index;
-                          })
-                        },
-                        index: 1,
-                      ),
-                    ),
-                    body: navigationSelect(tabIndex)),
-                onWillPop: onWilPop);
-          else
-            return spinner();
-        });
+                        bottomNavigationBar: Padding(
+                          padding: const EdgeInsets.only(bottom: 0),
+                          child: CurvedNavigationBar(
+                            color: Color(0xFF202028),
+                            buttonBackgroundColor: Color(0xFF202028),
+                            animationDuration: Duration(milliseconds: 200),
+                            height: 50,
+                            backgroundColor: Color(0xFF34333A),
+                            items: <Widget>[
+                              Icon(Icons.my_library_music,
+                                  size: 25, color: Color(0xFF20BFA9)),
+                              Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
+                              Showcase(
+                                key: profileKey,
+                                description: 'اطلاعات خود و گروه پشتیبانی را اینجا ببینید',
+                                child: Icon(Icons.person,
+                                    size: 25, color: Color(0xFF20BFA9)),
+                              ),
+                            ],
+                            onTap: (index) => {
+                              setState(() {
+                                tabIndex = index;
+                              })
+                            },
+                            index: 1,
+                          ),
+                        ),
+                        body: navigationSelect(tabIndex)),
+                    onWillPop: onWilPop);
+              else
+                return spinner();
+            });
+      },
+      ),
+    );
   }
 }
 //
