@@ -28,5 +28,27 @@ enum Gender {
 }
 
 enum NavigatedPage{
-  CoursePreview
+  CoursePreview,
+  CoursePage,
+  SignInLibrary,
+  SignInProfile,
+  SignInPurchase,
+  SignUpLibrary,
+  SignUpProfile,
+  SignUpPurchase,
+  PlayEpisode,
+  RegisterPhoneNumber,
+  AddSalesPersonCouponCode,
+  SupportPage,
+  PsychologicalTests,
+  AddToFavorite,
+  AddReview
+}
+
+enum NativeAdLocation{
+  LoadingUp,
+  LoadingDown,
+  HomePage,
+  Library,
+  Profile,
 }

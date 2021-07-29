@@ -12,7 +12,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/episode_audios.dart';
 import 'package:mobile/services/course_episode_service.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:mobile/utilities/nativeAd.dart';
 import 'package:provider/provider.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +54,8 @@ class _NowPlayingState extends State<NowPlaying> {
   Duration _timerDuration = new Duration(seconds: 5);
   var pictureFile;
   bool isVpnConnected = false;
+  bool showLoadingUpAds = false;
+  bool showLoadingDownAds = false;
 
   @override
   void setState(fn) {
@@ -333,78 +337,96 @@ class _NowPlayingState extends State<NowPlaying> {
 
   Widget spinner(){
     return Scaffold(
-        body: !isTakingMuchTime ? SpinKitWave(
-          type: SpinKitWaveType.center,
-          color: Color(0xFF20BFA9),
-          size: 65.0,
-        ) :
-        Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: !isTakingMuchTime ? Center(
+          child: SingleChildScrollView(
+            child: Column(
               children: [
+                showLoadingUpAds ?
+                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'لطفا منتظر بمانید. '
-                        'در حال بارگیری فایل دوره',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
+                showLoadingDownAds ?
+                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+              ],
+            ),
+          ),
+        ) :
+        Center(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  showLoadingUpAds ?
+                    NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  SpinKitWave(
+                    type: SpinKitWaveType.center,
+                    color: Color(0xFF20BFA9),
+                    size: 65.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'لطفا منتظر بمانید. '
+                          'در حال بارگیری فایل دوره',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                  'جهت تجربه سرعت بهتر،',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                    'جهت تجربه سرعت بهتر،',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                  'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                // InkWell(
-                //   onTap: (){
-                //     setState(() {
-                //       isTakingMuchTime = false;
-                //       Navigator.pushReplacement(
-                //           context,
-                //           MaterialPageRoute(
-                //               builder: (BuildContext context) => super.widget));
-                //     });
-                //   },
-                //   child: Card(
-                //     color: Color(0xFF20BFA9),
-                //     child: Padding(
-                //       padding: const EdgeInsets.all(8.0),
-                //       child: Text(
-                //         'تلاش مجدد',
-                //         style: TextStyle(
-                //             color: Colors.white,
-                //             fontSize: 18
-                //         ),),
-                //     ),
-                //   ),
-                // )
-              ]
+                  showLoadingDownAds ?
+                    NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                  // InkWell(
+                  //   onTap: (){
+                  //     setState(() {
+                  //       isTakingMuchTime = false;
+                  //       Navigator.pushReplacement(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //               builder: (BuildContext context) => super.widget));
+                  //     });
+                  //   },
+                  //   child: Card(
+                  //     color: Color(0xFF20BFA9),
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.all(8.0),
+                  //       child: Text(
+                  //         'تلاش مجدد',
+                  //         style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontSize: 18
+                  //         ),),
+                  //     ),
+                  //   ),
+                  // )
+                ]
+            ),
           ),
         )
     ) ;

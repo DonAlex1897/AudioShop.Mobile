@@ -21,11 +21,15 @@ import 'package:mobile/services/course_service.dart';
 import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:mobile/utilities/Utility.dart';
+import 'package:mobile/utilities/nativeAd.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'dart:ui' as ui;
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
+
+import 'advertisement_page.dart';
 
 class CoursePreview extends StatefulWidget {
 
@@ -63,6 +67,9 @@ class _CoursePreviewState extends State<CoursePreview> {
   final currencyFormat = new NumberFormat("#,##0");
   StatisticsService statisticsService = StatisticsService();
   RestartableTimer _timer;
+  bool showLoadingUpAds = false;
+  bool showLoadingDownAds = false;
+  bool showAdsInPopUp = true;
 
 
   @override
@@ -143,6 +150,12 @@ class _CoursePreviewState extends State<CoursePreview> {
           },
         );
         reviewController.text = '';
+        if(courseStore.isAdsEnabled){
+          Utility.showAdsAlertDialog(
+            context,
+            NavigatedPage.AddReview,
+          );
+        }
       }
     }
     else{
@@ -277,10 +290,27 @@ class _CoursePreviewState extends State<CoursePreview> {
         },
       );
       if(goToSignUpPage)
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return AuthenticationPage(FormName.SignUp);
+        if(!courseStore.isAdsEnabled){
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return AuthenticationPage(FormName.SignUp);
+              }));
+        }
+        else{
+          if(!showAdsInPopUp){
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return AdvertisementPage(
+                navigatedPage: NavigatedPage.SignUpPurchase,
+              );
             }));
+          }
+          else{
+            Utility.showAdsAlertDialog(
+                context,
+                NavigatedPage.SignUpPurchase
+            );
+          }
+        }
     }
   }
 
@@ -432,83 +462,101 @@ class _CoursePreviewState extends State<CoursePreview> {
 
   Widget spinner(){
     return Scaffold(
-        body: !isTakingMuchTime ? SpinKitWave(
-          type: SpinKitWaveType.center,
-          color: Color(0xFF20BFA9),
-          size: 65.0,
-        ) :
-        Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: !isTakingMuchTime ? Center(
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                // Container(
-                //     width: MediaQuery.of(context).size.width * 0.7,
-                //     child: Image.asset('assets/images/internetdown.png')
-                // ),
+                showLoadingUpAds ?
+                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(//!isVpnConnected ?
-                    'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                    //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'جهت تجربه سرعت بهتر،',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      isTakingMuchTime = false;
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => super.widget));
-                    });
-                  },
-                  child: Card(
+                showLoadingDownAds ?
+                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+              ],
+            ),
+          ),
+        ) :
+        Center(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Container(
+                  //     width: MediaQuery.of(context).size.width * 0.7,
+                  //     child: Image.asset('assets/images/internetdown.png')
+                  // ),
+                  showLoadingUpAds ?
+                    NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  SpinKitWave(
+                    type: SpinKitWaveType.center,
                     color: Color(0xFF20BFA9),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'تلاش مجدد',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),),
+                    size: 65.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(//!isVpnConnected ?
+                      'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                      //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
                     ),
                   ),
-                )
-              ]
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                      'جهت تجربه سرعت بهتر،',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                      'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        isTakingMuchTime = false;
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => super.widget));
+                      });
+                    },
+                    child: Card(
+                      color: Color(0xFF20BFA9),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'تلاش مجدد',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18
+                          ),),
+                      ),
+                    ),
+                  ),
+                  showLoadingDownAds ?
+                    NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                ]
+            ),
           ),
         )
     ) ;
@@ -628,15 +676,49 @@ class _CoursePreviewState extends State<CoursePreview> {
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: TextButton(
                             onPressed: () async {
-                              if(pictureFile != null){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                  return CoursePage(course, pictureFile);
-                                }));
+                              if(!courseStore.isAdsEnabled){
+                                if(pictureFile != null){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                    return CoursePage(course, pictureFile);
+                                  }));
+                                }
+                                else{
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                    return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
+                                  }));
+                                }
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                  return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
-                                }));
+                                if(!showAdsInPopUp){
+                                  if(pictureFile != null){
+                                    print('cover: $pictureFile');
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      return AdvertisementPage(
+                                        navigatedPage: NavigatedPage.CoursePage,
+                                        course: course,
+                                        courseCover: pictureFile,
+                                      );
+                                    }));
+                                  }
+                                  else{
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      return AdvertisementPage(
+                                          navigatedPage: NavigatedPage.CoursePage,
+                                          course: course,
+                                          noPictureAsset: 'assets/images/noPicture.png',
+                                      );
+                                    }));
+                                  }
+                                }
+                                else{
+                                  Utility.showAdsAlertDialog(
+                                      context,
+                                      NavigatedPage.CoursePage,
+                                      course,
+                                      pictureFile,
+                                      'assets/images/noPicture.png'
+                                  );
+                                }
                               }
                             },
                             child: Padding(
@@ -732,6 +814,13 @@ class _CoursePreviewState extends State<CoursePreview> {
                                   setState(() {
                                     favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
                                   });
+
+                                if(courseStore.isAdsEnabled){
+                                  Utility.showAdsAlertDialog(
+                                    context,
+                                    NavigatedPage.AddToFavorite,
+                                  );
+                                }
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
