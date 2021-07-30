@@ -14,7 +14,7 @@ import 'package:mobile/services/course_episode_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:mobile/utilities/Utility.dart';
-import 'package:mobile/utilities/nativeAd.dart';
+import 'package:mobile/utilities/native_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
@@ -1091,14 +1091,14 @@ class _CoursePageState extends State<CoursePage> {
             child: Column(
               children: [
                 showLoadingUpAds ?
-                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
                 showLoadingDownAds ?
-                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
               ],
             ),
           ),
@@ -1113,7 +1113,7 @@ class _CoursePageState extends State<CoursePage> {
                   //     child: Image.asset('assets/images/internetdown.png')
                   // ),
                   showLoadingUpAds ?
-                    NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                   SpinKitWave(
                     type: SpinKitWaveType.center,
                     color: Color(0xFF20BFA9),
@@ -1178,7 +1178,7 @@ class _CoursePageState extends State<CoursePage> {
                     ),
                   ),
                   showLoadingDownAds ?
-                    NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
                 ]
             ),
           ),

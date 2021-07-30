@@ -22,7 +22,8 @@ import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:mobile/utilities/Utility.dart';
-import 'package:mobile/utilities/nativeAd.dart';
+import 'package:mobile/utilities/banner_ads.dart';
+import 'package:mobile/utilities/native_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'dart:ui' as ui;
@@ -467,14 +468,14 @@ class _CoursePreviewState extends State<CoursePreview> {
             child: Column(
               children: [
                 showLoadingUpAds ?
-                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
                 showLoadingDownAds ?
-                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
               ],
             ),
           ),
@@ -489,7 +490,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                   //     child: Image.asset('assets/images/internetdown.png')
                   // ),
                   showLoadingUpAds ?
-                    NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                   SpinKitWave(
                     type: SpinKitWaveType.center,
                     color: Color(0xFF20BFA9),
@@ -554,7 +555,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                     ),
                   ),
                   showLoadingDownAds ?
-                    NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
                 ]
             ),
           ),
@@ -610,6 +611,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                 body: SingleChildScrollView(
                   child: Column(
                     children: [
+                      courseStore.isAdsEnabled?
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: BannerAds(),
+                      ) :
+                      SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: Center(
@@ -850,6 +857,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                           ),
                         ),
                       ),
+                      courseStore.isAdsEnabled?
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: BannerAds(),
+                      ) :
+                      SizedBox(),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
                         child: Divider(

@@ -7,7 +7,7 @@ import 'package:mobile/services/course_service.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/shared/enums.dart';
-import 'package:mobile/utilities/nativeAd.dart';
+import 'package:mobile/utilities/native_ads.dart';
 
 class SearchResultPage extends StatefulWidget {
   SearchResultPage(this.courseName);
@@ -78,14 +78,14 @@ class _SearchResultPageState extends State<SearchResultPage> {
             child: Column(
               children: [
                 showLoadingUpAds ?
-                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
                 showLoadingDownAds ?
-                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
               ],
             ),
           ),
@@ -100,7 +100,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                   //     child: Image.asset('assets/images/internetdown.png')
                   // )
                   showLoadingUpAds ?
-                    NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                   SpinKitWave(
                     type: SpinKitWaveType.center,
                     color: Color(0xFF20BFA9),
@@ -165,7 +165,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                     ),
                   ),
                   showLoadingDownAds ?
-                    NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
                 ]
             ),
           ),
@@ -177,14 +177,14 @@ class _SearchResultPageState extends State<SearchResultPage> {
         child: Column(
           children: [
             showLoadingUpAds ?
-            NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+            NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
             SpinKitWave(
               type: SpinKitWaveType.center,
               color: Color(0xFF20BFA9),
               size: 65.0,
             ),
             showLoadingDownAds ?
-            NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+            NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
           ],
         ),
       ),

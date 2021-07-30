@@ -15,21 +15,23 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
+import 'ads_align.dart';
 
-class NativeAd extends StatefulWidget {
 
-  NativeAd(
+class NativeAds extends StatefulWidget {
+
+  NativeAds(
       //this.details,
       this.location);
   //final details;
   final location;
 
   @override
-  _NativeAd createState() => _NativeAd();
+  _NativeAds createState() => _NativeAds();
 }
 
-class _NativeAd extends State<NativeAd> {
-  var location = NativeAdLocation.HomePage;
+class _NativeAds extends State<NativeAds> {
+  var location = NativeAdsLocation.HomePage;
   String adURL = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
   String tempURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
   String redirectURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';//'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
@@ -178,27 +180,7 @@ class _NativeAd extends State<NativeAd> {
     );
   }
 
-  Widget adsAlign(){
-    return Align(
-      alignment: Alignment.topRight,
-      child: Container(
-          color: Colors.white,
-          width: 30,
-          height: 18,
-          child: Padding(
-            padding: const EdgeInsets.only(right:4.0),
-            child: Text(
-              'تبلیغ',
-              style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold
-              ),),
-          )),
-    );
-  }
-
-  Widget nativeAd(){
+  Widget nativeAds(){
       return
         !justPicture ?
         Padding(
@@ -274,7 +256,7 @@ class _NativeAd extends State<NativeAd> {
                   ],
                 ),
               ),
-              adsAlign(),
+              AdsAlign(),
             ]
           ),
         ) :
@@ -285,7 +267,7 @@ class _NativeAd extends State<NativeAd> {
                 width: width,
                 child: Image.network(tempURL, fit: BoxFit.cover,)
             ),
-            adsAlign(),
+            AdsAlign(),
           ]
         );
     }
@@ -294,6 +276,6 @@ class _NativeAd extends State<NativeAd> {
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
-    return nativeAd();
+    return nativeAds();
   }
 }

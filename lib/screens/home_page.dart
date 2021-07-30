@@ -20,7 +20,8 @@ import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/utilities/Utility.dart';
-import 'package:mobile/utilities/nativeAd.dart';
+import 'package:mobile/utilities/banner_ads.dart';
+import 'package:mobile/utilities/native_ads.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -220,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       showLoadingUpAds ?
-                        NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                        NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.all(25.0),
                         child: Image.asset(
@@ -242,7 +243,7 @@ class _HomePageState extends State<HomePage> {
                         size: 20.0,
                       ),
                       showLoadingDownAds ?
-                          NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                          NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
                     ],
                   ),
                 ),
@@ -267,7 +268,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 showLoadingUpAds ?
-                  NativeAd(NativeAdLocation.LoadingUp) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
@@ -332,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 showLoadingDownAds ?
-                  NativeAd(NativeAdLocation.LoadingDown) : SizedBox(),
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
               ]
           ),
         ),
@@ -814,7 +815,7 @@ class _HomePageState extends State<HomePage> {
                     )
                 )
             ),
-            NativeAd(NativeAdLocation.Profile)
+            NativeAds(NativeAdsLocation.Profile)
           ],
         ),
       );
@@ -836,39 +837,58 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            CarouselSlider(
-                options: CarouselOptions(
-                    height: width * 1.2,
-                    viewportFraction: 1,
-                    // aspectRatio: 1.75,
-                    reverse: false,
-                    autoPlay: true,
-                    autoPlayInterval: Duration(seconds: 5),
-                    autoPlayAnimationDuration: Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true,
-                    onPageChanged: pageChanged
-                ),
-                items: carouselSlider,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: carouselSlider.map((image) {
-                int index=carouselSlider.indexOf(image); //are changed
-                return Container(
-                  width: 8.0,
-                  height: 8.0,
-                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentSlideIndex == index
-                          ? Colors.white
-                          : Colors.white38),
-                );
-              }).toList()
-            ),
+            courseStore.isAdsEnabled?
             Padding(
-              padding: const EdgeInsets.only(right:10.0),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: BannerAds(),
+            ) :
+            SizedBox(),
+            Stack(
+              children: [
+                CarouselSlider(
+                  options: CarouselOptions(
+                      height: width * 1.2,
+                      viewportFraction: 1,
+                      // aspectRatio: 1.75,
+                      reverse: false,
+                      autoPlay: true,
+                      autoPlayInterval: Duration(seconds: 5),
+                      autoPlayAnimationDuration: Duration(milliseconds: 800),
+                      autoPlayCurve: Curves.fastOutSlowIn,
+                      enlargeCenterPage: true,
+                      onPageChanged: pageChanged
+                  ),
+                  items: carouselSlider,
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: carouselSlider.map((image) {
+                        int index=carouselSlider.indexOf(image); //are changed
+                        return Container(
+                          width: 6.0,
+                          height: 6.0,
+                          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: currentSlideIndex == index
+                                  ? Colors.black
+                                  : Colors.black38),
+                        );
+                      }).toList()
+                  ),
+                )
+              ]
+            ),
+            courseStore.isAdsEnabled?
+            Padding(
+              padding: const EdgeInsets.only(top:8, bottom: 8),
+              child: BannerAds(),
+            ) :
+            SizedBox(),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right:10),
               child: SizedBox(
                 height: 30,
                 child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 18),),
@@ -883,7 +903,7 @@ class _HomePageState extends State<HomePage> {
               children: coursesList,
               physics: ScrollPhysics(),
             ),
-            NativeAd(NativeAdLocation.HomePage),
+            NativeAds(NativeAdsLocation.HomePage),
           ],
         ),
       ),
@@ -895,6 +915,11 @@ class _HomePageState extends State<HomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: courseStore.isAdsEnabled? 130: 50,
+          flexibleSpace:
+          courseStore.isAdsEnabled?
+          BannerAds() :
+          SizedBox(),
           leading: Container(),
           bottom: TabBar(
             tabs: [
@@ -939,7 +964,7 @@ class _HomePageState extends State<HomePage> {
             ),
             courseStore.userEpisodes != null ?
               userCourses() : Container(),
-            NativeAd(NativeAdLocation.Library),
+            NativeAds(NativeAdsLocation.Library),
           ],
         ),
       );
@@ -1040,7 +1065,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          NativeAd(NativeAdLocation.Library),
+          NativeAds(NativeAdsLocation.Library),
         ],
       ),
     );
@@ -1067,7 +1092,7 @@ class _HomePageState extends State<HomePage> {
           (courseStore.userFavoriteCourses != null &&
               courseStore.userFavoriteCourses.length > 0) ?
             userFavoriteCourses() : Container(),
-          NativeAd(NativeAdLocation.Library),
+          NativeAds(NativeAdsLocation.Library),
         ],
       ),
     );

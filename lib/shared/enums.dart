@@ -45,7 +45,7 @@ enum NavigatedPage{
   AddReview
 }
 
-enum NativeAdLocation{
+enum NativeAdsLocation{
   LoadingUp,
   LoadingDown,
   HomePage,
