@@ -11,6 +11,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/favorite.dart';
+import 'package:mobile/models/progress.dart';
 import 'package:mobile/models/review.dart';
 import 'package:mobile/screens/authentication_page.dart';
 import 'package:mobile/screens/checkout_page.dart';
@@ -71,7 +73,20 @@ class _CoursePreviewState extends State<CoursePreview> {
     statisticsService.enteredCoursePage(widget.courseDetails.id);
   }
 
+  @override
+  void didChangeDependencies() async{
+    super.didChangeDependencies();
+    courseStore = Provider.of<CourseStore>(context);
+    Progress courseProgress = await courseStore.setCourseProgress(
+        widget.courseDetails.id, courseStore.token);
+    if(courseProgress != null && courseProgress.id == 0){
+      Fluttertoast.showToast(msg: 'اشکال در برقراری ارتباط با سرور');
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<List<Review>> getCourseReviews() async{
+
     pictureFile = widget.courseDetails.photoAddress != '' ?
       await DefaultCacheManager().getSingleFile(widget.courseDetails.photoAddress):
       null;
@@ -542,7 +557,9 @@ class _CoursePreviewState extends State<CoursePreview> {
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
     Course course = widget.courseDetails;
-    if(courseStore.userFavoriteCourses.contains(widget.courseDetails)) {
+    Favorite favorite = courseStore.favoriteCourses.firstWhere((element) =>
+      element.courseId == widget.courseDetails.id, orElse: () => null);
+    if(favorite != null) {
       favoriteIcon = Icons.favorite;
       favoriteButtonText = 'حذف دوره از علاقه مندی ها';
     }
@@ -697,32 +714,11 @@ class _CoursePreviewState extends State<CoursePreview> {
                             color: Color(0xFF20BFA9),
                             child: TextButton(
                               onPressed: () async {
-                                String userFavoriteCourseIds = await secureStorage
-                                    .read(key: 'UserFavoriteCourseIds');
-                                if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
-                                  Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                                  String courseId = widget.courseDetails.id.toString();
-                                  userFavoriteCourseIds == null ?
-                                  userFavoriteCourseIds = courseId :
-                                  userFavoriteCourseIds += ',' + courseId;
-                                  await secureStorage.write(
-                                      key: 'UserFavoriteCourseIds',
-                                      value: userFavoriteCourseIds);
-                                }
-                                else{
-                                  Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
-                                  List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                                  userFavoriteCourseIds = '';
-                                  favCourseIds.forEach((element) {
-                                    if(element != widget.courseDetails.id.toString())
-                                      userFavoriteCourseIds += element + ',';
-                                  });
-                                  await secureStorage.write(
-                                      key: 'UserFavoriteCourseIds',
-                                      value: userFavoriteCourseIds);
-                                }
+                                Favorite favorite = await courseStore.addToUserFavoriteCourses(widget.courseDetails);
+                                courseStore.updateUserFavoriteCourses(widget.courseDetails);
 
-                                if(courseStore.userFavoriteCourses.contains(widget.courseDetails))
+                                if(courseStore.favoriteCourses.contains(favorite))
+
                                   setState(() {
                                     favoriteButtonText = 'حذف دوره از علاقه مندی ها';
                                   });

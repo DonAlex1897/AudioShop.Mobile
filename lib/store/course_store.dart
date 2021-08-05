@@ -7,10 +7,15 @@ import 'package:mobile/models/basket.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/favorite.dart';
 import 'package:mobile/models/in_progress_course.dart';
+import 'package:mobile/models/progress.dart';
+import 'package:mobile/screens/now_playing.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:audio_manager/audio_manager.dart';
+import 'package:mobile/services/course_service.dart';
 import 'package:mobile/services/discount_service.dart';
+import 'package:mobile/services/user_service.dart';
 
 
 var audioManagerInstance = AudioManager.instance;
@@ -24,8 +29,7 @@ class CourseStore extends ChangeNotifier{
   List<CourseEpisode> _userEpisodes =[];
   List<Course> _userFavoriteCourses = [];
   int _playingEpisodeId = 0;
-  List<InProgressCourse> _inProgressCourses = [];
-
+  List<Progress> _inProgressCourses = [];
   String _userId;
   String _userName;
   String _token;
@@ -34,6 +38,8 @@ class CourseStore extends ChangeNotifier{
   String _salespersonCouponCode;
   int _salespersonDefaultDiscountPercent = 0;
   String _supportPhoneNumber = '';
+  List<Favorite> _favoriteCourses = [];
+
 
   CourseStore(){
     notifyListeners();
@@ -46,17 +52,16 @@ class CourseStore extends ChangeNotifier{
   List<CourseEpisode> get userEpisodes => _userEpisodes;
   List<Course> get userFavoriteCourses => _userFavoriteCourses;
   int get playingEpisodeId => _playingEpisodeId;
-  List<InProgressCourse> get inProgressCourses => _inProgressCourses;
-
+  List<Progress> get inProgressCourses => _inProgressCourses;
   String get userId => _userId;
   String get userName => _userName;
   String get token => _token;
   bool get isLoggedIn => _isLoggedIn;
   bool get hasPhoneNumber => _hasPhoneNumber;
   String get salespersonCouponCode => _salespersonCouponCode;
-
   int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
   String get supportPhoneNumber => _supportPhoneNumber;
+  List<Favorite> get favoriteCourses => _favoriteCourses;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -160,68 +165,159 @@ class CourseStore extends ChangeNotifier{
       this._supportPhoneNumber = config.value;
   }
 
-  bool addToUserFavoriteCourses(Course course){
-    Course repetitiveCourse = this._userFavoriteCourses
-        .firstWhere((element) => element.id == course.id, orElse: () => null);
-    if(repetitiveCourse == null) {
-      this._userFavoriteCourses.add(course);
-      return true;
-    }
-    else{
-      this._userFavoriteCourses.remove(repetitiveCourse);
-      return false;
-    }
-  }
-
-  updateInProgressCourses(int courseId, int episodeSortNumber, int waitingTime){
-      InProgressCourse testInProgressEpisode = this._inProgressCourses
-          .firstWhere((element) => element.courseId == courseId, orElse: () => null);
-      DateTime currentTime = DateTime.now();
-      if(testInProgressEpisode != null){
-        this._inProgressCourses.firstWhere((element) => element.courseId == courseId)
-          .lastFinishedEpisodeSortNumber = episodeSortNumber;
-        this._inProgressCourses.firstWhere((element) => element.courseId == courseId)
-            .lastFinishedEpisodeTime = currentTime;
-      }
-      else{
-        InProgressCourse newInProgressEpisode = InProgressCourse(
-          courseId: courseId,
-          lastFinishedEpisodeSortNumber: episodeSortNumber,
-          waitingTimeBetweenEpisodes: waitingTime,
-          lastFinishedEpisodeTime: currentTime,
-        );
-        this._inProgressCourses.add(newInProgressEpisode);
-      }
-  }
-
-  bool isEpisodeAccessible(int courseId, int episodeSortNumber, int waitingTime){
-    InProgressCourse testInProgressEpisode = this._inProgressCourses
+  Future<Progress> setCourseProgress(int courseId, String token) async{
+    Progress tempInProgressEpisode = this._inProgressCourses
         .firstWhere((element) => element.courseId == courseId, orElse: () => null);
-    if(testInProgressEpisode == null && episodeSortNumber != 0){
+    if(tempInProgressEpisode == null){
+      UserService userService = UserService();
+      Progress progress = await userService.getCourseProgress(courseId, token);
+      if(progress != null && progress.id != 0)
+        this._inProgressCourses.add(progress);
+    }
+    return _inProgressCourses
+        .firstWhere((element) => element.courseId == courseId, orElse: () => null);
+  }
+
+  bool isEpisodeAccessible(int courseId, int episodeSortNumber, bool shouldWaitOneDay){
+    Progress tempInProgressEpisode = this._inProgressCourses
+        .firstWhere((element) => element.courseId == courseId, orElse: () => null);
+    if(tempInProgressEpisode == null && episodeSortNumber != 0){
       Fluttertoast.showToast(msg: 'لطفا دوره را از ابتدا شروع کنید');
       return false;
     }
-    else if(testInProgressEpisode != null){
-      int sortDifference = episodeSortNumber - testInProgressEpisode.lastFinishedEpisodeSortNumber;
-      String nextEpisode = (testInProgressEpisode.lastFinishedEpisodeSortNumber + 2).toString();
+    else if(tempInProgressEpisode != null){
+      int sortDifference = episodeSortNumber - tempInProgressEpisode.lastIndex;
+      String nextEpisode = (tempInProgressEpisode.lastIndex + 2).toString();
       if(sortDifference > 0){
         if(sortDifference > 1){
           Fluttertoast.showToast(msg: 'هنوز قسمت $nextEpisode را گوش نداده اید');
           return false;
         }
-        else{
+        else if (shouldWaitOneDay){
           DateTime currentTime = DateTime.now();
-          int timeElapsedSinceLastEpisode = currentTime
-              .difference(testInProgressEpisode.lastFinishedEpisodeTime).inHours;
-          if(timeElapsedSinceLastEpisode < waitingTime){
-            int remainedTimeToWait = waitingTime - timeElapsedSinceLastEpisode;
-            Fluttertoast.showToast(msg: 'زمان انتظار بین هر دو قسمت در این دوره، $waitingTime است.'
-                ' این قسمت $remainedTimeToWait ساعت دیگر در دسترس شما قرار میگیرد');
+          if(currentTime.day <= tempInProgressEpisode.lastListened.day){
+            Fluttertoast.showToast(msg: 'این دوره به صورت روزانه تعریف شده است. '
+                'هر روز فقط یک قسمت را می توانید گوش کنید.');
             return false;
           }
         }
       }
     }
     return true;
+  }
+
+  bool isEpisodePlayedBefore(CourseEpisode episode){
+    Progress tempInProgressEpisode = this._inProgressCourses
+        .firstWhere((element) => element.courseId == episode.courseId, orElse: () => null);
+    if(tempInProgressEpisode != null && tempInProgressEpisode.lastIndex >= episode.sort){
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> updateCourseProgress(int courseId, int episodeId, int episodeSortNumber) async{
+    Progress tempInProgressEpisode = this._inProgressCourses
+        .firstWhere((element) => element.courseId == courseId, orElse: () => null);
+    DateTime currentTime = DateTime.now();
+    if(tempInProgressEpisode != null){
+      Progress progress = Progress(
+        id: tempInProgressEpisode.id,
+        userId: tempInProgressEpisode.userId,
+        courseId: tempInProgressEpisode.courseId,
+        lastEpisodeId: episodeId,
+        lastIndex: episodeSortNumber,
+        lastListened: currentTime
+      );
+
+      UserService userService = UserService();
+      if(!await userService.updateCourseProgress(
+          courseId,
+          progress,
+          token)){
+        Fluttertoast.showToast(msg: 'مشکل در ارتباط با سرور. لطفا مجددا تلاش کنید.');
+        return false;
+      }
+      this._inProgressCourses.removeWhere((element) => element.courseId == courseId);
+      this._inProgressCourses.add(progress);
+      return true;
+    }
+    else{
+      Progress newInProgressEpisode = Progress(
+        userId: _userId,
+        courseId: courseId,
+        lastIndex: episodeSortNumber,
+        lastEpisodeId: episodeId,
+        lastListened: currentTime,
+      );
+      UserService userService = UserService();
+      Progress progress = await userService.createCourseProgress(
+          courseId,
+          newInProgressEpisode,
+          token);
+      if(progress != null && progress.id == 0){
+        Fluttertoast.showToast(msg: 'مشکل در ارتباط با سرور. لطفا مجددا تلاش کنید.');
+        return false;
+      }
+      newInProgressEpisode.id = progress.id;
+      this._inProgressCourses.add(newInProgressEpisode);
+      return true;
+    }
+  }
+
+  Future setUserFavoriteCourses(List<Favorite> favorites) async{
+    CourseData courseData = CourseData();
+    if(favorites != null && favorites.length > 0){
+      favorites.forEach((element) async {
+        Course course = await courseData.getCourseById(element.courseId);
+        this._userFavoriteCourses.add(course);
+        this._favoriteCourses.add(element);
+      });
+    }
+  }
+
+  Future<Favorite> addToUserFavoriteCourses(Course course) async{
+    UserService userService = UserService();
+    Favorite repetitiveFavorite = this._favoriteCourses
+        .firstWhere((element) => element.courseId == course.id, orElse: () => null);
+
+    if(repetitiveFavorite == null) {
+      Favorite favorite = Favorite(
+        userId: this._userId,
+        courseId: course.id
+      );
+      Favorite finalFavorite = await userService.addCourseToUserFavorites(favorite, token);
+      if(finalFavorite == null){
+        Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. لطفا'
+            'مجدد تلاش کنید');
+        return null;
+      }
+      // this._userFavoriteCourses.add(course);
+      this._favoriteCourses.add(finalFavorite);
+      Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
+      return finalFavorite;
+    }
+    else {
+      if(!await userService.deleteCourseFromUserFavorites(repetitiveFavorite.id, token)){
+        Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. لطفا'
+            'مجدد تلاش کنید');
+        return null;
+      }
+      // this._userFavoriteCourses.remove(course);
+      this._favoriteCourses.remove(repetitiveFavorite);
+      Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
+      return repetitiveFavorite;
+    }
+  }
+
+  updateUserFavoriteCourses(Course course){
+    Course repetitiveFavoriteCourse = this._userFavoriteCourses
+        .firstWhere((element) => element.id == course.id, orElse: () => null);
+
+    if(repetitiveFavoriteCourse == null){
+      this._userFavoriteCourses.add(course);
+    }
+    else{
+      this._userFavoriteCourses.remove(course);
+    }
   }
 }

@@ -19,6 +19,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:mobile/services/statistics_service.dart';
+import 'package:mobile/services/user_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() async{
     courseStore = Provider.of<CourseStore>(context);
     courseData = CourseData();
     if(courses == null)
@@ -939,7 +940,7 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text((courseStore.userFavoriteCourses != null && courseStore.userFavoriteCourses.length > 0) ?
+                    Text((courseStore.favoriteCourses != null && courseStore.favoriteCourses.length > 0) ?
                     'دوره های مورد علاقه شما' : 'هنوز دوره ای را به علاقه مندی های خود اضافه نکرده اید',
                       style: TextStyle(fontSize: 18),
                     ),
@@ -1022,19 +1023,20 @@ class _HomePageState extends State<HomePage> {
                                 await showBasketAlertDialog(context, alertD);
 
                                 if(alertReturn){
-                                  String userFavoriteCourseIds = await secureStorage
-                                      .read(key: 'UserFavoriteCourseIds');
-                                  List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                                  userFavoriteCourseIds = '';
-                                  favCourseIds.forEach((element) {
-                                    if(element != userFavoriteCourses[index].id.toString())
-                                      userFavoriteCourseIds += element + ',';
-                                  });
-                                  await secureStorage.write(
-                                      key: 'UserFavoriteCourseIds',
-                                      value: userFavoriteCourseIds);
+                                  // String userFavoriteCourseIds = await secureStorage
+                                  //     .read(key: 'UserFavoriteCourseIds');
+                                  // List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                                  // userFavoriteCourseIds = '';
+                                  // favCourseIds.forEach((element) {
+                                  //   if(element != userFavoriteCourses[index].id.toString())
+                                  //     userFavoriteCourseIds += element + ',';
+                                  // });
+                                  // await secureStorage.write(
+                                  //     key: 'UserFavoriteCourseIds',
+                                  //     value: userFavoriteCourseIds);
+                                  await courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
                                   setState(() {
-                                    courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
+                                    courseStore.updateUserFavoriteCourses(userFavoriteCourses[index]);
                                   });
                                 }
                               },
@@ -1092,7 +1094,7 @@ class _HomePageState extends State<HomePage> {
     List<Course> userCourses = [];
     courseStore.userEpisodes.forEach((episode) {
       var tempCourse = courseStore.courses
-          .firstWhere((course) => course.id == episode.courseId);
+          .firstWhere((course) => course.id == episode.courseId, orElse: () => null);
       if(!userCourses.contains(tempCourse))
         userCourses.add(tempCourse);
     });
@@ -1204,22 +1206,30 @@ class _HomePageState extends State<HomePage> {
     String token = await secureStorage.read(key: 'token');
     String hasPhoneNumber = await secureStorage.read(key: 'hasPhoneNumber');
     String salespersonCouponCode = await secureStorage.read(key: 'salespersonCouponCode');
-    String userFavoriteCourseIds = await secureStorage.read(key: 'UserFavoriteCourseIds');
-    if(userFavoriteCourseIds != null && userFavoriteCourseIds.length > 0){
-      List<String> userFavoriteCourseIdList = userFavoriteCourseIds.split(',');
-      userFavoriteCourseIdList.forEach((courseId) async {
-        if(courseId != null && courseId != '0' && courseId != ''){
-          Course userFavoriteCourse = await courseData.getCourseById(int.parse(courseId));
-          courseStore.addToUserFavoriteCourses(userFavoriteCourse);
-        }
-      });
-    }
+    // String userFavoriteCourseIds = await secureStorage.read(key: 'UserFavoriteCourseIds');
+    // if(userFavoriteCourseIds != null && userFavoriteCourseIds.length > 0){
+    //   List<String> userFavoriteCourseIdList = userFavoriteCourseIds.split(',');
+    //   userFavoriteCourseIdList.forEach((courseId) async {
+    //     if(courseId != null && courseId != '0' && courseId != ''){
+    //       Course userFavoriteCourse = await courseData.getCourseById(int.parse(courseId));
+    //       courseStore.addToUserFavoriteCourses(userFavoriteCourse);
+    //     }
+    //   });
+    // }
     if (token != null && token.isNotEmpty && !courseStore.isTokenExpired(token))
       await courseStore.setUserDetails(token, hasPhoneNumber.toLowerCase() == 'true', salespersonCouponCode);
     else if(courseStore.isTokenExpired(token)){
       await secureStorage.write(key: 'token', value: '');
       await secureStorage.write(key: 'hasPhoneNumber', value: 'false');
       await courseStore.setUserDetails('', false, '');
+    }
+
+    UserService userService = UserService();
+    if(courseStore.favoriteCourses == null ||
+        courseStore.favoriteCourses.length == 0){
+      courseStore.setUserFavoriteCourses(
+          await userService.getUserFavoriteCourses(courseStore.token)
+      );
     }
   }
 

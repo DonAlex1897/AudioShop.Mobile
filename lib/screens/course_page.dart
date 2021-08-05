@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/favorite.dart';
 import 'package:mobile/screens/now_playing.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:mobile/services/course_episode_service.dart';
@@ -209,18 +210,7 @@ class _CoursePageState extends State<CoursePage> {
           await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
         }
         else{
-          if(await isEpisodeAccessible(
-              episode.courseId,
-              episode.sort,
-              course.waitingTimeBetweenEpisodes))
-          {
-            if(!(await isEpisodePlayedBefore(episode)))
-              await writeInProgressCourseInCache(episode);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return NowPlaying(episode, course.photoAddress);
-                }));
-          }
+          await navigateToPlayer(episode, course);
         }
       }
       else {
@@ -297,35 +287,33 @@ class _CoursePageState extends State<CoursePage> {
             await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
           }
           else{
-            if(await isEpisodeAccessible(
-                episode.courseId,
-                episode.sort,
-                course.waitingTimeBetweenEpisodes))
-            {
-              if(!(await isEpisodePlayedBefore(episode)))
-                await writeInProgressCourseInCache(episode);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) {
-                    return NowPlaying(episode, course.photoAddress);
-                  }));
-            }
+            await navigateToPlayer(episode, course);
           }
         }
       }
     }
     else{
-      if(await isEpisodeAccessible(
+      await navigateToPlayer(episode, course);
+    }
+  }
+
+  navigateToPlayer(CourseEpisode episode, Course course) async{
+    if(courseStore.isEpisodeAccessible(
+        episode.courseId,
+        episode.sort,
+        course.waitingTimeBetweenEpisodes == 1))
+    {
+      bool updatedSuccessfully = true;
+      if(!courseStore.isEpisodePlayedBefore(episode))
+        updatedSuccessfully = await courseStore.updateCourseProgress(
           episode.courseId,
-          episode.sort,
-          course.waitingTimeBetweenEpisodes))
-      {
-        if(!(await isEpisodePlayedBefore(episode)))
-          await writeInProgressCourseInCache(episode);
+          episode.id,
+          episode.sort);
+      if(updatedSuccessfully)
         Navigator.push(context,
             MaterialPageRoute(builder: (context) {
               return NowPlaying(episode, course.photoAddress);
             }));
-      }
     }
   }
 
@@ -611,30 +599,8 @@ class _CoursePageState extends State<CoursePage> {
                   flex: 1,
                   child: IconButton(
                     onPressed: () async {
-                      String userFavoriteCourseIds = await secureStorage
-                          .read(key: 'UserFavoriteCourseIds');
-                      if(courseStore.addToUserFavoriteCourses(widget.courseDetails)){
-                        Fluttertoast.showToast(msg: 'دوره به علاقه مندی های شما افزوده شد');
-                        String courseId = widget.courseDetails.id.toString();
-                        userFavoriteCourseIds == null ?
-                        userFavoriteCourseIds = courseId :
-                        userFavoriteCourseIds += ',' + courseId;
-                        await secureStorage.write(
-                            key: 'UserFavoriteCourseIds',
-                            value: userFavoriteCourseIds);
-                      }
-                      else{
-                        Fluttertoast.showToast(msg: 'دوره از علاقه مندی های شما حذف شد');
-                        List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                        userFavoriteCourseIds = '';
-                        favCourseIds.forEach((element) {
-                          if(element != widget.courseDetails.id.toString())
-                            userFavoriteCourseIds += element + ',';
-                        });
-                        await secureStorage.write(
-                            key: 'UserFavoriteCourseIds',
-                            value: userFavoriteCourseIds);
-                      }
+                      Favorite favorite = await courseStore.addToUserFavoriteCourses(widget.courseDetails);
+                      courseStore.updateUserFavoriteCourses(widget.courseDetails);
                     },
                     icon: Icon(
                       Icons.favorite_border,

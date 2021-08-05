@@ -139,6 +139,8 @@ class _NowPlayingState extends State<NowPlaying> {
   }
 
   Future<dynamic> setAudioFile() async{
+
+
     pictureFile = widget.courseCoverUrl != '' ?
       await DefaultCacheManager().getSingleFile(widget.courseCoverUrl):
       null;
