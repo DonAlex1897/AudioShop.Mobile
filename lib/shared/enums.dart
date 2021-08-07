@@ -52,3 +52,10 @@ enum NativeAdsLocation{
   Library,
   Profile,
 }
+
+enum CourseType
+{
+  None,
+  Course,
+  AudioBook
+}

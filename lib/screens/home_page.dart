@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +24,7 @@ import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/services/user_service.dart';
 import 'package:mobile/utilities/Utility.dart';
 import 'package:mobile/utilities/banner_ads.dart';
+import 'package:mobile/utilities/course_card.dart';
 import 'package:mobile/utilities/native_ads.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -81,6 +84,9 @@ class _HomePageState extends State<HomePage> {
   bool showLibraryAds = false;
   bool showProfileAds = false;
   bool showAdsInPopUp = true;
+  Future<List<Course>> topClickedCoursesFuture;
+  List<Course> topClickedCourses = [];
+  List<File> picFiles = [];
 
   @override
   void setState(fn) {
@@ -106,8 +112,19 @@ class _HomePageState extends State<HomePage> {
     courseData = CourseData();
     if(courses == null)
       courses = getCourses();
+    topClickedCoursesFuture = getTopClickedCoursesFuture();
     loginStatement();
     super.didChangeDependencies();
+  }
+
+  Future<List<Course>> getTopClickedCoursesFuture() async {
+    topClickedCourses = await courseData.getTopClickedCourses(CourseType.Course);
+    topClickedCourses.forEach((element) async {
+      File picFile = await DefaultCacheManager()
+          .getSingleFile(element.photoAddress);
+      picFiles.add(picFile);
+    });
+    return topClickedCourses;
   }
 
   Future setFirstTimeTrue() async{
@@ -673,7 +690,7 @@ class _HomePageState extends State<HomePage> {
             notRegisteredPhoneNumber(),
             SizedBox(
               height: 80,
-              width: width,
+              width: width * 2,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white24,
@@ -888,6 +905,20 @@ class _HomePageState extends State<HomePage> {
               child: BannerAds(),
             ) :
             SizedBox(),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right:10),
+              child: SizedBox(
+                height: 30,
+                child: Text('پرطرفدارترین دوره ها', style: TextStyle(fontSize: 18),),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: width * 2,
+                height: 250,
+                child: CourseCard(topClickedCoursesFuture, topClickedCourses, picFiles)),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 10, right:10),
               child: SizedBox(

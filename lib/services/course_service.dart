@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/review.dart';
 import 'package:mobile/models/slider_item.dart';
+import 'package:mobile/shared/enums.dart';
 import 'package:mobile/shared/global_variables.dart';
 
 class CourseData{
@@ -21,6 +22,30 @@ class CourseData{
         var courseMap = jsonDecode(data);
         List<Course> coursesList = List<Course>();
         for(var course in courseMap['items']){
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
+        }
+        return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Course>> getTopClickedCourses(CourseType courseType) async{
+    try{
+      http.Response response = await http
+          .get(coursesUrl + '/topclicked?courseType=${courseType.index}');
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        List<Course> coursesList = List<Course>();
+        for(var course in courseMap){
           coursesList.add(Course.fromJson(course, coursePhotoUrl));
         }
         return coursesList;
