@@ -6,6 +6,8 @@ import 'package:mobile/screens/course_preview.dart';
 import 'package:mobile/services/course_service.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/shared/enums.dart';
+import 'package:mobile/utilities/native_ads.dart';
 
 class SearchResultPage extends StatefulWidget {
   SearchResultPage(this.courseName);
@@ -27,6 +29,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
   Widget appBarTitle = new Text("اِستارشو");
   Icon actionIcon = new Icon(Icons.search);
   bool isVpnConnected = false;
+  bool showLoadingUpAds = false;
+  bool showLoadingDownAds = false;
 
   @override
   void initState() {
@@ -69,56 +73,140 @@ class _SearchResultPageState extends State<SearchResultPage> {
     return isFirstSearch ?
     Scaffold(
         body: !isTakingMuchTime ?
-        SpinKitWave(
-          type: SpinKitWaveType.center,
-          color: Color(0xFF20BFA9),
-          size: 65.0,
-        ) :
         Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                // Container(
-                //     width: MediaQuery.of(context).size.width * 0.7,
-                //     child: Image.asset('assets/images/internetdown.png')
-                // )
+                showLoadingUpAds ?
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
+                showLoadingDownAds ?
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+              ],
+            ),
+          ),
+        ) :
+        Center(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Container(
+                  //     width: MediaQuery.of(context).size.width * 0.7,
+                  //     child: Image.asset('assets/images/internetdown.png')
+                  // )
+                  showLoadingUpAds ?
+                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                  SpinKitWave(
+                    type: SpinKitWaveType.center,
+                    color: Color(0xFF20BFA9),
+                    size: 65.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(//!isVpnConnected ?
+                      'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                      //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                      'جهت تجربه سرعت بهتر،',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Text(//!isVpnConnected ? '' :
+                      'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        isTakingMuchTime = false;
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => super.widget));
+                      });
+                    },
+                    child: Card(
+                      color: Color(0xFF20BFA9),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'تلاش مجدد',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18
+                          ),),
+                      ),
+                    ),
+                  ),
+                  showLoadingDownAds ?
+                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                ]
+            ),
+          ),
+        )
+    ) :
+    (!isTakingMuchTime ?
+    Center(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            showLoadingUpAds ?
+            NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+            SpinKitWave(
+              type: SpinKitWaveType.center,
+              color: Color(0xFF20BFA9),
+              size: 65.0,
+            ),
+            showLoadingDownAds ?
+            NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+          ],
+        ),
+      ),
+    ) :
+      Center(
+        child: SingleChildScrollView(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Image.asset('assets/images/internetdown.png')
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(//!isVpnConnected ?
-                    'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                    //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                  child: Text(!isVpnConnected ?
+                    'لطفا اتصال اینترنت خود را بررسی کنید' :
+                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'جهت تجربه سرعت بهتر،',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -147,58 +235,6 @@ class _SearchResultPageState extends State<SearchResultPage> {
                 )
               ]
           ),
-        )
-    ) :
-    (!isTakingMuchTime ?
-      SpinKitWave(
-        type: SpinKitWaveType.center,
-        color: Color(0xFF20BFA9),
-        size: 65.0,
-      ) :
-      Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Image.asset('assets/images/internetdown.png')
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(!isVpnConnected ?
-                  'لطفا اتصال اینترنت خود را بررسی کنید' :
-                  'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: (){
-                  setState(() {
-                    isTakingMuchTime = false;
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => super.widget));
-                  });
-                },
-                child: Card(
-                  color: Color(0xFF20BFA9),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'تلاش مجدد',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18
-                      ),),
-                  ),
-                ),
-              )
-            ]
         ),
       ));
   }

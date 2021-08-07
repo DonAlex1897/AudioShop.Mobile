@@ -20,6 +20,9 @@ import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/services/user_service.dart';
+import 'package:mobile/utilities/Utility.dart';
+import 'package:mobile/utilities/banner_ads.dart';
+import 'package:mobile/utilities/native_ads.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -29,7 +32,9 @@ import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'add_salesperson_coupon_code.dart';
+import 'advertisement_page.dart';
 import 'course_page.dart';
+import 'psychological_tests_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage(this.currentVersion);
@@ -70,6 +75,12 @@ class _HomePageState extends State<HomePage> {
   Icon actionIcon = new Icon(Icons.search);
   bool isVpnConnected = false;
   StatisticsService statisticsService = StatisticsService();
+  bool showLoadingUpAds = false;
+  bool showLoadingDownAds = false;
+  bool showHomePageAds = false;
+  bool showLibraryAds = false;
+  bool showProfileAds = false;
+  bool showAdsInPopUp = true;
 
   @override
   void setState(fn) {
@@ -205,30 +216,38 @@ class _HomePageState extends State<HomePage> {
           children: [
             Expanded(
               flex: 20,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(25.0),
-                    child: Image.asset(
-                      'assets/images/appMainIcon.png',
-                      width: MediaQuery.of(context).size.width * 0.2,
-                    ),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      showLoadingUpAds ?
+                        NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                      Padding(
+                        padding: const EdgeInsets.all(25.0),
+                        child: Image.asset(
+                          'assets/images/appMainIcon.png',
+                          width: MediaQuery.of(context).size.width * 0.2,
+                        ),
+                      ),
+                      Text(
+                        'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      Text(
+                        'با اِستارشو، ستاره شو',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SpinKitWave(
+                        type: SpinKitWaveType.center,
+                        color: Color(0xFF20BFA9),
+                        size: 20.0,
+                      ),
+                      showLoadingDownAds ?
+                          NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                    ],
                   ),
-                  Text(
-                    'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Text(
-                    'با اِستارشو، ستاره شو',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SpinKitWave(
-                    type: SpinKitWaveType.center,
-                    color: Color(0xFF20BFA9),
-                    size: 20.0,
-                  ),
-                ],
+                ),
               ),
             ),
             Expanded(
@@ -245,73 +264,79 @@ class _HomePageState extends State<HomePage> {
         ),
       ) :
       Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SpinKitWave(
-                type: SpinKitWaveType.center,
-                color: Color(0xFF20BFA9),
-                size: 65.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(//!isVpnConnected ?
-                  'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                  //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                child: Text(//!isVpnConnected ? '' :
-                  'جهت تجربه سرعت بهتر،',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                child: Text(//!isVpnConnected ? '' :
-                  'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: (){
-                  setState(() {
-                    isTakingMuchTime = false;
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => super.widget));
-                  });
-                },
-                child: Card(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                showLoadingUpAds ?
+                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                SpinKitWave(
+                  type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'تلاش مجدد',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18
-                      ),),
+                  size: 65.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(//!isVpnConnected ?
+                    'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                    //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
+                    ),
                   ),
                 ),
-              )
-            ]
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                  child: Text(//!isVpnConnected ? '' :
+                    'جهت تجربه سرعت بهتر،',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                  child: Text(//!isVpnConnected ? '' :
+                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      isTakingMuchTime = false;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => super.widget));
+                    });
+                  },
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'تلاش مجدد',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18
+                        ),),
+                    ),
+                  ),
+                ),
+                showLoadingDownAds ?
+                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+              ]
+          ),
         ),
       )
     ) ;
@@ -396,9 +421,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   goToCoursePreview(Course course){
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CoursePreview(course);
-    }));
+    if(!courseStore.isAdsEnabled){
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return CoursePreview(course);
+      }));
+    }
+    else{
+      if(!showAdsInPopUp){
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AdvertisementPage(
+            navigatedPage: NavigatedPage.CoursePreview,
+            course: course,
+          );
+        }));
+      }
+      else{
+        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview, course);
+      }
+    }
   }
 
   Future updateUI(List<Course> coursesData, List<SliderItem> sliderItems) async {
@@ -571,162 +611,215 @@ class _HomePageState extends State<HomePage> {
 
   Widget profile(){
     return (courseStore.token == null || courseStore.token == '') ?
-      notLoggedInWidget() : SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 90,
-            child: Card(
-              color: Color(0xFF202028),
-              elevation: 20,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 1,
-                    child: Icon(
-                      Icons.person_pin,
-                      size: 50,
-                      color: Colors.white,
+      notLoggedInWidget() : SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 90,
+              child: Card(
+                color: Color(0xFF202028),
+                elevation: 20,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 1,
+                      child: Icon(
+                        Icons.person_pin,
+                        size: 50,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    flex: courseStore.hasPhoneNumber ? 4 : 3,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                      child: Text(courseStore.userName),
+                    Expanded(
+                      flex: courseStore.hasPhoneNumber ? 4 : 3,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                        child: Text(courseStore.userName),
+                      ),
                     ),
-                  ),
-                  registerPhoneButton(),
-                  Expanded(
-                    flex: 2,
-                    child: TextButton(
-                        onPressed: () async {
-                          Widget cancelB = cancelButton('خیر');
-                          Widget continueB =
-                          continueButton('بله', Alert.LogOut, null);
-                          AlertDialog alertD = alert('هشدار',
-                              'میخواهید از برنامه خارج شوید؟',
-                              [cancelB, continueB]);
+                    registerPhoneButton(),
+                    Expanded(
+                      flex: 2,
+                      child: TextButton(
+                          onPressed: () async {
+                            Widget cancelB = cancelButton('خیر');
+                            Widget continueB =
+                            continueButton('بله', Alert.LogOut, null);
+                            AlertDialog alertD = alert('هشدار',
+                                'میخواهید از برنامه خارج شوید؟',
+                                [cancelB, continueB]);
 
-                          await showBasketAlertDialog(context, alertD);
+                            await showBasketAlertDialog(context, alertD);
 
-                          if(alertReturn){
-                            await logOut();
-                          }
-                          alertReturn = false;
+                            if(alertReturn){
+                              await logOut();
+                            }
+                            alertReturn = false;
 
-                          setState(() {
-                            navigationSelect(1);
-                          });
-                        },
-                        child: Card(
-                          color: Colors.red[700],
-                          child: Center(child: Text('خروج')),
-                        )
+                            setState(() {
+                              navigationSelect(1);
+                            });
+                          },
+                          child: Card(
+                            color: Colors.red[700],
+                            child: Center(child: Text('خروج')),
+                          )
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          notRegisteredPhoneNumber(),
-          SizedBox(
-            height: 80,
-            width: width,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.white,
-                    ),
-                  ),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context){
-                        return AddSalesPersonCouponCode();
-                      })
-                  );
-                },
-                child: Text(
-                  'ثبت کد معرف',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  )
-                ),
-              )
-            )
-          ),
-          SizedBox(
+            notRegisteredPhoneNumber(),
+            SizedBox(
               height: 80,
               width: width,
               child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
                     border: Border(
                       bottom: BorderSide(
                         color: Colors.white,
                       ),
                     ),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    if(!courseStore.isAdsEnabled){
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context){
-                            return SupportPage();
+                            return AddSalesPersonCouponCode();
                           })
                       );
-                    },
-                    child: Text(
-                        'پشتیبانی',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        )
-                    ),
-                  )
+                    }
+                    else{
+                      if(!showAdsInPopUp){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return AdvertisementPage(
+                            navigatedPage: NavigatedPage.AddSalesPersonCouponCode,
+                          );
+                        }));
+                      }
+                      else{
+                        Utility.showAdsAlertDialog(
+                            context,
+                            NavigatedPage.AddSalesPersonCouponCode,
+                        );
+                      }
+                    }
+                  },
+                  child: Text(
+                    'ثبت کد معرف',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    )
+                  ),
+                )
               )
-          ),
-          SizedBox(
-              height: 80,
-              width: width,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.white,
+            ),
+            SizedBox(
+                height: 80,
+                width: width,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      // Navigator.push(context,
-                      //     MaterialPageRoute(builder: (context){
-                      //       return PsychologicalTestsPage();
-                      //     })
-                      // );
-                      Fluttertoast.showToast(
-                          msg: 'این قسمت به زودی بارگذاری خواهد شد'
-                      );
-                    },
-                    child: Text(
-                        'تست های روانشناسی',
-                        style: TextStyle(
+                    child: TextButton(
+                      onPressed: () {
+                        if(!courseStore.isAdsEnabled){
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context){
+                                return SupportPage();
+                              })
+                          );
+                        }
+                        else{
+                          if(!showAdsInPopUp){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return AdvertisementPage(
+                                navigatedPage: NavigatedPage.SupportPage,
+                              );
+                            }));
+                          }
+                          else{
+                            Utility.showAdsAlertDialog(
+                              context,
+                              NavigatedPage.SupportPage,
+                            );
+                          }
+                        }
+                      },
+                      child: Text(
+                          'پشتیبانی',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )
+                      ),
+                    )
+                )
+            ),
+            SizedBox(
+                height: 80,
+                width: width,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      border: Border(
+                        bottom: BorderSide(
                           color: Colors.white,
-                          fontSize: 20,
-                        )
+                        ),
+                      ),
                     ),
-                  )
-              )
-          ),
-        ],
-      ),
-    );
+                    child: TextButton(
+                      onPressed: () {
+                        // if(!courseStore.isAdsEnabled){
+                        //   Navigator.push(context,
+                        //       MaterialPageRoute(builder: (context){
+                        //         return PsychologicalTestsPage();
+                        //       })
+                        //   );
+                        // }
+                        // else{
+                        //   if(!showAdsInPopUp){
+                        //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        //       return AdvertisementPage(
+                        //         navigatedPage: NavigatedPage.PsychologicalTests,
+                        //       );
+                        //     }));
+                        //   }
+                        //   else{
+                        //     Utility.showAdsAlertDialog(
+                        //       context,
+                        //       NavigatedPage.PsychologicalTests,
+                        //     );
+                        //   }
+                        // }
+
+                        Fluttertoast.showToast(
+                            msg: 'این قسمت به زودی بارگذاری خواهد شد'
+                        );
+                      },
+                      child: Text(
+                          'تست های روانشناسی',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )
+                      ),
+                    )
+                )
+            ),
+            NativeAds(NativeAdsLocation.Profile)
+          ],
+        ),
+      );
   }
 
   search(String searchElement){
@@ -745,39 +838,58 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            CarouselSlider(
-                options: CarouselOptions(
-                    height: width * 1.2,
-                    viewportFraction: 1,
-                    // aspectRatio: 1.75,
-                    reverse: false,
-                    autoPlay: true,
-                    autoPlayInterval: Duration(seconds: 5),
-                    autoPlayAnimationDuration: Duration(milliseconds: 800),
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true,
-                    onPageChanged: pageChanged
-                ),
-                items: carouselSlider,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: carouselSlider.map((image) {
-                int index=carouselSlider.indexOf(image); //are changed
-                return Container(
-                  width: 8.0,
-                  height: 8.0,
-                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentSlideIndex == index
-                          ? Colors.white
-                          : Colors.white38),
-                );
-              }).toList()
-            ),
+            courseStore.isAdsEnabled?
             Padding(
-              padding: const EdgeInsets.only(right:10.0),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: BannerAds(),
+            ) :
+            SizedBox(),
+            Stack(
+              children: [
+                CarouselSlider(
+                  options: CarouselOptions(
+                      height: width * 1.2,
+                      viewportFraction: 1,
+                      // aspectRatio: 1.75,
+                      reverse: false,
+                      autoPlay: true,
+                      autoPlayInterval: Duration(seconds: 5),
+                      autoPlayAnimationDuration: Duration(milliseconds: 800),
+                      autoPlayCurve: Curves.fastOutSlowIn,
+                      enlargeCenterPage: true,
+                      onPageChanged: pageChanged
+                  ),
+                  items: carouselSlider,
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: carouselSlider.map((image) {
+                        int index=carouselSlider.indexOf(image); //are changed
+                        return Container(
+                          width: 6.0,
+                          height: 6.0,
+                          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: currentSlideIndex == index
+                                  ? Colors.black
+                                  : Colors.black38),
+                        );
+                      }).toList()
+                  ),
+                )
+              ]
+            ),
+            courseStore.isAdsEnabled?
+            Padding(
+              padding: const EdgeInsets.only(top:8, bottom: 8),
+              child: BannerAds(),
+            ) :
+            SizedBox(),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right:10),
               child: SizedBox(
                 height: 30,
                 child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 18),),
@@ -792,6 +904,7 @@ class _HomePageState extends State<HomePage> {
               children: coursesList,
               physics: ScrollPhysics(),
             ),
+            NativeAds(NativeAdsLocation.HomePage),
           ],
         ),
       ),
@@ -803,6 +916,11 @@ class _HomePageState extends State<HomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: courseStore.isAdsEnabled? 130: 50,
+          flexibleSpace:
+          courseStore.isAdsEnabled?
+          BannerAds() :
+          SizedBox(),
           leading: Container(),
           bottom: TabBar(
             tabs: [
@@ -828,131 +946,154 @@ class _HomePageState extends State<HomePage> {
 
   Widget myCoursesWidget(){
     return (courseStore.token == null || courseStore.token == '') ?
-      notLoggedInWidget() : SafeArea(
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
-                            'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ],
+      notLoggedInWidget() : SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 8, top: 8),
+              child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text((courseStore.userEpisodes != null && courseStore.userEpisodes.length > 0) ?
+                        'دوره های شما' : 'هنوز دوره ای در حساب کاربری شما ثبت نشده است',
+                        style: TextStyle(fontSize: 18),
                       ),
+                    ],
                   ),
-                ),
               ),
-              Expanded(
-                flex: 15,
-                child: courseStore.userEpisodes != null ? userCourses() : Container(),
-              )
-            ],
-          ),
+            ),
+            courseStore.userEpisodes != null ?
+              userCourses() : Container(),
+            NativeAds(NativeAdsLocation.Library),
+          ],
+        ),
       );
   }
 
   Widget notLoggedInWidget(){
-    return SafeArea(
+    return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: Text(
-                ' این بخش مخصوص کاربرانی است که ثبت نام کرده اند.'
-                  ' اگر قبلا ثبت نام کرده اید وارد شوید. در غیر اینصورت'
-                  ' ثبت نام کنید',
-                textAlign: TextAlign.justify,
-                style: TextStyle(
-                  fontSize: 20,
-                ),
+          Padding(
+            padding: const EdgeInsets.all(28.0),
+            child: Text(
+              ' این بخش مخصوص کاربرانی است که ثبت نام کرده اند.'
+                ' اگر قبلا ثبت نام کرده اید وارد شوید. در غیر اینصورت'
+                ' ثبت نام کنید',
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                fontSize: 20,
               ),
             ),
           ),
-          Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Card(
-                        color: Color(0xFF20BFA9),
-                        child: TextButton(
-                          child: Text(
-                            'ورود',
-                            style: TextStyle(
-                              fontSize: 19,
-                              color: Colors.white),
-                          ),
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                                  return AuthenticationPage(FormName.SignIn);
-                                }));
-                          },
-                        ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: TextButton(
+                      child: Text(
+                        'ورود',
+                        style: TextStyle(
+                          fontSize: 19,
+                          color: Colors.white),
                       ),
+                      onPressed: () {
+                        if(!courseStore.isAdsEnabled){
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return AuthenticationPage(FormName.SignIn);
+                              }));
+                        }
+                        else{
+                          if(!showAdsInPopUp){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return AdvertisementPage(
+                                navigatedPage: NavigatedPage.SignInLibrary,
+                              );
+                            }));
+                          }
+                          else{
+                            Utility.showAdsAlertDialog(
+                                context,
+                                NavigatedPage.SignInLibrary
+                            );
+                          }
+                        }
+                      },
                     ),
-                    Expanded(
-                      child: Card(
-                        color: Color(0xFF20BFA9),
-                        child: TextButton(
-                          child: Text(
-                            'ثبت نام',
-                            style: TextStyle(
-                              fontSize: 19,
-                              color: Colors.white,),
-                          ),
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                                  return AuthenticationPage(FormName.SignUp);
-                                }));
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ))
+                Expanded(
+                  child: Card(
+                    color: Color(0xFF20BFA9),
+                    child: TextButton(
+                      child: Text(
+                        'ثبت نام',
+                        style: TextStyle(
+                          fontSize: 19,
+                          color: Colors.white,),
+                      ),
+                      onPressed: () {
+                        if(!courseStore.isAdsEnabled){
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return AuthenticationPage(FormName.SignUp);
+                              }));
+                        }
+                        else{
+                          if(!showAdsInPopUp){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return AdvertisementPage(
+                                navigatedPage: NavigatedPage.SignUpLibrary,
+                              );
+                            }));
+                          }
+                          else{
+                            Utility.showAdsAlertDialog(
+                                context,
+                                NavigatedPage.SignUpLibrary
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          NativeAds(NativeAdsLocation.Library),
         ],
       ),
     );
   }
 
   Widget myFavoriteCoursesWidget(){
-    return SafeArea(
+    return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text((courseStore.favoriteCourses != null && courseStore.favoriteCourses.length > 0) ?
-                    'دوره های مورد علاقه شما' : 'هنوز دوره ای را به علاقه مندی های خود اضافه نکرده اید',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.only(top: 8, right: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text((courseStore.userFavoriteCourses != null &&
+                    courseStore.userFavoriteCourses.length > 0) ?
+                'دوره های مورد علاقه شما' :
+                'هنوز دوره ای را به علاقه مندی های خود اضافه نکرده اید',
+                  style: TextStyle(fontSize: 18),
                 ),
-              ),
+              ],
             ),
           ),
-          Expanded(
-            flex: 15,
-            child: courseStore.userEpisodes != null ? userFavoriteCourses() : Container(),
-          )
+          (courseStore.userFavoriteCourses != null &&
+              courseStore.userFavoriteCourses.length > 0) ?
+            userFavoriteCourses() : Container(),
+          NativeAds(NativeAdsLocation.Library),
         ],
       ),
     );
@@ -963,6 +1104,9 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0, right: 5.0),
       child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
           itemCount: courseStore.userFavoriteCourses.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
@@ -1036,7 +1180,7 @@ class _HomePageState extends State<HomePage> {
                                   //     value: userFavoriteCourseIds);
                                   await courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
                                   setState(() {
-                                    courseStore.updateUserFavoriteCourses(userFavoriteCourses[index]);
+                                    courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
                                   });
                                 }
                               },
@@ -1060,9 +1204,27 @@ class _HomePageState extends State<HomePage> {
       flex: 2,
       child: TextButton(
         onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context){
-            return AuthenticationPage(FormName.RegisterPhoneNumber);
-          }));
+          if(!courseStore.isAdsEnabled){
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return AuthenticationPage(FormName.RegisterPhoneNumber);
+                }));
+          }
+          else{
+            if(!showAdsInPopUp){
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return AdvertisementPage(
+                  navigatedPage: NavigatedPage.RegisterPhoneNumber,
+                );
+              }));
+            }
+            else{
+              Utility.showAdsAlertDialog(
+                  context,
+                  NavigatedPage.RegisterPhoneNumber
+              );
+            }
+          }
         },
         child: Card(
           color: Color(0xFF20BFA9),
@@ -1106,6 +1268,9 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0, right: 5.0),
       child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
           itemCount: userCourses.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(

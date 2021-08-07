@@ -12,21 +12,19 @@ class StatisticsService{
 
   Future enteredApplication() async{
     try{
-      await http.get(pageNavigationUrl + '0');
+      await http.get(pageNavigationUrl + '1');
     }
     catch(e){
       print(e.toString());
-      return null;
     }
   }
 
   Future enteredPaymentPage() async{
     try{
-      await http.get(pageNavigationUrl + '1');
+      await http.get(pageNavigationUrl + '0');
     }
     catch(e){
       print(e.toString());
-      return null;
     }
   }
 
@@ -36,7 +34,6 @@ class StatisticsService{
     }
     catch(e){
       print(e.toString());
-      return null;
     }
   }
 }

@@ -40,6 +40,7 @@ class CourseStore extends ChangeNotifier{
   String _supportPhoneNumber = '';
   List<Favorite> _favoriteCourses = [];
 
+  bool _isAdsEnabled = false;
 
   CourseStore(){
     notifyListeners();
@@ -62,6 +63,7 @@ class CourseStore extends ChangeNotifier{
   int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
   String get supportPhoneNumber => _supportPhoneNumber;
   List<Favorite> get favoriteCourses => _favoriteCourses;
+  bool get isAdsEnabled => _isAdsEnabled;
 
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
@@ -163,6 +165,9 @@ class CourseStore extends ChangeNotifier{
     config = configs.firstWhere((x) => x.titleEn == 'PhoneNumber', orElse: () => null);
     if(config != null)
       this._supportPhoneNumber = config.value;
+    config = configs.firstWhere((x) => x.titleEn == 'IsAdsEnabled', orElse: () => null);
+    if(config != null)
+      this._isAdsEnabled = config.value == '1';
   }
 
   Future<Progress> setCourseProgress(int courseId, String token) async{
