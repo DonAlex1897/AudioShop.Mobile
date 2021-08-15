@@ -16,6 +16,8 @@ import 'package:async/async.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
+import 'package:mobile/screens/about_us.dart';
+import 'package:mobile/screens/category_page.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
@@ -25,6 +27,7 @@ import 'package:mobile/services/user_service.dart';
 import 'package:mobile/utilities/Utility.dart';
 import 'package:mobile/utilities/banner_ads.dart';
 import 'package:mobile/utilities/course_card.dart';
+import 'package:mobile/utilities/horizontal_scrollabe_menu.dart';
 import 'package:mobile/utilities/native_ads.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -63,6 +66,7 @@ class _HomePageState extends State<HomePage> {
   CourseStore courseStore;
   List<Course> courseList = List<Course>();
   List<SliderItem> sliderItemList = List<SliderItem>();
+  Future<List<SliderItem>>  sliderItemsFuture;
   int tabIndex = 1;
   bool delete = false;
   double totalBasketPrice = 0;
@@ -86,7 +90,22 @@ class _HomePageState extends State<HomePage> {
   bool showAdsInPopUp = true;
   Future<List<Course>> topClickedCoursesFuture;
   List<Course> topClickedCourses = [];
-  List<File> picFiles = [];
+  List<File> topClickedCoursesPicFiles = [];
+  Future<List<Course>> featuredCoursesFuture;
+  List<Course> featuredCourses = [];
+  List<File> featuredCoursesPicFiles = [];
+  Future<List<Course>> topSellerCoursesFuture;
+  List<Course> topSellerCourses = [];
+  List<File> topSellerCoursesPicFiles = [];
+  List<File> newCoursesPicFiles = [];
+  List<String> horizontalScrollableButtonNameList = [
+    'با استارشو ستاره شو',
+    'پشتیبانی',
+    'دوره ها',
+    'کتاب صوتی',
+    'تست روانشناسی',
+  ];
+  List<VoidCallback> horizontalScrollableButtonFunctionList;
 
   @override
   void setState(fn) {
@@ -97,34 +116,133 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
     globalService = GlobalService();
     setFirstTimeTrue();
     statisticsService.enteredApplication();
+    horizontalScrollableButtonFunctionList = [
+      goToAboutUsPage,
+      goToSupportPage,
+      goToCourseCategoryPage,
+      goToAudioBookCategoryPage,
+      goToPsychologicalTestsPage
+    ];
+    courseData = CourseData();
+    sliderItemsFuture = updateUI();
+    courses = getCourses();
+    topClickedCoursesFuture = getTopClickedCoursesFuture();
+    topSellerCoursesFuture = getTopSellerCoursesFuture();
+    featuredCoursesFuture = getFeaturedCoursesFuture();
+    loginStatement();
+    super.initState();
     // courseData = CourseData();
     // courses = getCourses();
     // loginStatement();
   }
 
-  @override
-  void didChangeDependencies() async{
-    courseStore = Provider.of<CourseStore>(context);
-    courseData = CourseData();
-    if(courses == null)
-      courses = getCourses();
-    topClickedCoursesFuture = getTopClickedCoursesFuture();
-    loginStatement();
-    super.didChangeDependencies();
+
+  goToAboutUsPage(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return AboutUs();
+    }));
+  }
+
+  goToAudioBookCategoryPage(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return CategoryPage(CourseType.AudioBook);
+    }));
+  }
+
+  goToCourseCategoryPage(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return CategoryPage(CourseType.Course);
+    }));
+  }
+
+  goToSupportPage(){
+    if(!courseStore.isAdsEnabled){
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context){
+            return SupportPage();
+          })
+      );
+    }
+    else{
+      if(!showAdsInPopUp){
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AdvertisementPage(
+            navigatedPage: NavigatedPage.SupportPage,
+          );
+        }));
+      }
+      else{
+        Utility.showAdsAlertDialog(
+          context,
+          NavigatedPage.SupportPage,
+        );
+      }
+    }
+  }
+
+  goToPsychologicalTestsPage(){
+    // if(!courseStore.isAdsEnabled){
+    //   Navigator.push(context,
+    //       MaterialPageRoute(builder: (context){
+    //         return PsychologicalTestsPage();
+    //       })
+    //   );
+    // }
+    // else{
+    //   if(!showAdsInPopUp){
+    //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //       return AdvertisementPage(
+    //         navigatedPage: NavigatedPage.PsychologicalTests,
+    //       );
+    //     }));
+    //   }
+    //   else{
+    //     Utility.showAdsAlertDialog(
+    //       context,
+    //       NavigatedPage.PsychologicalTests,
+    //     );
+    //   }
+    // }
+
+    Fluttertoast.showToast(
+        msg: 'این قسمت به زودی بارگذاری خواهد شد'
+    );
   }
 
   Future<List<Course>> getTopClickedCoursesFuture() async {
     topClickedCourses = await courseData.getTopClickedCourses(CourseType.Course);
-    topClickedCourses.forEach((element) async {
+    for(var item in topClickedCourses){
       File picFile = await DefaultCacheManager()
-          .getSingleFile(element.photoAddress);
-      picFiles.add(picFile);
-    });
+          .getSingleFile(item.photoAddress);
+      topClickedCoursesPicFiles.add(picFile);
+    }
+    setState(() { });
     return topClickedCourses;
+  }
+
+  Future<List<Course>> getTopSellerCoursesFuture() async {
+    topSellerCourses = await courseData.getTopSellerCourses(CourseType.Course);
+    for(var item in topSellerCourses){
+      File picFile = await DefaultCacheManager()
+          .getSingleFile(item.photoAddress);
+      topSellerCoursesPicFiles.add(picFile);
+    }
+    setState(() { });
+    return topSellerCourses;
+  }
+
+  Future<List<Course>> getFeaturedCoursesFuture() async {
+    featuredCourses = await courseData.getFeaturedCourses(CourseType.Course);
+    for(var item in featuredCourses){
+      File picFile = await DefaultCacheManager()
+          .getSingleFile(item.photoAddress);
+      featuredCoursesPicFiles.add(picFile);
+    }
+    setState(() { });
+    return featuredCourses;
   }
 
   Future setFirstTimeTrue() async{
@@ -399,12 +517,15 @@ class _HomePageState extends State<HomePage> {
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
     courseList = await courseData.getCourses();
-    sliderItemList = await courseData.getSliderItems();
-    courseStore.setAllCourses(courseList);
-    if (courseList != null)
-      await updateUI(courseList, sliderItemList);
+    // courseStore.setAllCourses(courseList);
     // else
     //   await updateUI(widget.courses, sliderItemList);
+    for(var item in courseList){
+      File picFile = await DefaultCacheManager()
+          .getSingleFile(item.photoAddress);
+      newCoursesPicFiles.add(picFile);
+    }
+    setState(() { });
     return courseList;
   }
 
@@ -458,151 +579,67 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future updateUI(List<Course> coursesData, List<SliderItem> sliderItems) async {
-    for (var course in coursesData) {
-      String picUrl = course.photoAddress;
-      String courseName = course.name;
-      String courseDescription = course.description;
-      var pictureFile = picUrl != '' ?
-        await DefaultCacheManager().getSingleFile(picUrl):
-        null;
-      coursesList.add(
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          color: Color(0xFF2c3335),
-          child: TextButton(
-            style: ButtonStyle(
-              padding: MaterialStateProperty.all(
-                  EdgeInsets.symmetric(vertical: 0, horizontal: 0)),
-            ),
-            onPressed: () {
-              // goToCoursePage(course, pictureFile);
-              goToCoursePreview(course);
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                      child: pictureFile != null ?
-                        Image.file(
-                          pictureFile,
-                          fit: BoxFit.fill,
-                        ):
-                        Image.asset(
-                          'assets/images/noPicture.png',
-                          fit: BoxFit.fill,
-                        ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        courseName,
-                        // overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(5,0,5,0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Text(
-                          course.instructor != null ? course.instructor : 'اِستارشو',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12, color: Colors.white70),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 14,
-                            color: Colors.yellow[300],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left:3, right:2,),
-                            child: Text(
-                              course.averageScore != null ?
-                                course.averageScore.toStringAsFixed(1):'5.0',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-      )
-      );
-    }
+  Future<List<SliderItem>> updateUI() async {
 
-    for(var sliderItem in sliderItems){
-      try{
-        String sliderPicUrl = sliderItem.photoAddress;
-        var pictureFile = await DefaultCacheManager().getSingleFile(sliderPicUrl);
-        carouselSlider.add(
-          InkWell(
-            onTap: () async {
-              if(sliderItem.courseId != null){
-                Course course = await courseData.getCourseById(sliderItem.courseId);
-                goToCoursePreview(course);
-              }
-            },
-            child: Stack(children: <Widget>[
-              Container(
+    sliderItemList = await courseData.getSliderItems();
+    if(carouselSlider.length == 0){
+      for(var sliderItem in sliderItemList){
+        try{
+          String sliderPicUrl = sliderItem.photoAddress;
+          var pictureFile = await DefaultCacheManager().getSingleFile(sliderPicUrl);
+          carouselSlider.add(
+            InkWell(
+              onTap: () async {
+                if(sliderItem.courseId != null){
+                  Course course = await courseData.getCourseById(sliderItem.courseId);
+                  goToCoursePreview(course);
+                }
+              },
+              child: Stack(children: <Widget>[
+                Container(
                     decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
                         image: FileImage(pictureFile),
                         fit: BoxFit.cover,
                       ),
                     )
-              ), //I
-              Positioned(
-                bottom: 0.0,
-                left: 0.0,
-                right: 0.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color.fromARGB(200, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
+                ), //I
+                Positioned(
+                  bottom: 0.0,
+                  left: 0.0,
+                  right: 0.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      gradient: LinearGradient(
+                        colors: [Color.fromARGB(200, 0, 0, 0), Color.fromARGB(0, 0, 0, 0)],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
                     ),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  child: Text(
-                    sliderItem.title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
+                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                    child: Text(
+                      sliderItem.title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ]),
-          ),
-        );
-      }
-      catch(e){
-        print(e.toString());
+              ]),
+            ),
+          );
+        }
+        catch(e){
+          print(e.toString());
+        }
       }
     }
+
+    return sliderItemList;
   }
 
   Future<bool> onWilPop() async {
@@ -861,43 +898,61 @@ class _HomePageState extends State<HomePage> {
               child: BannerAds(),
             ) :
             SizedBox(),
-            Stack(
-              children: [
-                CarouselSlider(
-                  options: CarouselOptions(
-                      height: width * 1.2,
-                      viewportFraction: 1,
-                      // aspectRatio: 1.75,
-                      reverse: false,
-                      autoPlay: true,
-                      autoPlayInterval: Duration(seconds: 5),
-                      autoPlayAnimationDuration: Duration(milliseconds: 800),
-                      autoPlayCurve: Curves.fastOutSlowIn,
-                      enlargeCenterPage: true,
-                      onPageChanged: pageChanged
-                  ),
-                  items: carouselSlider,
-                ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: carouselSlider.map((image) {
-                        int index=carouselSlider.indexOf(image); //are changed
-                        return Container(
-                          width: 6.0,
-                          height: 6.0,
-                          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: currentSlideIndex == index
-                                  ? Colors.black
-                                  : Colors.black38),
-                        );
-                      }).toList()
-                  ),
-                )
-              ]
+            Container(
+              width: width * 2,
+              height: 180,
+              child: FutureBuilder(
+                  future: sliderItemsFuture,
+                  builder: (context, data){
+                    if(data.hasData){
+                      return Stack(
+                          children: [
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                  height: width,
+                                  viewportFraction: 0.8,
+                                  // aspectRatio: 16/9,
+                                  reverse: false,
+                                  autoPlay: true,
+                                  autoPlayInterval: Duration(seconds: 5),
+                                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                                  autoPlayCurve: Curves.fastOutSlowIn,
+                                  enlargeCenterPage: true,
+                                  onPageChanged: pageChanged
+                              ),
+                              items: carouselSlider,
+                            ),
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: carouselSlider.map((image) {
+                                    int index=carouselSlider.indexOf(image); //are changed
+                                    return Container(
+                                      width: 6.0,
+                                      height: 6.0,
+                                      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: currentSlideIndex == index
+                                              ? Colors.black
+                                              : Colors.black38),
+                                    );
+                                  }).toList()
+                              ),
+                            )
+                          ]
+                      );
+                    }
+                    else{
+                      return SpinKitWave(
+                        type: SpinKitWaveType.center,
+                        color: Color(0xFF20BFA9),
+                        size: 25.0,
+                      );
+                    }
+                  }
+              ),
             ),
             courseStore.isAdsEnabled?
             Padding(
@@ -906,10 +961,26 @@ class _HomePageState extends State<HomePage> {
             ) :
             SizedBox(),
             Padding(
-              padding: const EdgeInsets.only(top: 10, right:10),
-              child: SizedBox(
-                height: 30,
-                child: Text('پرطرفدارترین دوره ها', style: TextStyle(fontSize: 18),),
+              padding: const EdgeInsets.all(8.0),
+              child: HorizontalScrollableMenu(
+                  horizontalScrollableButtonNameList,
+                  horizontalScrollableButtonFunctionList,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right:10),
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      'پر بازدید ترین دوره ها',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -917,24 +988,88 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 width: width * 2,
                 height: 250,
-                child: CourseCard(topClickedCoursesFuture, topClickedCourses, picFiles)),
+                child: CourseCard(topClickedCoursesFuture, topClickedCourses, topClickedCoursesPicFiles)),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10, right:10),
+              padding: const EdgeInsets.only(top: 20, right:10),
               child: SizedBox(
-                height: 30,
-                child: Text('جدیدترین دوره ها', style: TextStyle(fontSize: 18),),
+                height: 25,
+                child: Text(
+                  'جدیدترین دوره ها',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            GridView.count(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(5),
-              crossAxisCount: 2,
-              childAspectRatio: (width / height),
-              children: coursesList,
-              physics: ScrollPhysics(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                  width: width * 2,
+                  height: 250,
+                  child: CourseCard(courses, courseList, newCoursesPicFiles),
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right:10),
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      'پر فروش ترین دوره ها',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                  width: width * 2,
+                  height: 250,
+                  child: CourseCard(topSellerCoursesFuture, topSellerCourses, topSellerCoursesPicFiles)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right:10),
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: 25,
+                    child: Text(
+                      'پیشنهاد ویژه',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: width * 2,
+                height: 250,
+                child: CourseCard(
+                    featuredCoursesFuture,
+                    featuredCourses,
+                    featuredCoursesPicFiles
+                ),
+              ),
+            ),
+            // GridView.count(
+            //   scrollDirection: Axis.vertical,
+            //   shrinkWrap: true,
+            //   padding: const EdgeInsets.all(5),
+            //   crossAxisCount: 2,
+            //   childAspectRatio: (width / height),
+            //   children: coursesList,
+            //   physics: ScrollPhysics(),
+            // ),
             NativeAds(NativeAdsLocation.HomePage),
           ],
         ),
@@ -1447,9 +1582,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // courseStore = Provider.of<CourseStore>(context);
+    courseStore = Provider.of<CourseStore>(context);
     // courseStore.setAllCourses(courseList);
-
 
     // if(courseStore.token != null)
     //   courseStore.setUserDetails(courseStore.token, courseStore.hasPhoneNumber, );
@@ -1461,81 +1595,74 @@ class _HomePageState extends State<HomePage> {
 
     width = MediaQuery.of(context).size.width / 2;
     height = (MediaQuery.of(context).size.width / 2) * 1.5;
-    return FutureBuilder(
-        future: courses,
-        builder: (context, data) {
-          if (data.hasData)
-            return WillPopScope(
-                child: Scaffold(
-                    appBar: AppBar(
-                    leading: Container(),
-                      centerTitle: true,
-                      title: appBarTitle,
-                      actions: <Widget>[
-                        new IconButton(icon: actionIcon,onPressed:(){
-                          setState(() {
-                            if (this.actionIcon.icon == Icons.search) {
-                              this.actionIcon = new Icon(Icons.close, color: Colors.white,);
-                              this.appBarTitle = new TextField(
-                                textInputAction: TextInputAction.search,
-                                onSubmitted: (value){
-                                  search(value);
-                                },
-                                controller: searchController,
-                                style: new TextStyle(
-                                  color: Colors.white,
+    return WillPopScope(
+        child: Scaffold(
+            appBar: AppBar(
+                leading: Container(),
+                centerTitle: true,
+                title: appBarTitle,
+                actions: <Widget>[
+                  new IconButton(icon: actionIcon,onPressed:(){
+                    setState(() {
+                      if (this.actionIcon.icon == Icons.search) {
+                        this.actionIcon = new Icon(Icons.close, color: Colors.white,);
+                        this.appBarTitle = new TextField(
+                          textInputAction: TextInputAction.search,
+                          onSubmitted: (value){
+                            search(value);
+                          },
+                          controller: searchController,
+                          style: new TextStyle(
+                            color: Colors.white,
 
-                                ),
-                                decoration: new InputDecoration(
-                                    prefixIcon: InkWell(
-                                      onTap: (){
-                                        search(searchController.text);
-                                      },
-                                      child: Icon(Icons.search,
-                                          size: 25, color: Colors.white),
-                                    ),
-                                    hintText: "جستجو...",
-                                    hintStyle: new TextStyle(color: Colors.white),
-                                ),
-                              );
-                              _handleSearchStart();
-                            }
-                            else {
-                              _handleSearchEnd();
-                            }
-                          });
-                        } ,
-                        ),
-                      ]
+                          ),
+                          decoration: new InputDecoration(
+                            prefixIcon: InkWell(
+                              onTap: (){
+                                search(searchController.text);
+                              },
+                              child: Icon(Icons.search,
+                                  size: 25, color: Colors.white),
+                            ),
+                            hintText: "جستجو...",
+                            hintStyle: new TextStyle(color: Colors.white),
+                          ),
+                        );
+                        _handleSearchStart();
+                      }
+                      else {
+                        _handleSearchEnd();
+                      }
+                    });
+                  } ,
                   ),
-                    bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.only(bottom: 0),
-                      child: CurvedNavigationBar(
-                        color: Color(0xFF202028),
-                        buttonBackgroundColor: Color(0xFF202028),
-                        animationDuration: Duration(milliseconds: 200),
-                        height: 50,
-                        backgroundColor: Color(0xFF34333A),
-                        items: <Widget>[
-                          Icon(Icons.my_library_music,
-                              size: 25, color: Color(0xFF20BFA9)),
-                          Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
-                          Icon(Icons.person,
-                              size: 25, color: Color(0xFF20BFA9)),
-                        ],
-                        onTap: (index) => {
-                          setState(() {
-                            tabIndex = index;
-                          })
-                        },
-                        index: 1,
-                      ),
-                    ),
-                    body: navigationSelect(tabIndex)),
-                onWillPop: onWilPop);
-          else
-            return spinner();
-        });
+                ]
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.only(bottom: 0),
+              child: CurvedNavigationBar(
+                color: Color(0xFF202028),
+                buttonBackgroundColor: Color(0xFF202028),
+                animationDuration: Duration(milliseconds: 200),
+                height: 50,
+                backgroundColor: Color(0xFF34333A),
+                items: <Widget>[
+                  Icon(Icons.my_library_music,
+                      size: 25, color: Color(0xFF20BFA9)),
+                  Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
+                  Icon(Icons.person,
+                      size: 25, color: Color(0xFF20BFA9)),
+                ],
+                onTap: (index) => {
+                  setState(() {
+                    tabIndex = index;
+                  })
+                },
+                index: 1,
+              ),
+            ),
+            body: navigationSelect(tabIndex)),
+        onWillPop: onWilPop);
   }
 }
 //

@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:mobile/models/category.dart';
 import 'dart:convert';
 
 import 'package:mobile/models/course.dart';
@@ -41,6 +42,54 @@ class CourseData{
     try{
       http.Response response = await http
           .get(coursesUrl + '/topclicked?courseType=${courseType.index}');
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        List<Course> coursesList = List<Course>();
+        for(var course in courseMap){
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
+        }
+        return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Course>> getTopSellerCourses(CourseType courseType) async{
+    try{
+      http.Response response = await http
+          .get(coursesUrl + '/topsellers?courseType=${courseType.index}');
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        List<Course> coursesList = List<Course>();
+        for(var course in courseMap){
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
+        }
+        return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Course>> getFeaturedCourses(CourseType courseType) async{
+    try{
+      http.Response response = await http
+          .get(coursesUrl + '/featured?courseType=${courseType.index}');
       if(response.statusCode == 200){
         String data = response.body;
         var courseMap = jsonDecode(data);
@@ -174,6 +223,30 @@ class CourseData{
           coursesList.add(Course.fromJson(course, coursePhotoUrl));
         }
         return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Category>> getCategories() async{
+    try{
+      http.Response response = await http
+          .get(GlobalVariables.baseUrl + 'api/categories/GetCategories');
+      if(response.statusCode == 200){
+        String data = response.body;
+        var categoriesMap = jsonDecode(data);
+        List<Category> categoriesList = [];
+        for(var category in categoriesMap){
+          categoriesList.add(Category.fromJson(category));
+        }
+        return categoriesList;
       }
       else{
         print(response.statusCode);
