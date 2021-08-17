@@ -15,9 +15,41 @@ class CourseData{
   String sliderPhotoUrl = GlobalVariables.baseUrl + 'slider/';
   CourseData();
 
-  Future<List<Course>> getCourses() async{
+  Future<List<Course>> getCourses(CourseType courseType) async{
     try{
-      http.Response response = await http.get(coursesUrl);
+      http.Response response = await http
+          .get(coursesUrl + '?courseType=${courseType.index}');
+      if(response.statusCode == 200){
+        String data = response.body;
+        var courseMap = jsonDecode(data);
+        List<Course> coursesList = List<Course>();
+        for(var course in courseMap['items']){
+          coursesList.add(Course.fromJson(course, coursePhotoUrl));
+        }
+        return coursesList;
+      }
+      else{
+        print(response.statusCode);
+        return null;
+      }
+    }
+    catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  Future<List<Course>> getCategoryCourses(
+      CourseType courseType,
+      String categoryTitle) async{
+    try{
+      final queryParameters = {
+        'category': categoryTitle.toString(),
+        'courseType': courseType.index.toString(),
+      };
+      final uri = Uri.https('star-show.ir', 'api/courses', queryParameters);
+      String url = coursesUrl + '?category="$categoryTitle"&courseType=${courseType.index}';
+      http.Response response = await http.get(uri);
       if(response.statusCode == 200){
         String data = response.body;
         var courseMap = jsonDecode(data);
@@ -238,7 +270,7 @@ class CourseData{
   Future<List<Category>> getCategories() async{
     try{
       http.Response response = await http
-          .get(GlobalVariables.baseUrl + 'api/categories/GetCategories');
+          .get(GlobalVariables.baseUrl + 'api/categories');
       if(response.statusCode == 200){
         String data = response.body;
         var categoriesMap = jsonDecode(data);

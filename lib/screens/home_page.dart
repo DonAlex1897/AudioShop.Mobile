@@ -516,7 +516,7 @@ class _HomePageState extends State<HomePage> {
     }
     await setLocalNotificationSettings();
     await setGeneralConfigurations();
-    courseList = await courseData.getCourses();
+    courseList = await courseData.getCourses(CourseType.Course);
     // courseStore.setAllCourses(courseList);
     // else
     //   await updateUI(widget.courses, sliderItemList);
@@ -990,6 +990,12 @@ class _HomePageState extends State<HomePage> {
                 height: 250,
                 child: CourseCard(topClickedCoursesFuture, topClickedCourses, topClickedCoursesPicFiles)),
             ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Divider(color: Colors.grey,),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 20, right:10),
               child: SizedBox(
@@ -1008,6 +1014,12 @@ class _HomePageState extends State<HomePage> {
                   width: width * 2,
                   height: 250,
                   child: CourseCard(courses, courseList, newCoursesPicFiles),
+              ),
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Divider(color: Colors.grey,),
               ),
             ),
             Padding(
@@ -1032,6 +1044,12 @@ class _HomePageState extends State<HomePage> {
                   width: width * 2,
                   height: 250,
                   child: CourseCard(topSellerCoursesFuture, topSellerCourses, topSellerCoursesPicFiles)),
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Divider(color: Colors.grey,),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 20, right:10),
@@ -1059,6 +1077,12 @@ class _HomePageState extends State<HomePage> {
                     featuredCourses,
                     featuredCoursesPicFiles
                 ),
+              ),
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Divider(color: Colors.grey,),
               ),
             ),
             // GridView.count(

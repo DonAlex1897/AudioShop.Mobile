@@ -26,11 +26,13 @@ class _CategoryPageState extends State<CategoryPage> {
   CourseStore courseStore;
   CourseData courseData;
   double width;
-  List<String> horizontalScrollableButtonNameList;
+  List<String> horizontalScrollableButtonNameList = [];
+  List<VoidCallback> horizontalScrollableButtonFunctionList = [];
   Future<List<Category>> categoriesFuture;
-  List<VoidCallback> horizontalScrollableButtonFunctionList;
+  List<Category> categoriesList = [];
   Future<dynamic> courses;
   List<Course> courseList = [];
+  List<File> newCoursesPicFiles = [];
   Future<List<Course>> topClickedCoursesFuture;
   List<Course> topClickedCourses = [];
   List<File> topClickedCoursesPicFiles = [];
@@ -40,11 +42,15 @@ class _CategoryPageState extends State<CategoryPage> {
   Future<List<Course>> topSellerCoursesFuture;
   List<Course> topSellerCourses = [];
   List<File> topSellerCoursesPicFiles = [];
-  List<File> newCoursesPicFiles = [];
+  Future<List<Course>> categoryCoursesFuture;
+  List<Course> categoryCourses = [];
+  List<File> categoryCoursesPicFiles = [];
+  bool isFirstLoad = true;
 
   @override
   void initState() {
     courseData = CourseData();
+    categoriesFuture = getCategories();
     courses = getCourses();
     topClickedCoursesFuture = getTopClickedCoursesFuture();
     topSellerCoursesFuture = getTopSellerCoursesFuture();
@@ -52,8 +58,38 @@ class _CategoryPageState extends State<CategoryPage> {
     super.initState();
   }
 
+  Future<List<Category>> getCategories() async {
+    categoriesList = await courseData.getCategories();
+    for(var item in categoriesList){
+      horizontalScrollableButtonNameList.add(item.title);
+      horizontalScrollableButtonFunctionList
+          .add(horizontalScrollFunction(item.id, item.title));
+    }
+    return categoriesList;
+  }
+
+  VoidCallback horizontalScrollFunction(int categoryId, String categoryTitle){
+    return (){
+      setState(() {
+        isFirstLoad = false;
+      });
+      categoryCoursesFuture = getCategoryCourses(categoryTitle);
+    };
+  }
+
+  Future<List<Course>> getCategoryCourses(String categoryTitle) async {
+    categoryCourses = await courseData.getCategoryCourses(widget.courseType, categoryTitle);
+    for(var item in categoryCourses){
+      File picFile = await DefaultCacheManager()
+          .getSingleFile(item.photoAddress);
+      categoryCoursesPicFiles.add(picFile);
+    }
+    setState(() { });
+    return categoryCourses;
+  }
+
   Future<List<Course>> getCourses() async {
-    courseList = await courseData.getCourses();
+    courseList = await courseData.getCourses(widget.courseType);
     for(var item in courseList){
       File picFile = await DefaultCacheManager()
           .getSingleFile(item.photoAddress);
@@ -64,7 +100,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<List<Course>> getTopClickedCoursesFuture() async {
-    topClickedCourses = await courseData.getTopClickedCourses(CourseType.Course);
+    topClickedCourses = await courseData.getTopClickedCourses(widget.courseType);
     for(var item in topClickedCourses){
       File picFile = await DefaultCacheManager()
           .getSingleFile(item.photoAddress);
@@ -75,7 +111,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<List<Course>> getTopSellerCoursesFuture() async {
-    topSellerCourses = await courseData.getTopSellerCourses(CourseType.Course);
+    topSellerCourses = await courseData.getTopSellerCourses(widget.courseType);
     for(var item in topSellerCourses){
       File picFile = await DefaultCacheManager()
           .getSingleFile(item.photoAddress);
@@ -86,7 +122,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<List<Course>> getFeaturedCoursesFuture() async {
-    featuredCourses = await courseData.getFeaturedCourses(CourseType.Course);
+    featuredCourses = await courseData.getFeaturedCourses(widget.courseType);
     for(var item in featuredCourses){
       File picFile = await DefaultCacheManager()
           .getSingleFile(item.photoAddress);
@@ -104,9 +140,9 @@ class _CategoryPageState extends State<CategoryPage> {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+              children: <Widget>[//CourseCard(coursesFuture, courses, picFiles),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.fromLTRB(10,10,10,0),
                   child: FutureBuilder(
                       future: categoriesFuture,
                       builder: (context, data){
@@ -126,8 +162,32 @@ class _CategoryPageState extends State<CategoryPage> {
                       }
                   ),
                 ),
+                isFirstLoad ? Center(
+                  child: SizedBox(
+                    height: 25,
+                    child: Text(
+                      'لطفا دسته بندی مورد نظرتان را انتخاب کنید',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ):
                 Padding(
-                  padding: const EdgeInsets.only(top: 20, right:10),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                      width: width * 2,
+                      height: 250,
+                      child: CourseCard(categoryCoursesFuture, categoryCourses, categoryCoursesPicFiles)),
+                ),
+                Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Divider(color: Colors.grey,),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 40, right:10),
                   child: Row(
                     children: [
                       SizedBox(
@@ -149,8 +209,14 @@ class _CategoryPageState extends State<CategoryPage> {
                       height: 250,
                       child: CourseCard(topClickedCoursesFuture, topClickedCourses, topClickedCoursesPicFiles)),
                 ),
+                Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Divider(color: Colors.grey,),
+                  ),
+                ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 20, right:10),
+                  padding: const EdgeInsets.only(top: 40, right:10),
                   child: SizedBox(
                     height: 25,
                     child: Text(widget.courseType == CourseType.Course ?
@@ -169,8 +235,14 @@ class _CategoryPageState extends State<CategoryPage> {
                     child: CourseCard(courses, courseList, newCoursesPicFiles),
                   ),
                 ),
+                Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Divider(color: Colors.grey,),
+                  ),
+                ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 20, right:10),
+                  padding: const EdgeInsets.only(top: 40, right:10),
                   child: Row(
                     children: [
                       SizedBox(
@@ -192,6 +264,12 @@ class _CategoryPageState extends State<CategoryPage> {
                       height: 250,
                       child: CourseCard(topSellerCoursesFuture, topSellerCourses, topSellerCoursesPicFiles)),
                 ),
+                Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Divider(color: Colors.grey,),
+                  ),
+                ),
                 NativeAds(NativeAdsLocation.HomePage),
               ],
             ),
@@ -199,4 +277,5 @@ class _CategoryPageState extends State<CategoryPage> {
         ),
     );
   }
+
 }
