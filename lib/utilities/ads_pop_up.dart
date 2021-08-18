@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobile/models/ads.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/add_salesperson_coupon_code.dart';
@@ -28,7 +29,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
 class AdsPopUp extends StatefulWidget {
-  final navigatedPage;
+  final NavigatedPage navigatedPage;
+  final Ads ads;
   final Course course;
   final courseCover;
   final String noPictureAsset;
@@ -38,6 +40,7 @@ class AdsPopUp extends StatefulWidget {
   AdsPopUp({
     Key key,
     @required this.navigatedPage,
+    @required this.ads,
     this.course,
     this. courseCover,
     this.noPictureAsset,
@@ -52,9 +55,10 @@ class AdsPopUp extends StatefulWidget {
 class _AdsPopUpState extends State<AdsPopUp> {
 
   FlickMultiManager flickMultiManager;
-  String adURL = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
-  // String adURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
-  String redirectURL = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adURL;// = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
+  String redirectURL;// = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adsDescription;
+  String adsTitle;
   bool isTimerActive = true;
   bool isMuted = false;
   int downloadProgress = 0;
@@ -114,6 +118,10 @@ class _AdsPopUpState extends State<AdsPopUp> {
   @override
   void initState() {
     super.initState();
+    adURL = widget.ads.fileAddress;
+    redirectURL = widget.ads.link;
+    adsDescription = widget.ads.description;
+    adsTitle = widget.ads.title;
     flickMultiManager = FlickMultiManager();
     //_timer = RestartableTimer(_timerDuration, setTimerState);
     startTimer();
@@ -419,10 +427,20 @@ class _AdsPopUpState extends State<AdsPopUp> {
               ],
             ),
             Padding(
+              padding: const EdgeInsets.only(top: 15,left: 50, right: 50),
+              child: Text(
+                adsTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14
+                ),
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.only(top: 15,left: 50, right: 50, bottom: 10),
               child: Text(
-                'Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
-                    'و در عین حال بسیار سرگرم کننده',
+                adsDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 14
@@ -456,11 +474,19 @@ class _AdsPopUpState extends State<AdsPopUp> {
                 )
             ),
             Padding(
+              padding: const EdgeInsets.only(top: 15,left: 50, right: 50),
+              child: Text(
+                adsTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14
+                ),
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Text('Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
-                  'و در عین حال بسیار سرگرم کننده'
-                  ' در سبک تخته ای از بازی معروف دوز یا XO می باشد که در دو نسخه'
-                  ' رایگان و پولی منتشر شده است که شما می توانید نسخه پولی و بدو'),
+              child: Text(adsDescription),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 15.0),

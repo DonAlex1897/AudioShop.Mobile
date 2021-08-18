@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobile/models/ads.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/course_page.dart';
@@ -29,6 +30,7 @@ import 'course_preview.dart';
 import 'psychological_tests_page.dart';
 
 class AdvertisementPage extends StatefulWidget {
+  final Ads ads;
   final navigatedPage;
   final Course course;
   final courseCover;
@@ -39,6 +41,7 @@ class AdvertisementPage extends StatefulWidget {
   AdvertisementPage({
     Key key,
     @required this.navigatedPage,
+    @required this.ads,
     this.course,
     this. courseCover,
     this.noPictureAsset,
@@ -54,9 +57,10 @@ class AdvertisementPage extends StatefulWidget {
 class _AdvertisementPageState extends State<AdvertisementPage> {
 
   FlickMultiManager flickMultiManager;
-  String adURL = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
-  // String tempURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
-  String redirectURL = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adURL;// = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
+  String redirectURL;// = 'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adsDescription;
+  String adsTitle;
   bool isTimerActive = true;
   bool isMuted = false;
   int downloadProgress = 0;
@@ -116,6 +120,11 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   @override
   void initState() {
     super.initState();
+    adURL = widget.ads.fileAddress;
+    redirectURL = widget.ads.link;
+    adsDescription = widget.ads.description;
+    adsTitle = widget.ads.title;
+
     flickMultiManager = FlickMultiManager();
     //_timer = RestartableTimer(_timerDuration, setTimerState);
     startTimer();
@@ -420,8 +429,18 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50),
             child: Text(
-              'Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
-                'و در عین حال بسیار سرگرم کننده',
+              adsTitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14
+              ),
+            ),
+          )
+          ,Padding(
+            padding: const EdgeInsets.only(left: 50, right: 50),
+            child: Text(
+              adsDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14
@@ -454,10 +473,7 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(15.0),
-            child: Text('Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
-                'و در عین حال بسیار سرگرم کننده'
-                ' در سبک تخته ای از بازی معروف دوز یا XO می باشد که در دو نسخه'
-                ' رایگان و پولی منتشر شده است که شما می توانید نسخه پولی و بدو'),
+            child: Text(adsDescription),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 15.0),

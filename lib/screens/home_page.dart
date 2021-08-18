@@ -196,11 +196,13 @@ class _HomePageState extends State<HomePage> {
           })
       );
     }
-    else{
-      if(!showAdsInPopUp){
+    else if(courseStore.supportPageFull && courseStore.supportPageFullAds != null
+    && courseStore.supportPageFullAds.isEnabled){
+      if(!courseStore.isPopUpEnabled){
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdvertisementPage(
             navigatedPage: NavigatedPage.SupportPage,
+            ads: courseStore.supportPageFullAds,
           );
         }));
       }
@@ -208,8 +210,16 @@ class _HomePageState extends State<HomePage> {
         Utility.showAdsAlertDialog(
           context,
           NavigatedPage.SupportPage,
+            courseStore.supportPageFullAds
         );
       }
+    }
+    else{
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context){
+            return SupportPage();
+          })
+      );
     }
   }
 
@@ -607,18 +617,26 @@ class _HomePageState extends State<HomePage> {
           return CoursePreview(course);
       }));
     }
-    else{
-      if(!showAdsInPopUp){
+    else if(courseStore.coursePreviewFull && courseStore.coursePreviewFullAds != null
+      && courseStore.coursePreviewFullAds.isEnabled){
+      if(!courseStore.isPopUpEnabled){
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdvertisementPage(
             navigatedPage: NavigatedPage.CoursePreview,
+            ads: courseStore.coursePreviewFullAds,
             course: course,
           );
         }));
       }
       else{
-        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview, course);
+        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview,
+            courseStore.coursePreviewFullAds, course);
       }
+    }
+    else{
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return CoursePreview(course);
+      }));
     }
   }
 
@@ -796,11 +814,14 @@ class _HomePageState extends State<HomePage> {
                             })
                         );
                       }
-                      else{
-                        if(!showAdsInPopUp){
+                      else if(courseStore.addSalesPersonCouponCodeFull &&
+                      courseStore.addSalesPersonCouponCodeFullAds != null &&
+                      courseStore.addSalesPersonCouponCodeFullAds.isEnabled){
+                        if(!courseStore.isPopUpEnabled){
                           Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return AdvertisementPage(
                               navigatedPage: NavigatedPage.AddSalesPersonCouponCode,
+                              ads: courseStore.addSalesPersonCouponCodeFullAds,
                             );
                           }));
                         }
@@ -808,8 +829,16 @@ class _HomePageState extends State<HomePage> {
                           Utility.showAdsAlertDialog(
                               context,
                               NavigatedPage.AddSalesPersonCouponCode,
+                              courseStore.addSalesPersonCouponCodeFullAds
                           );
                         }
+                      }
+                      else{
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context){
+                              return AddSalesPersonCouponCode();
+                            })
+                        );
                       }
                     },
                     child: Text(
@@ -844,11 +873,14 @@ class _HomePageState extends State<HomePage> {
                               })
                           );
                         }
-                        else{
-                          if(!showAdsInPopUp){
+                        else if(courseStore.supportPageFull &&
+                            courseStore.supportPageFullAds != null &&
+                            courseStore.supportPageFullAds.isEnabled){
+                          if(!courseStore.isPopUpEnabled){
                             Navigator.push(context, MaterialPageRoute(builder: (context) {
                               return AdvertisementPage(
                                 navigatedPage: NavigatedPage.SupportPage,
+                                ads: courseStore.supportPageFullAds,
                               );
                             }));
                           }
@@ -856,8 +888,16 @@ class _HomePageState extends State<HomePage> {
                             Utility.showAdsAlertDialog(
                               context,
                               NavigatedPage.SupportPage,
+                              courseStore.supportPageFullAds
                             );
                           }
+                        }
+                        else{
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context){
+                                return SupportPage();
+                              })
+                          );
                         }
                       },
                       child: Text(
@@ -949,7 +989,12 @@ class _HomePageState extends State<HomePage> {
             courseStore.isAdsEnabled?
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: BannerAds(),
+              child:
+              courseStore.isAdsEnabled &&
+                  courseStore.homePageTopOfSliderBanner &&
+                  courseStore.homePageTopOfSliderBannerAds != null &&
+                  courseStore.homePageTopOfSliderBannerAds.isEnabled ?
+              BannerAds(courseStore.homePageTopOfSliderBannerAds) : SizedBox(),
             ) :
             SizedBox(),
             Container(
@@ -1011,7 +1056,12 @@ class _HomePageState extends State<HomePage> {
             courseStore.isAdsEnabled?
             Padding(
               padding: const EdgeInsets.only(top:8, bottom: 8),
-              child: BannerAds(),
+              child:
+              courseStore.isAdsEnabled &&
+                  courseStore.homePageBelowSliderBanner &&
+                  courseStore.homePageBelowSliderBannerAds != null &&
+                  courseStore.homePageBelowSliderBannerAds.isEnabled ?
+              BannerAds(courseStore.homePageBelowSliderBannerAds) : SizedBox(),
             ) :
             SizedBox(),
             Showcase(
@@ -1179,11 +1229,13 @@ class _HomePageState extends State<HomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: courseStore.isAdsEnabled? 130: 50,
-          flexibleSpace:
-          courseStore.isAdsEnabled?
-          BannerAds() :
-          SizedBox(),
+          toolbarHeight: 50, //courseStore.isAdsEnabled? 130: 50,
+          // flexibleSpace:
+          // courseStore.isAdsEnabled &&
+          //     courseStore.homePageBelowSliderBanner &&
+          //     courseStore.homePageBelowSliderBannerAds != null &&
+          //     courseStore.homePageBelowSliderBannerAds.isEnabled ?
+          // BannerAds(courseStore.homePageBelowSliderBannerAds) : SizedBox(),
           leading: Container(),
           bottom: TabBar(
             tabs: [
@@ -1274,20 +1326,29 @@ class _HomePageState extends State<HomePage> {
                                 return AuthenticationPage(FormName.SignIn);
                               }));
                         }
-                        else{
-                          if(!showAdsInPopUp){
+                        else if(courseStore.loginFavoritesFull && courseStore.loginFavoritesFullAds != null &&
+                            courseStore.loginFavoritesFullAds.isEnabled){
+                          if(!courseStore.isPopUpEnabled){
                             Navigator.push(context, MaterialPageRoute(builder: (context) {
                               return AdvertisementPage(
                                 navigatedPage: NavigatedPage.SignInLibrary,
+                                ads: courseStore.loginFavoritesFullAds,
                               );
                             }));
                           }
                           else{
                             Utility.showAdsAlertDialog(
                                 context,
-                                NavigatedPage.SignInLibrary
+                                NavigatedPage.SignInLibrary,
+                                courseStore.loginFavoritesFullAds
                             );
                           }
+                        }
+                        else{
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return AuthenticationPage(FormName.SignIn);
+                              }));
                         }
                       },
                     ),
@@ -1310,20 +1371,29 @@ class _HomePageState extends State<HomePage> {
                                 return AuthenticationPage(FormName.SignUp);
                               }));
                         }
-                        else{
-                          if(!showAdsInPopUp){
+                        else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+                        courseStore.signUpFullAds.isEnabled){
+                          if(!courseStore.isPopUpEnabled){
                             Navigator.push(context, MaterialPageRoute(builder: (context) {
                               return AdvertisementPage(
                                 navigatedPage: NavigatedPage.SignUpLibrary,
+                                ads: courseStore.signUpFullAds,
                               );
                             }));
                           }
                           else{
                             Utility.showAdsAlertDialog(
                                 context,
-                                NavigatedPage.SignUpLibrary
+                                NavigatedPage.SignUpLibrary,
+                                courseStore.signUpFullAds
                             );
                           }
+                        }
+                        else{
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                                return AuthenticationPage(FormName.SignUp);
+                              }));
                         }
                       },
                     ),
@@ -1494,7 +1564,10 @@ class _HomePageState extends State<HomePage> {
         textColor: Colors.white,
         overlayColor: Colors.white54,
         key: registerPhoneNumberKey,
-        description: 'صندوق پیام',
+        description: 'کاربر عزیز. شماره همراه شما در سیستم ثبت نشده است.'
+            ' ورود مجدد به حساب کاربری فقط با شماره همراه ممکن است.'
+            'در صورت تمایل به ثبت شماره همراه، دکمه سبز رنگ را '
+            'از منوی بالا انتخاب کنید',
         child: TextButton(
           onPressed: (){
             if(!courseStore.isAdsEnabled){
@@ -1503,20 +1576,29 @@ class _HomePageState extends State<HomePage> {
                     return AuthenticationPage(FormName.RegisterPhoneNumber);
                   }));
             }
-            else{
-              if(!showAdsInPopUp){
+            else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+            courseStore.signUpFullAds.isEnabled){
+              if(!courseStore.isPopUpEnabled){
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return AdvertisementPage(
                     navigatedPage: NavigatedPage.RegisterPhoneNumber,
+                    ads: courseStore.signUpFullAds,
                   );
                 }));
               }
               else{
                 Utility.showAdsAlertDialog(
                     context,
-                    NavigatedPage.RegisterPhoneNumber
+                    NavigatedPage.RegisterPhoneNumber,
+                  courseStore.signUpFullAds
                 );
               }
+            }
+            else{
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return AuthenticationPage(FormName.RegisterPhoneNumber);
+                  }));
             }
           },
           child: Card(

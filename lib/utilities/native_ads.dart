@@ -75,6 +75,8 @@ class _NativeAds extends State<NativeAds> {
     adURL = widget.ads.fileAddress;
     redirectURL = widget.ads.link;
     adsDescription = widget.ads.description;
+    if(adsDescription == null || adsDescription == '')
+      justPicture = true;
     adsTitle = widget.ads.title;
     IsolateNameServer.registerPortWithName(receivePort.sendPort, 'downloader_send_port');
     receivePort.listen((dynamic data) {

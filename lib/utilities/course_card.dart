@@ -31,18 +31,25 @@ class _CourseCardState extends State<CourseCard> {
         return CoursePreview(course);
       }));
     }
-    else{
-      if(!showAdsInPopUp){
+    else if(courseStore.coursePreviewFull && courseStore.coursePreviewFullAds != null
+    && courseStore.coursePreviewFullAds.isEnabled){
+      if(!courseStore.isPopUpEnabled){
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdvertisementPage(
             navigatedPage: NavigatedPage.CoursePreview,
+            ads: courseStore.coursePreviewFullAds,
             course: course,
           );
         }));
       }
       else{
-        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview, course);
+        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview, courseStore.coursePreviewFullAds, course);
       }
+    }
+    else{
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return CoursePreview(course);
+      }));
     }
   }
 

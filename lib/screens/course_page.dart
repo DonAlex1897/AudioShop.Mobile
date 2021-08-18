@@ -282,20 +282,29 @@ class _CoursePageState extends State<CoursePage> {
                   return AuthenticationPage(FormName.SignUp);
                 }));
           }
-          else{
-            if(!showAdsInPopUp){
+          else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+              courseStore.signUpFullAds.isEnabled){
+            if(!courseStore.isPopUpEnabled){
               await Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return AdvertisementPage(
                   navigatedPage: NavigatedPage.SignUpPurchase,
+                  ads: courseStore.signUpFullAds,
                 );
               }));
             }
             else{
               Utility.showAdsAlertDialog(
                   context,
-                  NavigatedPage.SignUpPurchase
+                  NavigatedPage.SignUpPurchase,
+                  courseStore.signUpFullAds
               );
             }
+          }
+          else{
+            await Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return AuthenticationPage(FormName.SignUp);
+                }));
           }
           isEpisodePurchasedBefore = false;
           courseStore.userEpisodes.forEach((element) {
@@ -338,11 +347,13 @@ class _CoursePageState extends State<CoursePage> {
                 return NowPlaying(episode, course.photoAddress);
               }));
         }
-        else{
-          if(!showAdsInPopUp){
+        else if(courseStore.nowPlayingFull && courseStore.nowPlayingFullAds != null &&
+            courseStore.nowPlayingFullAds.isEnabled){
+          if(!courseStore.isPopUpEnabled){
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return AdvertisementPage(
                 navigatedPage: NavigatedPage.PlayEpisode,
+                ads: courseStore.nowPlayingFullAds,
                 episodeDetails: episode,
                 courseCoverUrl: course.photoAddress,
               );
@@ -351,10 +362,16 @@ class _CoursePageState extends State<CoursePage> {
           else{
             Utility.showAdsAlertDialog(
                 context,
-                NavigatedPage.PlayEpisode,
+                NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
                 null,null,null,episode,course.photoAddress
             );
           }
+        }
+        else{
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return NowPlaying(episode, course.photoAddress);
+              }));
         }
       }
     }
@@ -744,20 +761,29 @@ class _CoursePageState extends State<CoursePage> {
                       return AuthenticationPage(FormName.SignUp);
                     }));
               }
-              else{
-                if(!showAdsInPopUp){
+              else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+              courseStore.signUpFullAds.isEnabled){
+                if(!courseStore.isPopUpEnabled){
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return AdvertisementPage(
                       navigatedPage: NavigatedPage.SignUpPurchase,
+                      ads: courseStore.signUpFullAds,
                     );
                   }));
                 }
                 else{
                   Utility.showAdsAlertDialog(
                       context,
-                      NavigatedPage.SignUpPurchase
+                      NavigatedPage.SignUpPurchase,
+                      courseStore.signUpFullAds
                   );
                 }
+              }
+              else{
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return AuthenticationPage(FormName.SignUp);
+                    }));
               }
 
               await createBasket(PurchaseType.WholeCourse, episodes, course);

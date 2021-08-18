@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/ads.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/screens/advertisement_page.dart';
@@ -9,6 +10,7 @@ class Utility{
   static void showAdsAlertDialog(
       BuildContext context,
       NavigatedPage navigatedPage,
+      Ads ads,
       [
         Course course,
         dynamic courseCover,
@@ -26,6 +28,7 @@ class Utility{
               width: MediaQuery.of(newContext).size.width * 0.9,
               child: AdsPopUp(
                 navigatedPage: navigatedPage,
+                ads: ads,
                 course: course,
                 courseCover: courseCover,
                 noPictureAsset: noPictureAsset,

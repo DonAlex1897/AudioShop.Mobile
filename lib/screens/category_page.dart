@@ -134,6 +134,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    courseStore = Provider.of<CourseStore>(context);
     width = MediaQuery.of(context).size.width;
     return Scaffold(
         body: SafeArea(

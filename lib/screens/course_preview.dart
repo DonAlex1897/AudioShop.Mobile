@@ -166,12 +166,12 @@ class _CoursePreviewState extends State<CoursePreview> {
           },
         );
         reviewController.text = '';
-        if(courseStore.isAdsEnabled){
-          Utility.showAdsAlertDialog(
-            context,
-            NavigatedPage.AddReview,
-          );
-        }
+        // if(courseStore.isAdsEnabled){
+        //   Utility.showAdsAlertDialog(
+        //     context,
+        //     NavigatedPage.AddReview,
+        //   );
+        // }
       }
     }
     else{
@@ -312,20 +312,29 @@ class _CoursePreviewState extends State<CoursePreview> {
                 return AuthenticationPage(FormName.SignUp);
               }));
         }
-        else{
-          if(!showAdsInPopUp){
+        else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+            courseStore.signUpFullAds.isEnabled){
+          if(!courseStore.isPopUpEnabled){
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return AdvertisementPage(
                 navigatedPage: NavigatedPage.SignUpPurchase,
+                ads: courseStore.signUpFullAds,
               );
             }));
           }
           else{
             Utility.showAdsAlertDialog(
                 context,
-                NavigatedPage.SignUpPurchase
+                NavigatedPage.SignUpPurchase,
+                courseStore.signUpFullAds
             );
           }
+        }
+        else{
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return AuthenticationPage(FormName.SignUp);
+              }));
         }
     }
   }
@@ -643,7 +652,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                       courseStore.isAdsEnabled?
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: BannerAds(),
+                        child:
+                        courseStore.isAdsEnabled &&
+                            courseStore.coursePreviewTopBanner &&
+                            courseStore.coursePreviewTopBannerAds != null &&
+                            courseStore.coursePreviewTopBannerAds.isEnabled ?
+                        BannerAds(courseStore.coursePreviewTopBannerAds) : SizedBox(),
                       ) :
                       SizedBox(),
                       Padding(
@@ -724,13 +738,15 @@ class _CoursePreviewState extends State<CoursePreview> {
                                   }));
                                 }
                               }
-                              else{
-                                if(!showAdsInPopUp){
+                              else if(courseStore.coursePageFull && courseStore.coursePageFullAds != null &&
+                                  courseStore.coursePageFullAds.isEnabled){
+                                if(!courseStore.isPopUpEnabled){
                                   if(pictureFile != null){
                                     print('cover: $pictureFile');
                                     Navigator.push(context, MaterialPageRoute(builder: (context) {
                                       return AdvertisementPage(
                                         navigatedPage: NavigatedPage.CoursePage,
+                                        ads: courseStore.coursePageFullAds,
                                         course: course,
                                         courseCover: pictureFile,
                                       );
@@ -740,6 +756,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     Navigator.push(context, MaterialPageRoute(builder: (context) {
                                       return AdvertisementPage(
                                           navigatedPage: NavigatedPage.CoursePage,
+                                          ads: courseStore.coursePageFullAds,
                                           course: course,
                                           noPictureAsset: 'assets/images/noPicture.png',
                                       );
@@ -750,10 +767,23 @@ class _CoursePreviewState extends State<CoursePreview> {
                                   Utility.showAdsAlertDialog(
                                       context,
                                       NavigatedPage.CoursePage,
+                                      courseStore.coursePageFullAds,
                                       course,
                                       pictureFile,
                                       'assets/images/noPicture.png'
                                   );
+                                }
+                              }
+                              else{
+                                if(pictureFile != null){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                    return CoursePage(course, pictureFile);
+                                  }));
+                                }
+                                else{
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                    return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
+                                  }));
                                 }
                               }
                             },
@@ -830,12 +860,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
                                   });
 
-                                if(courseStore.isAdsEnabled){
-                                  Utility.showAdsAlertDialog(
-                                    context,
-                                    NavigatedPage.AddToFavorite,
-                                  );
-                                }
+                                // if(courseStore.isAdsEnabled){
+                                //   Utility.showAdsAlertDialog(
+                                //     context,
+                                //     NavigatedPage.AddToFavorite,
+                                //   );
+                                // }
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -868,7 +898,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                       courseStore.isAdsEnabled?
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: BannerAds(),
+                        child:
+                        courseStore.isAdsEnabled &&
+                            courseStore.coursePreviewBelowAddToFavoriteBanner &&
+                            courseStore.coursePreviewBelowAddToFavoriteBannerAds != null &&
+                            courseStore.coursePreviewBelowAddToFavoriteBannerAds.isEnabled ?
+                        BannerAds(courseStore.coursePreviewBelowAddToFavoriteBannerAds) : SizedBox(),
                       ) :
                       SizedBox(),
                       SizedBox(
