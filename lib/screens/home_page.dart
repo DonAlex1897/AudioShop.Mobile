@@ -29,6 +29,7 @@ import 'package:mobile/utilities/banner_ads.dart';
 import 'package:mobile/utilities/course_card.dart';
 import 'package:mobile/utilities/horizontal_scrollabe_menu.dart';
 import 'package:mobile/utilities/native_ads.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:mobile/screens/authentication_page.dart';
@@ -106,6 +107,9 @@ class _HomePageState extends State<HomePage> {
     'تست روانشناسی',
   ];
   List<VoidCallback> horizontalScrollableButtonFunctionList;
+  GlobalKey searchKey = GlobalKey();
+  GlobalKey profileKey = GlobalKey();
+  BuildContext myContext;
 
   @override
   void setState(fn) {
@@ -116,6 +120,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ShowCaseWidget.of(myContext).startShowCase([
+        searchKey, profileKey
+      ]);
+    });
     globalService = GlobalService();
     setFirstTimeTrue();
     statisticsService.enteredApplication();
@@ -598,7 +607,6 @@ class _HomePageState extends State<HomePage> {
               child: Stack(children: <Widget>[
                 Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
                         image: FileImage(pictureFile),
                         fit: BoxFit.cover,
