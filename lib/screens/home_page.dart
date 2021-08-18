@@ -162,13 +162,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   showCaseWidget() async {
-    return true;
-    // String firstTimeValue = await secureStorage.read(key: 'isFirstTime');
-    // if(firstTimeValue == null || firstTimeValue == ''){
-    //   setFirstTimeFalse();
-    //   return true;
-    // }
-    // return false;
+    String firstTimeValue = await secureStorage.read(key: 'isFirstTime');
+    if(firstTimeValue == null || firstTimeValue == ''){
+      setFirstTimeFalse();
+      return true;
+    }
+    return false;
   }
 
   goToAboutUsPage(){
@@ -387,8 +386,10 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      showLoadingUpAds ?
-                        NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                      courseStore.isAdsEnabled &&
+                          courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                          courseStore.loadingUpNativeAds.isEnabled ?
+                      NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.all(25.0),
                         child: Image.asset(
@@ -409,8 +410,10 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF20BFA9),
                         size: 20.0,
                       ),
-                      showLoadingDownAds ?
-                          NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                      courseStore.isAdsEnabled &&
+                          courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                          courseStore.loadingDownNativeAds.isEnabled ?
+                      NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
                     ],
                   ),
                 ),
@@ -432,75 +435,84 @@ class _HomePageState extends State<HomePage> {
       Center(
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                showLoadingUpAds ?
-                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
-                SpinKitWave(
-                  type: SpinKitWaveType.center,
-                  color: Color(0xFF20BFA9),
-                  size: 65.0,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(//!isVpnConnected ?
-                    'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                    //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SpinKitWave(
+                      type: SpinKitWaveType.center,
+                      color: Color(0xFF20BFA9),
+                      size: 65.0,
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'جهت تجربه سرعت بهتر،',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Text(//!isVpnConnected ? '' :
-                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      isTakingMuchTime = false;
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => super.widget));
-                    });
-                  },
-                  child: Card(
-                    color: Color(0xFF20BFA9),
-                    child: Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'تلاش مجدد',
+                      child: Text(//!isVpnConnected ?
+                        'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                        //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18
-                        ),),
+                            fontSize: 16
+                        ),
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                      child: Text(//!isVpnConnected ? '' :
+                        'جهت تجربه سرعت بهتر،',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                      child: Text(//!isVpnConnected ? '' :
+                        'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: (){
+                        setState(() {
+                          isTakingMuchTime = false;
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) => super.widget));
+                        });
+                      },
+                      child: Card(
+                        color: Color(0xFF20BFA9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'تلاش مجدد',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                showLoadingDownAds ?
-                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                    courseStore.loadingDownNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
               ]
           ),
         ),
@@ -909,7 +921,10 @@ class _HomePageState extends State<HomePage> {
                     )
                 )
             ),
-            NativeAds(NativeAdsLocation.Profile)
+            courseStore.isAdsEnabled &&
+                courseStore.profileNative && courseStore.profileNativeAds != null &&
+                courseStore.profileNativeAds.isEnabled ?
+            NativeAds(courseStore.profileNativeAds) : SizedBox(),
           ],
         ),
       );
@@ -1149,7 +1164,10 @@ class _HomePageState extends State<HomePage> {
             //   children: coursesList,
             //   physics: ScrollPhysics(),
             // ),
-            NativeAds(NativeAdsLocation.HomePage),
+            courseStore.isAdsEnabled &&
+                courseStore.homePageNative && courseStore.homePageNativeAds != null &&
+                courseStore.homePageNativeAds.isEnabled ?
+            NativeAds(courseStore.homePageNativeAds) : SizedBox(),
           ],
         ),
       ),
@@ -1210,7 +1228,10 @@ class _HomePageState extends State<HomePage> {
             ),
             courseStore.userEpisodes != null ?
               userCourses() : Container(),
-            NativeAds(NativeAdsLocation.Library),
+            courseStore.isAdsEnabled &&
+                courseStore.libraryNative && courseStore.libraryNativeAds != null &&
+                courseStore.libraryNativeAds.isEnabled ?
+            NativeAds(courseStore.libraryNativeAds) : SizedBox(),
           ],
         ),
       );
@@ -1311,7 +1332,10 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          NativeAds(NativeAdsLocation.Library),
+          courseStore.isAdsEnabled &&
+              courseStore.libraryNative && courseStore.libraryNativeAds != null &&
+              courseStore.libraryNativeAds.isEnabled ?
+          NativeAds(courseStore.libraryNativeAds) : SizedBox(),
         ],
       ),
     );
@@ -1338,7 +1362,10 @@ class _HomePageState extends State<HomePage> {
           (courseStore.userFavoriteCourses != null &&
               courseStore.userFavoriteCourses.length > 0) ?
             userFavoriteCourses() : Container(),
-          NativeAds(NativeAdsLocation.Library),
+          courseStore.isAdsEnabled &&
+              courseStore.libraryNative && courseStore.libraryNativeAds != null &&
+              courseStore.libraryNativeAds.isEnabled ?
+          NativeAds(courseStore.libraryNativeAds) : SizedBox(),
         ],
       ),
     );

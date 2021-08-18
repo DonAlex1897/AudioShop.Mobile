@@ -10,7 +10,6 @@ class PaymentService{
 
   String createOrderUrl = GlobalVariables.baseUrl + 'api/orders';
   String payOrderUrl = GlobalVariables.baseUrl + 'api/payment/payorder';
-
   Future<String> createOrder(Basket basket, String userId, String token) async {
     var body = jsonEncode({
       'userId': userId,

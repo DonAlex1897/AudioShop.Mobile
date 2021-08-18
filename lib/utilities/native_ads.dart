@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobile/models/ads.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,22 +20,18 @@ import 'ads_align.dart';
 
 
 class NativeAds extends StatefulWidget {
-
-  NativeAds(
-      //this.details,
-      this.location);
-  //final details;
-  final location;
+  final Ads ads;
+  NativeAds(this.ads);
 
   @override
   _NativeAds createState() => _NativeAds();
 }
 
 class _NativeAds extends State<NativeAds> {
-  var location = NativeAdsLocation.HomePage;
-  String adURL = 'https://filesamples.com/samples/video/mov/sample_640x360.mov'; //'https://file-examples-com.github.io/uploads/2018/04/file_example_MOV_480_700kB.mov'; //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
-  String tempURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';
-  String redirectURL = 'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';//'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adURL;//'https://filesamples.com/samples/video/mov/sample_640x360.mov';
+  String redirectURL; //'https://www.kolpaper.com/wp-content/uploads/2021/02/Juve-Stadium-Wallpaper.jpg';//'https://www.dl.farsroid.com/ap/HiPER-Calc-Pro-8.3.8(www.farsroid.com).apk';
+  String adsDescription;
+  String adsTitle;
   int downloadProgress = 0;
   String taskId = '';
   String filePath = '';
@@ -75,7 +72,10 @@ class _NativeAds extends State<NativeAds> {
   @override
   void initState() {
     super.initState();
-    location = widget.location;
+    adURL = widget.ads.fileAddress;
+    redirectURL = widget.ads.link;
+    adsDescription = widget.ads.description;
+    adsTitle = widget.ads.title;
     IsolateNameServer.registerPortWithName(receivePort.sendPort, 'downloader_send_port');
     receivePort.listen((dynamic data) {
       String id = data[0];
@@ -197,16 +197,25 @@ class _NativeAds extends State<NativeAds> {
                     Padding(
                       padding: const EdgeInsets.only(top: 10, left: 50, right: 50),
                       child: Text(
-                        'Tic Tac Toe Universe – دنیای دوز (ایکس او) نام یک بازی ساده، کم حجم '
-                            'و در عین حال بسیار سرگرم کننده',
+                        adsTitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14
+                        ),
+                      ),
+                    ),Padding(
+                      padding: const EdgeInsets.only(top: 10, left: 50, right: 50),
+                      child: Text(
+                        adsDescription,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 14
                         ),
                       ),
                     ),
-                    (adURL.toLowerCase().contains('.mov') ||
-                        adURL.toLowerCase().contains('.mp4')) ?
+                    // (adURL.toLowerCase().contains('.mov') ||
+                    //     adURL.toLowerCase().contains('.mp4')) ?
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: InkWell(
@@ -235,15 +244,16 @@ class _NativeAds extends State<NativeAds> {
                         child: Container(
                             height: width / 2,
                             width: width,
-                            child: Image.network(tempURL, fit: BoxFit.cover,)
+                            child: Image.network(adURL, fit: BoxFit.cover,)
                         ),
                       ),
-                    ) :
-                    Container(
-                        height: width / 2,
-                        width: width,
-                        child: Image.network(tempURL, fit: BoxFit.cover,)
-                    ),
+                    ) ,
+                    //     :
+                    // Container(
+                    //     height: width / 2,
+                    //     width: width,
+                    //     child: Image.network(tempURL, fit: BoxFit.cover,)
+                    // ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10.0),
                       child: Row(
@@ -265,7 +275,7 @@ class _NativeAds extends State<NativeAds> {
             Container(
                 height: 60,
                 width: width,
-                child: Image.network(tempURL, fit: BoxFit.cover,)
+                child: Image.network(adURL, fit: BoxFit.cover,)
             ),
             AdsAlign(),
           ]

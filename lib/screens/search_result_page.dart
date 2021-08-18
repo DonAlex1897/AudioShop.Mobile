@@ -7,7 +7,9 @@ import 'package:mobile/services/course_service.dart';
 import 'package:async/async.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/shared/enums.dart';
+import 'package:mobile/store/course_store.dart';
 import 'package:mobile/utilities/native_ads.dart';
+import 'package:provider/provider.dart';
 
 class SearchResultPage extends StatefulWidget {
   SearchResultPage(this.courseName);
@@ -18,6 +20,7 @@ class SearchResultPage extends StatefulWidget {
 }
 
 class _SearchResultPageState extends State<SearchResultPage> {
+  CourseStore courseStore;
   Future<List<Course>> coursesFuture;
   List<Course> coursesList = List<Course>();
   bool isTakingMuchTime = false;
@@ -77,15 +80,19 @@ class _SearchResultPageState extends State<SearchResultPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                showLoadingUpAds ?
-                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
-                showLoadingDownAds ?
-                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                    courseStore.loadingDownNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
               ],
             ),
           ),
@@ -93,79 +100,88 @@ class _SearchResultPageState extends State<SearchResultPage> {
         Center(
           child: SingleChildScrollView(
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Container(
                   //     width: MediaQuery.of(context).size.width * 0.7,
                   //     child: Image.asset('assets/images/internetdown.png')
                   // )
-                  showLoadingUpAds ?
-                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
-                  SpinKitWave(
-                    type: SpinKitWaveType.center,
-                    color: Color(0xFF20BFA9),
-                    size: 65.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(//!isVpnConnected ?
-                      'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                      //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                      courseStore.loadingUpNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SpinKitWave(
+                        type: SpinKitWaveType.center,
+                        color: Color(0xFF20BFA9),
+                        size: 65.0,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                      'جهت تجربه سرعت بهتر،',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                      'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: (){
-                      setState(() {
-                        isTakingMuchTime = false;
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) => super.widget));
-                      });
-                    },
-                    child: Card(
-                      color: Color(0xFF20BFA9),
-                      child: Padding(
+                      Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'تلاش مجدد',
+                        child: Text(//!isVpnConnected ?
+                          'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                          //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18
-                          ),),
+                              fontSize: 16
+                          ),
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                          'جهت تجربه سرعت بهتر،',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                          'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: (){
+                          setState(() {
+                            isTakingMuchTime = false;
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) => super.widget));
+                          });
+                        },
+                        child: Card(
+                          color: Color(0xFF20BFA9),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'تلاش مجدد',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18
+                              ),),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  showLoadingDownAds ?
-                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                      courseStore.loadingDownNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
                 ]
             ),
           ),
@@ -176,15 +192,19 @@ class _SearchResultPageState extends State<SearchResultPage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            showLoadingUpAds ?
-            NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+            courseStore.isAdsEnabled &&
+                courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                courseStore.loadingUpNativeAds.isEnabled ?
+            NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
             SpinKitWave(
               type: SpinKitWaveType.center,
               color: Color(0xFF20BFA9),
               size: 65.0,
             ),
-            showLoadingDownAds ?
-            NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+            courseStore.isAdsEnabled &&
+                courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                courseStore.loadingDownNativeAds.isEnabled ?
+            NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
           ],
         ),
       ),
@@ -192,47 +212,60 @@ class _SearchResultPageState extends State<SearchResultPage> {
       Center(
         child: SingleChildScrollView(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: Image.asset('assets/images/internetdown.png')
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(!isVpnConnected ?
-                    'لطفا اتصال اینترنت خود را بررسی کنید' :
-                    'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: Image.asset('assets/images/internetdown.png')
                     ),
-                  ),
-                ),
-                InkWell(
-                  onTap: (){
-                    setState(() {
-                      isTakingMuchTime = false;
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => super.widget));
-                    });
-                  },
-                  child: Card(
-                    color: Color(0xFF20BFA9),
-                    child: Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'تلاش مجدد',
+                      child: Text(!isVpnConnected ?
+                        'لطفا اتصال اینترنت خود را بررسی کنید' :
+                        'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18
-                        ),),
+                            fontSize: 16
+                        ),
+                      ),
                     ),
-                  ),
-                )
+                    InkWell(
+                      onTap: (){
+                        setState(() {
+                          isTakingMuchTime = false;
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) => super.widget));
+                        });
+                      },
+                      child: Card(
+                        color: Color(0xFF20BFA9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'تلاش مجدد',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingDownNative &&  courseStore.loadingDownNativeAds != null &&
+                    courseStore.loadingDownNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
               ]
           ),
         ),
@@ -313,6 +346,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
 
   @override
   Widget build(BuildContext context) {
+    courseStore = Provider.of<CourseStore>(context);
     return FutureBuilder(
       future: coursesFuture,
       builder: (context, data){

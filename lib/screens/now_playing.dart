@@ -343,15 +343,19 @@ class _NowPlayingState extends State<NowPlaying> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                showLoadingUpAds ?
-                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
-                showLoadingDownAds ?
-                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                    courseStore.loadingDownNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
               ],
             ),
           ),
@@ -359,51 +363,60 @@ class _NowPlayingState extends State<NowPlaying> {
         Center(
           child: SingleChildScrollView(
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  showLoadingUpAds ?
-                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
-                  SpinKitWave(
-                    type: SpinKitWaveType.center,
-                    color: Color(0xFF20BFA9),
-                    size: 65.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'لطفا منتظر بمانید. '
-                          'در حال بارگیری فایل دوره',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                      courseStore.loadingUpNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SpinKitWave(
+                        type: SpinKitWaveType.center,
+                        color: Color(0xFF20BFA9),
+                        size: 65.0,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                    'جهت تجربه سرعت بهتر،',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'لطفا منتظر بمانید. '
+                              'در حال بارگیری فایل دوره',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                    'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                        'جهت تجربه سرعت بهتر،',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16
+                          ),
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                        'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  showLoadingDownAds ?
-                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                      courseStore.loadingDownNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
                   // InkWell(
                   //   onTap: (){
                   //     setState(() {

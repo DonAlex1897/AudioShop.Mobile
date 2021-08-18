@@ -1012,15 +1012,19 @@ class _CoursePageState extends State<CoursePage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                showLoadingUpAds ?
-                  NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
                 SpinKitWave(
                   type: SpinKitWaveType.center,
                   color: Color(0xFF20BFA9),
                   size: 65.0,
                 ),
-                showLoadingDownAds ?
-                  NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                courseStore.isAdsEnabled &&
+                    courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                    courseStore.loadingDownNativeAds.isEnabled ?
+                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
               ],
             ),
           ),
@@ -1028,79 +1032,88 @@ class _CoursePageState extends State<CoursePage> {
         Center(
           child: SingleChildScrollView(
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Container(
                   //     width: width * 1.5,
                   //     child: Image.asset('assets/images/internetdown.png')
                   // ),
-                  showLoadingUpAds ?
-                    NativeAds(NativeAdsLocation.LoadingUp) : SizedBox(),
-                  SpinKitWave(
-                    type: SpinKitWaveType.center,
-                    color: Color(0xFF20BFA9),
-                    size: 65.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(//!isVpnConnected ?
-                      'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                      //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                      courseStore.loadingUpNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SpinKitWave(
+                        type: SpinKitWaveType.center,
+                        color: Color(0xFF20BFA9),
+                        size: 65.0,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                      'جهت تجربه سرعت بهتر،',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    child: Text(//!isVpnConnected ? '' :
-                      'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: (){
-                      setState(() {
-                        isTakingMuchTime = false;
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) => super.widget));
-                      });
-                    },
-                    child: Card(
-                      color: Color(0xFF20BFA9),
-                      child: Padding(
+                      Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'تلاش مجدد',
+                        child: Text(//!isVpnConnected ?
+                          'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                          //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18
-                          ),),
+                              fontSize: 16
+                          ),
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                          'جهت تجربه سرعت بهتر،',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Text(//!isVpnConnected ? '' :
+                          'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: (){
+                          setState(() {
+                            isTakingMuchTime = false;
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) => super.widget));
+                          });
+                        },
+                        child: Card(
+                          color: Color(0xFF20BFA9),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'تلاش مجدد',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18
+                              ),),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  showLoadingDownAds ?
-                    NativeAds(NativeAdsLocation.LoadingDown) : SizedBox(),
+                  courseStore.isAdsEnabled &&
+                      courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                      courseStore.loadingUpNativeAds.isEnabled ?
+                  NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
                 ]
             ),
           ),

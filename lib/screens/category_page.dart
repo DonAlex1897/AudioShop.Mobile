@@ -270,7 +270,10 @@ class _CategoryPageState extends State<CategoryPage> {
                     child: Divider(color: Colors.grey,),
                   ),
                 ),
-                NativeAds(NativeAdsLocation.HomePage),
+                courseStore.isAdsEnabled &&
+                    courseStore.homePageNative && courseStore.homePageNativeAds != null &&
+                    courseStore.homePageNativeAds.isEnabled ?
+                NativeAds(courseStore.homePageNativeAds) : SizedBox(),
               ],
             ),
           ),

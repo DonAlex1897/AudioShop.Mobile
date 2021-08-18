@@ -10,8 +10,11 @@ import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/screens/update_page.dart';
 import 'package:mobile/services/global_service.dart';
 import 'package:mobile/shared/enums.dart';
+import 'package:mobile/store/course_store.dart';
+import 'package:mobile/utilities/native_ads.dart';
 import 'package:package_info/package_info.dart';
 import 'package:async/async.dart';
+import 'package:provider/provider.dart';
 
 class StartPage extends StatefulWidget {
   @override
@@ -19,6 +22,7 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  CourseStore courseStore;
   String isFirstTime;
   PackageInfo info;
   String currentVersion;
@@ -74,45 +78,11 @@ class _StartPageState extends State<StartPage> {
 
   @override
   void initState() {
-    super.initState();
     startApplication();
+    super.initState();
   }
 
   Future startApplication() async {
-    // try {
-    //   http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
-    //   if(response.statusCode == 200 &&
-    //      json.decode(response.body)['location']['country']['name']
-    //          .toString().toLowerCase() != 'iran'){
-    //     Widget cancelB = TextButton(
-    //       child: Text('باشه', style: TextStyle(color: Colors.white),),
-    //       onPressed: () {
-    //         Navigator.of(context).pop();
-    //       },
-    //     );
-    //     Widget continueB = TextButton(
-    //       child: Text('بعدا', style: TextStyle(color: Colors.white),),
-    //       onPressed: () {
-    //         Navigator.of(context).pop();
-    //       },
-    //     );
-    //     AlertDialog alert = AlertDialog(
-    //       title: Text('توجه'),
-    //       content: Text('لطفا جهت برخورداری از سرعت بیشتر،'
-    //           ' فیلترشکن خود را خاموش کنید.'),
-    //       actions: [cancelB, continueB],
-    //     );
-    //     await showDialog(
-    //       context: context,
-    //       builder: (BuildContext context) {
-    //         return alert;
-    //       },
-    //     );
-    //   }
-    // } catch (err) {
-    //     print(err.toString());
-    // }
-
     const platform = const MethodChannel("audioshoppp.ir.mobile/main");
     await platform.invokeMethod('launchBatch');
     var secureStorage = FlutterSecureStorage();
@@ -123,7 +93,7 @@ class _StartPageState extends State<StartPage> {
     });
     RestartableTimer(_timerDuration, setTimerState);
     availableVersion = await globalService.getLatestVersionAvailable();
-
+    courseStore.setAdsSituation();
     if(availableVersion != null)
       navigateToNextPage();
     else
@@ -140,36 +110,43 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
+    courseStore = Provider.of<CourseStore>(context);
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
                 flex: 20,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: Image.asset(
-                        'assets/images/appMainIcon.png',
-                        width: MediaQuery.of(context).size.width * 0.2,
-                      ),
-                    ),
-                    Text(
-                      'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    Text(
-                      'با اِستارشو، ستاره شو',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    SizedBox(
-                      child: !isTakingMuchTime ?
-                        Text('') :
-                        !shouldRetry ?
+                    courseStore.isAdsEnabled &&
+                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
+                    courseStore.loadingUpNativeAds.isEnabled ?
+                    NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(25.0),
+                          child: Image.asset(
+                            'assets/images/appMainIcon.png',
+                            width: MediaQuery.of(context).size.width * 0.2,
+                          ),
+                        ),Text(
+                          'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          'با اِستارشو، ستاره شو',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        SizedBox(
+                          child: !isTakingMuchTime ?
+                          Text('') :
+                          !shouldRetry ?
                           SpinKitWave(
                             type: SpinKitWaveType.center,
                             color: Color(0xFF20BFA9),
@@ -178,31 +155,37 @@ class _StartPageState extends State<StartPage> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: InkWell(
-                            onTap: (){
-                              setState(() {
-                                isTakingMuchTime = false;
-                                shouldRetry = false;
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) => super.widget));
-                              });
-                            },
-                            child: Card(
-                              color: Color(0xFF20BFA9),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  'تلاش مجدد',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14
-                                  ),),
+                              onTap: (){
+                                setState(() {
+                                  isTakingMuchTime = false;
+                                  shouldRetry = false;
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) => super.widget));
+                                });
+                              },
+                              child: Card(
+                                color: Color(0xFF20BFA9),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Text(
+                                    'تلاش مجدد',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14
+                                    ),),
+                                ),
                               ),
                             ),
-                        ),
                           ),
+                        ),
+                      ],
                     ),
+                    courseStore.isAdsEnabled &&
+                        courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
+                        courseStore.loadingDownNativeAds.isEnabled ?
+                    NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
                   ],
                 ),
               ),
