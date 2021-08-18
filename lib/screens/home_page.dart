@@ -109,6 +109,17 @@ class _HomePageState extends State<HomePage> {
   List<VoidCallback> horizontalScrollableButtonFunctionList;
   GlobalKey searchKey = GlobalKey();
   GlobalKey profileKey = GlobalKey();
+  GlobalKey scrollKey = GlobalKey();
+  GlobalKey newCoursesKey = GlobalKey();
+  GlobalKey libraryKey = GlobalKey();
+  GlobalKey messageBoxKey = GlobalKey();
+  GlobalKey registerPhoneNumberKey = GlobalKey();
+  GlobalKey couponCodeKey = GlobalKey();
+  GlobalKey registerCouponCodeKey = GlobalKey();
+  bool isSignedUpForFirstTime = true;
+  Color tab0Color = Color(0xFF202028);
+  Color tab1Color = Colors.black12;
+  Color tab2Color = Color(0xFF202028);
   BuildContext myContext;
 
   @override
@@ -120,13 +131,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ShowCaseWidget.of(myContext).startShowCase([
-        searchKey, profileKey
-      ]);
+    showCaseWidget().then((status){
+      if(status){
+        ShowCaseWidget.of(myContext).startShowCase([
+          searchKey, messageBoxKey, scrollKey,
+          newCoursesKey, profileKey, libraryKey,
+        ]);
+      }
     });
     globalService = GlobalService();
-    setFirstTimeTrue();
     statisticsService.enteredApplication();
     horizontalScrollableButtonFunctionList = [
       goToAboutUsPage,
@@ -148,6 +161,15 @@ class _HomePageState extends State<HomePage> {
     // loginStatement();
   }
 
+  showCaseWidget() async {
+    return true;
+    // String firstTimeValue = await secureStorage.read(key: 'isFirstTime');
+    // if(firstTimeValue == null || firstTimeValue == ''){
+    //   setFirstTimeFalse();
+    //   return true;
+    // }
+    // return false;
+  }
 
   goToAboutUsPage(){
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -254,7 +276,7 @@ class _HomePageState extends State<HomePage> {
     return featuredCourses;
   }
 
-  Future setFirstTimeTrue() async{
+  Future setFirstTimeFalse() async{
     await secureStorage.write(key: 'isFirstTime', value: 'false');
   }
 
@@ -607,6 +629,7 @@ class _HomePageState extends State<HomePage> {
               child: Stack(children: <Widget>[
                 Container(
                     decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
                         image: FileImage(pictureFile),
                         fit: BoxFit.cover,
@@ -662,16 +685,16 @@ class _HomePageState extends State<HomePage> {
     return Future.value(true);
   }
 
-  Widget navigationSelect(int tab) {
+  Widget navigationSelect(int tab, [BuildContext context]) {
     if (tab == 0)
       return library();
     else if (tab == 1)
       return home();
     else
-      return profile();
+      return profile(context);
   }
 
-  Widget profile(){
+  Widget profile(BuildContext context){
     return (courseStore.token == null || courseStore.token == '') ?
       notLoggedInWidget() : SingleChildScrollView(
         child: Column(
@@ -699,7 +722,7 @@ class _HomePageState extends State<HomePage> {
                         child: Text(courseStore.userName),
                       ),
                     ),
-                    registerPhoneButton(),
+                    registerPhoneButton(context),
                     Expanded(
                       flex: 2,
                       child: TextButton(
@@ -733,52 +756,60 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             notRegisteredPhoneNumber(),
-            SizedBox(
-              height: 80,
-              width: width * 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.white,
+            Showcase(
+              shapeBorder: const CircleBorder(),
+              showcaseBackgroundColor: Colors.black,
+              textColor: Colors.white,
+              overlayColor: Colors.white54,
+              key: couponCodeKey,
+              description: 'در صورتی که کد معرف دارید، آن را در اینجا وارد کنید',
+              child: SizedBox(
+                height: 80,
+                width: width * 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    if(!courseStore.isAdsEnabled){
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context){
-                            return AddSalesPersonCouponCode();
-                          })
-                      );
-                    }
-                    else{
-                      if(!showAdsInPopUp){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return AdvertisementPage(
-                            navigatedPage: NavigatedPage.AddSalesPersonCouponCode,
-                          );
-                        }));
-                      }
-                      else{
-                        Utility.showAdsAlertDialog(
-                            context,
-                            NavigatedPage.AddSalesPersonCouponCode,
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      if(!courseStore.isAdsEnabled){
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context){
+                              return AddSalesPersonCouponCode();
+                            })
                         );
                       }
-                    }
-                  },
-                  child: Text(
-                    'ثبت کد معرف',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    )
-                  ),
+                      else{
+                        if(!showAdsInPopUp){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return AdvertisementPage(
+                              navigatedPage: NavigatedPage.AddSalesPersonCouponCode,
+                            );
+                          }));
+                        }
+                        else{
+                          Utility.showAdsAlertDialog(
+                              context,
+                              NavigatedPage.AddSalesPersonCouponCode,
+                          );
+                        }
+                      }
+                    },
+                    child: Text(
+                      'ثبت کد معرف',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      )
+                    ),
+                  )
                 )
-              )
+              ),
             ),
             SizedBox(
                 height: 80,
@@ -968,11 +999,53 @@ class _HomePageState extends State<HomePage> {
               child: BannerAds(),
             ) :
             SizedBox(),
+            Showcase(
+              showcaseBackgroundColor: Colors.black,
+              textColor: Colors.white,
+              shapeBorder: const CircleBorder(),
+              overlayColor: Colors.white54,
+              key: scrollKey,
+              description: 'منوی مورد نظر خود را انتخاب کنید',
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: HorizontalScrollableMenu(
+                    horizontalScrollableButtonNameList,
+                    horizontalScrollableButtonFunctionList,
+                ),
+              ),
+            ),
+            Showcase(
+              showcaseBackgroundColor: Colors.black,
+              shapeBorder: const CircleBorder(),
+              textColor: Colors.white,
+              overlayColor: Colors.white54,
+              key: newCoursesKey,
+              description: 'جدیدترین دوره ها را در اینجا ببینید',
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20, right:10),
+                child: SizedBox(
+                  height: 25,
+                  child: Text(
+                    'جدیدترین دوره ها',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: HorizontalScrollableMenu(
-                  horizontalScrollableButtonNameList,
-                  horizontalScrollableButtonFunctionList,
+              child: Container(
+                width: width * 2,
+                height: 250,
+                child: CourseCard(courses, courseList, newCoursesPicFiles),
+              ),
+            ),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: Divider(color: Colors.grey,),
               ),
             ),
             Padding(
@@ -997,32 +1070,6 @@ class _HomePageState extends State<HomePage> {
                 width: width * 2,
                 height: 250,
                 child: CourseCard(topClickedCoursesFuture, topClickedCourses, topClickedCoursesPicFiles)),
-            ),
-            Center(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7,
-                child: Divider(color: Colors.grey,),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, right:10),
-              child: SizedBox(
-                height: 25,
-                child: Text(
-                  'جدیدترین دوره ها',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                  width: width * 2,
-                  height: 250,
-                  child: CourseCard(courses, courseList, newCoursesPicFiles),
-              ),
             ),
             Center(
               child: SizedBox(
@@ -1235,7 +1282,7 @@ class _HomePageState extends State<HomePage> {
                           fontSize: 19,
                           color: Colors.white,),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if(!courseStore.isAdsEnabled){
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
@@ -1395,38 +1442,60 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget registerPhoneButton(){
+  signedUpForFirstTime() async{
+    String firstTimeValue = await secureStorage.read(key: 'isSignedUpForFirstTime');
+    if(firstTimeValue == null || firstTimeValue == ''){
+      await secureStorage.write(key: 'isSignedUpForFirstTime', value: 'true');
+      return true;
+    }
+    return false;
+  }
+  Widget registerPhoneButton(BuildContext context){
     if(courseStore.hasPhoneNumber)
       return SizedBox();
+    signedUpForFirstTime().then((status){
+      if(status)
+        ShowCaseWidget.of(context).startShowCase([
+          registerPhoneNumberKey, couponCodeKey
+        ]);
+    });
     return Expanded(
       flex: 2,
-      child: TextButton(
-        onPressed: (){
-          if(!courseStore.isAdsEnabled){
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) {
-                  return AuthenticationPage(FormName.RegisterPhoneNumber);
-                }));
-          }
-          else{
-            if(!showAdsInPopUp){
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return AdvertisementPage(
-                  navigatedPage: NavigatedPage.RegisterPhoneNumber,
-                );
-              }));
+      child: Showcase(
+        showcaseBackgroundColor: Colors.black,
+        shapeBorder: const CircleBorder(),
+        textColor: Colors.white,
+        overlayColor: Colors.white54,
+        key: registerPhoneNumberKey,
+        description: 'صندوق پیام',
+        child: TextButton(
+          onPressed: (){
+            if(!courseStore.isAdsEnabled){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) {
+                    return AuthenticationPage(FormName.RegisterPhoneNumber);
+                  }));
             }
             else{
-              Utility.showAdsAlertDialog(
-                  context,
-                  NavigatedPage.RegisterPhoneNumber
-              );
+              if(!showAdsInPopUp){
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AdvertisementPage(
+                    navigatedPage: NavigatedPage.RegisterPhoneNumber,
+                  );
+                }));
+              }
+              else{
+                Utility.showAdsAlertDialog(
+                    context,
+                    NavigatedPage.RegisterPhoneNumber
+                );
+              }
             }
-          }
-        },
-        child: Card(
-          color: Color(0xFF20BFA9),
-          child: Center(child: Text('ثبت همراه')),
+          },
+          child: Card(
+            color: Color(0xFF20BFA9),
+            child: Center(child: Text('ثبت همراه')),
+          ),
         ),
       ),
     );
@@ -1612,6 +1681,115 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Widget bottomNavigationMenu(){
+    return Container(
+      width: width,
+      height: 65,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Container(
+            color: tab0Color,
+            width: width * 2 / 3,
+            child: InkWell(
+              onTap: (){
+                setState(() {
+                  tabIndex = 0;
+                  tab0Color = Colors.black12;
+                  tab1Color = Color(0xFF202028);
+                  tab2Color = Color(0xFF202028);
+                });
+              },
+              child: Showcase(
+                showcaseBackgroundColor: Colors.black,
+                shapeBorder: const CircleBorder(),
+                textColor: Colors.white,
+                overlayColor: Colors.white54,
+                key: libraryKey,
+                description: 'محصولات خریداری شده و مورد علاقه خود را در اینجا ببینید',
+                child: Center(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Icon(Icons.my_library_music,
+                            size: 25, color: Colors.white
+                        ),
+                      ),
+                      Text('آرشیو')
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            color: tab1Color,
+            width: width * 2 / 3,
+            child: InkWell(
+              onTap: (){
+                setState(() {
+                  tabIndex = 1;
+                  tab0Color = Color(0xFF202028);
+                  tab1Color = Colors.black12;
+                  tab2Color = Color(0xFF202028);
+                });
+              },
+              child: Center(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Icon(Icons.home,
+                          size: 25, color: Colors.white
+                      ),
+                    ),
+                    Text('خانه')
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            color: tab2Color,
+            width: width * 2 / 3,
+            child: InkWell(
+              onTap: (){
+                setState(() {
+                  tabIndex = 2;
+                  tab0Color = Color(0xFF202028);
+                  tab2Color = Colors.black12;
+                  tab1Color = Color(0xFF202028);
+                });
+              },
+              child: Showcase(
+                showcaseBackgroundColor: Colors.black,
+                shapeBorder: const CircleBorder(),
+                textColor: Colors.white,
+                overlayColor: Colors.white54,
+                key: profileKey,
+                description: 'اطلاعات کاربری خود را در اینجا ببینید',
+                child: Center(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Icon(Icons.person,
+                            size: 25, color: Colors.white
+                        ),
+                      ),
+                      Text('پروفایل')
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
@@ -1627,74 +1805,156 @@ class _HomePageState extends State<HomePage> {
 
     width = MediaQuery.of(context).size.width / 2;
     height = (MediaQuery.of(context).size.width / 2) * 1.5;
-    return WillPopScope(
-        child: Scaffold(
-            appBar: AppBar(
-                leading: Container(),
-                centerTitle: true,
-                title: appBarTitle,
-                actions: <Widget>[
-                  new IconButton(icon: actionIcon,onPressed:(){
-                    setState(() {
-                      if (this.actionIcon.icon == Icons.search) {
-                        this.actionIcon = new Icon(Icons.close, color: Colors.white,);
-                        this.appBarTitle = new TextField(
-                          textInputAction: TextInputAction.search,
-                          onSubmitted: (value){
-                            search(value);
-                          },
-                          controller: searchController,
-                          style: new TextStyle(
-                            color: Colors.white,
-
-                          ),
-                          decoration: new InputDecoration(
-                            prefixIcon: InkWell(
-                              onTap: (){
-                                search(searchController.text);
-                              },
-                              child: Icon(Icons.search,
-                                  size: 25, color: Colors.white),
+    return ShowCaseWidget(
+        builder: Builder(builder: (context){
+          myContext = context;
+          return WillPopScope(
+            child: Scaffold(
+                appBar: AppBar(
+                    leading: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Showcase(
+                        showcaseBackgroundColor: Colors.black,
+                        shapeBorder: const CircleBorder(),
+                        textColor: Colors.white,
+                        overlayColor: Colors.white54,
+                        key: messageBoxKey,
+                        description: 'صندوق پیام',
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: InkWell(
+                                child: Icon(Icons.mail_outline, color: Colors.white,),
+                                onTap:(){
+                                  setState(() {
+                                    //TODO add function for notification button
+                                  });
+                                } ,
+                              ),
                             ),
-                            hintText: "جستجو...",
-                            hintStyle: new TextStyle(color: Colors.white),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:  Colors.redAccent
+                                ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      '4',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    centerTitle: true,
+                    title: appBarTitle,
+                    actions: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Showcase(
+                          shapeBorder: const CircleBorder(),
+                          showcaseBackgroundColor: Colors.black,
+                          textColor: Colors.white,
+                          overlayColor: Colors.white54,
+                          key: searchKey,
+                          description: 'دوره مورد نظر خود را اینجا جستجو کنید',
+                          child: new IconButton(
+                            icon: actionIcon,
+                            onPressed:(){
+                              setState(() {
+                              if (this.actionIcon.icon == Icons.search) {
+                                this.actionIcon = new Icon(Icons.close, color: Colors.white,);
+                                this.appBarTitle = new TextField(
+                                  textInputAction: TextInputAction.search,
+                                  onSubmitted: (value){
+                                    search(value);
+                                  },
+                                  controller: searchController,
+                                  style: new TextStyle(
+                                    color: Colors.white,
+
+                                  ),
+                                  decoration: new InputDecoration(
+                                    prefixIcon: InkWell(
+                                      onTap: (){
+                                        search(searchController.text);
+                                      },
+                                      child: Icon(Icons.search,
+                                          size: 25, color: Colors.white),
+                                    ),
+                                    hintText: "جستجو...",
+                                    hintStyle: new TextStyle(color: Colors.white),
+                                  ),
+                                );
+                                _handleSearchStart();
+                              }
+                              else {
+                                _handleSearchEnd();
+                              }
+                            });
+                          } ,
                           ),
-                        );
-                        _handleSearchStart();
-                      }
-                      else {
-                        _handleSearchEnd();
-                      }
-                    });
-                  } ,
-                  ),
-                ]
-            ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: CurvedNavigationBar(
-                color: Color(0xFF202028),
-                buttonBackgroundColor: Color(0xFF202028),
-                animationDuration: Duration(milliseconds: 200),
-                height: 50,
-                backgroundColor: Color(0xFF34333A),
-                items: <Widget>[
-                  Icon(Icons.my_library_music,
-                      size: 25, color: Color(0xFF20BFA9)),
-                  Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
-                  Icon(Icons.person,
-                      size: 25, color: Color(0xFF20BFA9)),
-                ],
-                onTap: (index) => {
-                  setState(() {
-                    tabIndex = index;
-                  })
-                },
-                index: 1,
-              ),
-            ),
-            body: navigationSelect(tabIndex)),
-        onWillPop: onWilPop);
+                        ),
+                      ),
+                    ]
+                ),
+                bottomNavigationBar:  bottomNavigationMenu(),
+                // Padding(
+                //   padding: const EdgeInsets.only(bottom: 0),
+                //   child: CurvedNavigationBar(
+                //     color: Color(0xFF202028),
+                //     buttonBackgroundColor: Color(0xFF202028),
+                //     animationDuration: Duration(milliseconds: 200),
+                //     height: 50,
+                //     backgroundColor: Color(0xFF34333A),
+                //     items: <Widget>[
+                //       Showcase(
+                //         showcaseBackgroundColor: Colors.black,
+                //         textColor: Colors.white,
+                //         overlayColor: Colors.white54,
+                //         shapeBorder: const CircleBorder(),
+                //         key: libraryKey,
+                //         description: 'محصولات خریداری شده و مورد علاقه خود را در اینجا ببینید',
+                //         child:
+                //         Icon(Icons.my_library_music,
+                //             size: 25, color: Color(0xFF20BFA9)),
+                //       ),
+                //       Icon(Icons.home, size: 25, color: Color(0xFF20BFA9)),
+                //       Showcase(
+                //         showcaseBackgroundColor: Colors.black,
+                //         textColor: Colors.white,
+                //         shapeBorder: const CircleBorder(),
+                //         overlayColor: Colors.white54,
+                //         key: profileKey,
+                //         description: 'اطلاعات کاربری خود را در اینجا ببینید',
+                //         child:
+                //         Icon(Icons.person,
+                //             size: 25, color: Color(0xFF20BFA9)),
+                //       ),
+                //     ],
+                //     onTap: (index) => {
+                //       setState(() {
+                //         tabIndex = index;
+                //       })
+                //     },
+                //     index: 1,
+                //   ),
+                // ),
+                body: navigationSelect(tabIndex, context)),
+            onWillPop: onWilPop);
+        }
+      ),
+    );
   }
 }
 //

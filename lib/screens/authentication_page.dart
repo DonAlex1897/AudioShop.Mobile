@@ -335,197 +335,199 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   Widget authForm(FormName formName) {
     if (formName == FormName.SignIn)
       return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(65, 0, 65, 0),
-          child: Center(
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.justify,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 28.0),
-                    child: Container(
-                      child: TextField(
-                        style: TextStyle(
-                            decorationColor: Colors.black, color: Colors.white),
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 2.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 2.0),
-                          ),
-                          border: OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                            color: Colors.white,
-                          ),
-                          labelText: 'شماره همراه',
-                          hintText: 'مثال: 9121111111',
-                          hintStyle: TextStyle(
-                            color: Colors.white60,
-                          ),
-                        ),
-                        controller: phoneNumberController,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(65, 65, 65, 0),
+            child: Center(
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      phoneNumberError,
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                  ),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Expanded(
-                          child: sendCodeButton(),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 10.0),
-                            child: TextField(
-                              focusNode: focusReceivedCode,
-                              style: TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                border: OutlineInputBorder(),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white, width: 2.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.white, width: 2.0),
-                                ),
-                                labelText: 'کد دریافتی',
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              controller: verificationCodeController,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: Container(
+                        child: TextField(
+                          style: TextStyle(
+                              decorationColor: Colors.black, color: Colors.white),
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2.0),
+                            ),
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(
+                              color: Colors.white,
+                            ),
+                            labelText: 'شماره همراه',
+                            hintText: 'مثال: 9121111111',
+                            hintStyle: TextStyle(
+                              color: Colors.white60,
                             ),
                           ),
+                          controller: phoneNumberController,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      verificationCodeError,
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Color(0xFF20BFA9),
-                    ),
-                    child: ArgonButton(
-                      height: 50,
-                      width: 400,
-                      borderRadius: 5.0,
-                      color: Color(0xFF20BFA9),
+                    SizedBox(
+                      height: 25,
                       child: Text(
-                        "تایید",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700
-                        ),
+                        phoneNumberError,
+                        style: TextStyle(color: Colors.red[200]),
                       ),
-                      loader: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SpinKitRing(
-                          color: Colors.white,
-                          lineWidth: 4,
-                        ),
-                      ),
-                      onTap:(startLoading, stopLoading, btnState) async {
-                        bool isQualified = true;
-                        if(phoneNumberController.text.isNotEmpty &&
-                            phoneNumberController.text[0] == '0')
-                          phoneNumberController.text =
-                              phoneNumberController.text.substring(1);
-                        setState(() {
-                          phoneNumberError = verificationCodeError = '';
-                          if (phoneNumberController.text.isEmpty){
-                            phoneNumberError = 'شماره موبایل الزامی است';
-                            isQualified = false;
-                          }
-                          else if(phoneNumberController.text.length != 10){
-                            phoneNumberError =
-                            'فرمت شماره همراه اشتباه است';
-                            isQualified = false;
-                          }
-                          if (verificationCodeController.text.isEmpty){
-                            verificationCodeError =
-                            'کد ارسال شده به همراهتان را وارد کنید';
-                            isQualified = false;
-                          }
-                        });
-                        if(isQualified){
-                          startLoading();
-                          await signIn();
-                          stopLoading();
-                        }
-                      },
                     ),
-                    // child: TextButton(
-                    //   onPressed: () async {
-                    //     bool isQualified = true;
-                    //     if(phoneNumberController.text.isNotEmpty &&
-                    //         phoneNumberController.text[0] == '0')
-                    //       phoneNumberController.text =
-                    //           phoneNumberController.text.substring(1);
-                    //     setState(() {
-                    //       phoneNumberError = verificationCodeError = '';
-                    //       if (phoneNumberController.text.isEmpty){
-                    //         phoneNumberError = 'شماره موبایل الزامی است';
-                    //         isQualified = false;
-                    //       }
-                    //       else if(phoneNumberController.text.length != 10){
-                    //         phoneNumberError =
-                    //           'فرمت شماره همراه اشتباه است';
-                    //         isQualified = false;
-                    //       }
-                    //       if (verificationCodeController.text.isEmpty){
-                    //         verificationCodeError =
-                    //           'کد ارسال شده به همراهتان را وارد کنید';
-                    //         isQualified = false;
-                    //       }
-                    //     });
-                    //     if(isQualified)
-                    //       await signIn();
-                    //   },
-                    //   child: Text(
-                    //     'تایید',
-                    //     style: TextStyle(
-                    //       fontSize: 20,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: Colors.white,
-                    //     ),
-                    //   ),
-                    // ),
-                  ),
-                ],
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: sendCodeButton(),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: TextField(
+                                focusNode: focusReceivedCode,
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'کد دریافتی',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: verificationCodeController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                      child: Text(
+                        verificationCodeError,
+                        style: TextStyle(color: Colors.red[200]),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Color(0xFF20BFA9),
+                      ),
+                      child: ArgonButton(
+                        height: 50,
+                        width: 400,
+                        borderRadius: 5.0,
+                        color: Color(0xFF20BFA9),
+                        child: Text(
+                          "تایید",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700
+                          ),
+                        ),
+                        loader: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SpinKitRing(
+                            color: Colors.white,
+                            lineWidth: 4,
+                          ),
+                        ),
+                        onTap:(startLoading, stopLoading, btnState) async {
+                          bool isQualified = true;
+                          if(phoneNumberController.text.isNotEmpty &&
+                              phoneNumberController.text[0] == '0')
+                            phoneNumberController.text =
+                                phoneNumberController.text.substring(1);
+                          setState(() {
+                            phoneNumberError = verificationCodeError = '';
+                            if (phoneNumberController.text.isEmpty){
+                              phoneNumberError = 'شماره موبایل الزامی است';
+                              isQualified = false;
+                            }
+                            else if(phoneNumberController.text.length != 10){
+                              phoneNumberError =
+                              'فرمت شماره همراه اشتباه است';
+                              isQualified = false;
+                            }
+                            if (verificationCodeController.text.isEmpty){
+                              verificationCodeError =
+                              'کد ارسال شده به همراهتان را وارد کنید';
+                              isQualified = false;
+                            }
+                          });
+                          if(isQualified){
+                            startLoading();
+                            await signIn();
+                            stopLoading();
+                          }
+                        },
+                      ),
+                      // child: TextButton(
+                      //   onPressed: () async {
+                      //     bool isQualified = true;
+                      //     if(phoneNumberController.text.isNotEmpty &&
+                      //         phoneNumberController.text[0] == '0')
+                      //       phoneNumberController.text =
+                      //           phoneNumberController.text.substring(1);
+                      //     setState(() {
+                      //       phoneNumberError = verificationCodeError = '';
+                      //       if (phoneNumberController.text.isEmpty){
+                      //         phoneNumberError = 'شماره موبایل الزامی است';
+                      //         isQualified = false;
+                      //       }
+                      //       else if(phoneNumberController.text.length != 10){
+                      //         phoneNumberError =
+                      //           'فرمت شماره همراه اشتباه است';
+                      //         isQualified = false;
+                      //       }
+                      //       if (verificationCodeController.text.isEmpty){
+                      //         verificationCodeError =
+                      //           'کد ارسال شده به همراهتان را وارد کنید';
+                      //         isQualified = false;
+                      //       }
+                      //     });
+                      //     if(isQualified)
+                      //       await signIn();
+                      //   },
+                      //   child: Text(
+                      //     'تایید',
+                      //     style: TextStyle(
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -533,195 +535,197 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       );
     else if (formName == FormName.RegisterPhoneNumber)
       return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(65, 0, 65, 0),
-          child: Center(
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.justify,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextField(
-                    style: TextStyle(
-                        decorationColor: Colors.black, color: Colors.white),
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Colors.white, width: 2.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Colors.white, width: 2.0),
-                      ),
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                      ),
-                      labelText: 'شماره همراه',
-                      hintText: 'مثال: 9121111111',
-                      hintStyle: TextStyle(
-                        color: Colors.white60,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(65, 65, 65, 0),
+            child: Center(
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
                       ),
                     ),
-                    controller: phoneNumberController,
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      phoneNumberError,
-                      style: TextStyle(color: Colors.red[200]),
+                    SizedBox(
+                      height: 20,
                     ),
-                  ),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Expanded(
-                          child: sendCodeButton(),
+                    TextField(
+                      style: TextStyle(
+                          decorationColor: Colors.black, color: Colors.white),
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 10.0),
-                            child: TextField(
-                              style: TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                border: OutlineInputBorder(),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
+                        ),
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        labelText: 'شماره همراه',
+                        hintText: 'مثال: 9121111111',
+                        hintStyle: TextStyle(
+                          color: Colors.white60,
+                        ),
+                      ),
+                      controller: phoneNumberController,
+                    ),
+                    SizedBox(
+                      height: 25,
+                      child: Text(
+                        phoneNumberError,
+                        style: TextStyle(color: Colors.red[200]),
+                      ),
+                    ),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: sendCodeButton(),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: TextField(
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'کد دریافتی',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                labelText: 'کد دریافتی',
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
+                                controller: verificationCodeController,
                               ),
-                              controller: verificationCodeController,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      verificationCodeError,
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF20BFA9),
-                      borderRadius: BorderRadius.circular(5)
-                    ),
-                    child: ArgonButton(
-                      height: 50,
-                      width: 400,
-                      borderRadius: 5.0,
-                      color: Color(0xFF20BFA9),
+                    SizedBox(
+                      height: 25,
                       child: Text(
-                        "تایید",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700
-                        ),
+                        verificationCodeError,
+                        style: TextStyle(color: Colors.red[200]),
                       ),
-                      loader: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SpinKitRing(
-                          color: Colors.white,
-                          lineWidth: 4,
-                        ),
-                      ),
-                      onTap:(startLoading, stopLoading, btnState) async {
-                        bool isQualified = true;
-                        if(phoneNumberController.text.isNotEmpty &&
-                            phoneNumberController.text[0] == '0')
-                          phoneNumberController.text =
-                              phoneNumberController.text.substring(1);
-                        setState(() {
-                          phoneNumberError = verificationCodeError = '';
-                          if (phoneNumberController.text.isEmpty){
-                            phoneNumberError = 'شماره موبایل الزامی است';
-                            isQualified = false;
-                          }
-                          else if(phoneNumberController.text.length != 10){
-                            phoneNumberError =
-                            'فرمت شماره همراه اشتباه است';
-                            isQualified = false;
-                          }
-                          if (verificationCodeController.text.isEmpty){
-                            verificationCodeError =
-                            'کد ارسال شده به همراهتان را وارد کنید';
-                            isQualified = false;
-                          }
-                        });
-                        if(isQualified){
-                          startLoading();
-                          await registerPhoneNumber();
-                          stopLoading();
-                        }
-                      }
                     ),
-                    // child: TextButton(
-                    //   onPressed: () async {
-                    //     bool isQualified = true;
-                    //     if(phoneNumberController.text.isNotEmpty &&
-                    //         phoneNumberController.text[0] == '0')
-                    //       phoneNumberController.text =
-                    //           phoneNumberController.text.substring(1);
-                    //     setState(() {
-                    //       phoneNumberError = verificationCodeError = '';
-                    //       if (phoneNumberController.text.isEmpty){
-                    //         phoneNumberError = 'شماره موبایل الزامی است';
-                    //         isQualified = false;
-                    //       }
-                    //       else if(phoneNumberController.text.length != 10){
-                    //         phoneNumberError =
-                    //         'فرمت شماره همراه اشتباه است';
-                    //         isQualified = false;
-                    //       }
-                    //       if (verificationCodeController.text.isEmpty){
-                    //         verificationCodeError =
-                    //         'کد ارسال شده به همراهتان را وارد کنید';
-                    //         isQualified = false;
-                    //       }
-                    //     });
-                    //     if(isQualified)
-                    //       await registerPhoneNumber();
-                    //   },
-                    //   child: Text(
-                    //     'تایید',
-                    //     style: TextStyle(
-                    //       fontSize: 20,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: Colors.white,
-                    //     ),
-                    //   ),
-                    // ),
-                  ),
-                ],
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF20BFA9),
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      child: ArgonButton(
+                        height: 50,
+                        width: 400,
+                        borderRadius: 5.0,
+                        color: Color(0xFF20BFA9),
+                        child: Text(
+                          "تایید",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700
+                          ),
+                        ),
+                        loader: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SpinKitRing(
+                            color: Colors.white,
+                            lineWidth: 4,
+                          ),
+                        ),
+                        onTap:(startLoading, stopLoading, btnState) async {
+                          bool isQualified = true;
+                          if(phoneNumberController.text.isNotEmpty &&
+                              phoneNumberController.text[0] == '0')
+                            phoneNumberController.text =
+                                phoneNumberController.text.substring(1);
+                          setState(() {
+                            phoneNumberError = verificationCodeError = '';
+                            if (phoneNumberController.text.isEmpty){
+                              phoneNumberError = 'شماره موبایل الزامی است';
+                              isQualified = false;
+                            }
+                            else if(phoneNumberController.text.length != 10){
+                              phoneNumberError =
+                              'فرمت شماره همراه اشتباه است';
+                              isQualified = false;
+                            }
+                            if (verificationCodeController.text.isEmpty){
+                              verificationCodeError =
+                              'کد ارسال شده به همراهتان را وارد کنید';
+                              isQualified = false;
+                            }
+                          });
+                          if(isQualified){
+                            startLoading();
+                            await registerPhoneNumber();
+                            stopLoading();
+                          }
+                        }
+                      ),
+                      // child: TextButton(
+                      //   onPressed: () async {
+                      //     bool isQualified = true;
+                      //     if(phoneNumberController.text.isNotEmpty &&
+                      //         phoneNumberController.text[0] == '0')
+                      //       phoneNumberController.text =
+                      //           phoneNumberController.text.substring(1);
+                      //     setState(() {
+                      //       phoneNumberError = verificationCodeError = '';
+                      //       if (phoneNumberController.text.isEmpty){
+                      //         phoneNumberError = 'شماره موبایل الزامی است';
+                      //         isQualified = false;
+                      //       }
+                      //       else if(phoneNumberController.text.length != 10){
+                      //         phoneNumberError =
+                      //         'فرمت شماره همراه اشتباه است';
+                      //         isQualified = false;
+                      //       }
+                      //       if (verificationCodeController.text.isEmpty){
+                      //         verificationCodeError =
+                      //         'کد ارسال شده به همراهتان را وارد کنید';
+                      //         isQualified = false;
+                      //       }
+                      //     });
+                      //     if(isQualified)
+                      //       await registerPhoneNumber();
+                      //   },
+                      //   child: Text(
+                      //     'تایید',
+                      //     style: TextStyle(
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -729,485 +733,487 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       );
     else
       return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(65, 20, 65, 20),
-          child: Center(
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: Text(
-                      'جهت ثبت نام موارد زیر را کامل کنید',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.justify,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(65, 65, 65, 0),
+            child: Center(
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        'جهت ثبت نام موارد زیر را کامل کنید',
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.justify,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 28.0),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        // crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: TextField(
-                              style: TextStyle(
-                                  decorationColor: Colors.black,
-                                  color: Colors.white),
-                              keyboardType: TextInputType.text,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          // crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: TextField(
+                                style: TextStyle(
+                                    decorationColor: Colors.black,
+                                    color: Colors.white),
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  border: OutlineInputBorder(),
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  labelText: 'نام کاربری',
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                border: OutlineInputBorder(),
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                                labelText: 'نام کاربری',
+                                controller: userNameController,
                               ),
-                              controller: userNameController,
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: ArgonButton(
+                                  height: 50,
+                                  width: 400,
+                                  minWidth: 400,
+                                  borderRadius: 5.0,
+                                  color: Colors.red[700],
+                                  child: Text(
+                                    "بررسی",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700
+                                    ),
+                                  ),
+                                  loader: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SpinKitRing(
+                                      color: Colors.white,
+                                      lineWidth: 4,
+                                    ),
+                                  ),
+                                  onTap:(startLoading, stopLoading, btnState) async {
+                                    if(userNameController.text == '') {
+                                      Fluttertoast.showToast(msg: 'نام کاربری را وارد کنید');
+                                      return;
+                                    }
+                                    if(btnState == ButtonState.Idle) {
+                                      startLoading();
+                                        setState(() {
+                                          if (!isCheckingUserName) {
+                                            isCheckingUserName = true;
+                                          }
+                                        });
+                                        await isUserNameRepetitive(
+                                            userNameController.text);
+                                        setState(() {
+                                          isCheckingUserName = false;
+                                        });
+                                      stopLoading();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                      child: Text(
+                        userNameError,
+                        style: TextStyle(color: Colors.red[200]),
+                      ),
+                    ),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: TextField(
+                                onChanged: (text){
+                                  if(text.length >= 6)
+                                    setState(() {
+                                      passwordError = '';
+                                    });
+                                },
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.visiblePassword,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'رمز عبور',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: passwordController,
+                              ),
                             ),
                           ),
                           Expanded(
-                            flex: 2,
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: ArgonButton(
-                                height: 50,
-                                width: 400,
-                                minWidth: 400,
-                                borderRadius: 5.0,
-                                color: Colors.red[700],
-                                child: Text(
-                                  "بررسی",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700
-                                  ),
-                                ),
-                                loader: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SpinKitRing(
-                                    color: Colors.white,
-                                    lineWidth: 4,
-                                  ),
-                                ),
-                                onTap:(startLoading, stopLoading, btnState) async {
-                                  if(userNameController.text == '') {
-                                    Fluttertoast.showToast(msg: 'نام کاربری را وارد کنید');
-                                    return;
-                                  }
-                                  if(btnState == ButtonState.Idle) {
-                                    startLoading();
-                                      setState(() {
-                                        if (!isCheckingUserName) {
-                                          isCheckingUserName = true;
-                                        }
-                                      });
-                                      await isUserNameRepetitive(
-                                          userNameController.text);
-                                      setState(() {
-                                        isCheckingUserName = false;
-                                      });
-                                    stopLoading();
-                                  }
+                              padding: const EdgeInsets.only(right: 4.0),
+                              child: TextField(
+                                onChanged: (text){
+                                  if(text != passwordController.text)
+                                    setState(() {
+                                      passwordError = 'رمز عبور مطابقت ندارد';
+                                    });
+                                  else
+                                    setState(() {
+                                      passwordError = '';
+                                    });
                                 },
+                                focusNode: focusRepeatPassword,
+                                style: TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.visiblePassword,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                  border: OutlineInputBorder(),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  labelText: 'تکرار رمز عبور',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                controller: confirmPasswordController,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      userNameError,
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                  ),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4.0),
-                            child: TextField(
-                              onChanged: (text){
-                                if(text.length >= 6)
-                                  setState(() {
-                                    passwordError = '';
-                                  });
-                              },
-                              style: TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                border: OutlineInputBorder(),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                labelText: 'رمز عبور',
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              controller: passwordController,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 4.0),
-                            child: TextField(
-                              onChanged: (text){
-                                if(text != passwordController.text)
-                                  setState(() {
-                                    passwordError = 'رمز عبور مطابقت ندارد';
-                                  });
-                                else
-                                  setState(() {
-                                    passwordError = '';
-                                  });
-                              },
-                              focusNode: focusRepeatPassword,
-                              style: TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                border: OutlineInputBorder(),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.white, width: 2.0),
-                                ),
-                                labelText: 'تکرار رمز عبور',
-                                labelStyle: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              controller: confirmPasswordController,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: Text(
-                      passwordError,
-                      style: TextStyle(color: Colors.red[200]),
-                    ),
-                  ),
-                  // IntrinsicHeight(
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-                  //     children: <Widget>[
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.only(left: 4.0),
-                  //           child: TextField(
-                  //             style: TextStyle(color: Colors.white),
-                  //             keyboardType: TextInputType.text,
-                  //             decoration: InputDecoration(
-                  //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  //               border: OutlineInputBorder(),
-                  //               enabledBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               focusedBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               labelText: 'نام',
-                  //               labelStyle: TextStyle(
-                  //                 color: Colors.white,
-                  //               ),
-                  //             ),
-                  //             controller: firstNameController,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.only(right: 4.0),
-                  //           child: TextField(
-                  //             style: TextStyle(color: Colors.white),
-                  //             keyboardType: TextInputType.text,
-                  //             decoration: InputDecoration(
-                  //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  //               border: OutlineInputBorder(),
-                  //               enabledBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               focusedBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               labelText: 'نام خانوادگی',
-                  //               labelStyle: TextStyle(
-                  //                 color: Colors.white,
-                  //               ),
-                  //             ),
-                  //             controller: lastNameController,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 25,
-                  // ),
-                  // IntrinsicHeight(
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-                  //     children: <Widget>[
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  //           child: DropdownButton(
-                  //             dropdownColor: Color(0xFF44434C),
-                  //             value: employmentStatus,
-                  //             style: TextStyle(color: Colors.white),
-                  //             onChanged: (String newValue) {
-                  //               setState(() {
-                  //                 employmentStatus = newValue;
-                  //               });
-                  //               switch(newValue){
-                  //                 case 'شاغل':
-                  //                   isEmployed = true;
-                  //                   break;
-                  //                 case 'جویای کار':
-                  //                   isEmployed = false;
-                  //                   break;
-                  //                 case 'اشتغال':
-                  //                   isEmployed = null;
-                  //               }
-                  //             },
-                  //             items: <String>['اشتغال', 'شاغل', 'جویای کار']
-                  //                 .map<DropdownMenuItem<String>>((String value) {
-                  //               return DropdownMenuItem<String>(
-                  //                 value: value,
-                  //                 child: Text(value),
-                  //               );
-                  //             }).toList(),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.only(right: 4.0),
-                  //           child: TextField(
-                  //             style: TextStyle(color: Colors.white),
-                  //             keyboardType: TextInputType.text,
-                  //             decoration: InputDecoration(
-                  //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  //               border: OutlineInputBorder(),
-                  //               enabledBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               focusedBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               labelText: 'شهر محل سکونت',
-                  //               labelStyle: TextStyle(
-                  //                 color: Colors.white,
-                  //                 fontSize: 14
-                  //               ),
-                  //             ),
-                  //             controller: cityController,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 25,
-                  // ),
-                  // IntrinsicHeight(
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-                  //     children: <Widget>[
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  //           child: DropdownButton(
-                  //             dropdownColor: Color(0xFF44434C),
-                  //             value: genderString,
-                  //             style: TextStyle(color: Colors.white),
-                  //             onChanged: (String newValue) {
-                  //               setState(() {
-                  //                 genderString = newValue;
-                  //               });
-                  //               switch(newValue){
-                  //                 case 'مذکر':
-                  //                   gender = Gender.Male;
-                  //                   break;
-                  //                 case 'مونث':
-                  //                   gender = Gender.Female;
-                  //                   break;
-                  //                 case 'جنسیت':
-                  //                   gender = Gender.Default;
-                  //                   break;
-                  //               }
-                  //             },
-                  //             items: <String>['جنسیت', 'مذکر', 'مونث']
-                  //                 .map<DropdownMenuItem<String>>((String value) {
-                  //               return DropdownMenuItem<String>(
-                  //                 value: value,
-                  //                 child: Text(value),
-                  //               );
-                  //             }).toList(),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Expanded(
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.only(right: 4.0),
-                  //           child: TextField(
-                  //             style: TextStyle(color: Colors.white),
-                  //             keyboardType: TextInputType.number,
-                  //             decoration: InputDecoration(
-                  //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  //               border: OutlineInputBorder(),
-                  //               enabledBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               focusedBorder: OutlineInputBorder(
-                  //                 borderSide: BorderSide(
-                  //                     color: Colors.white, width: 2.0),
-                  //               ),
-                  //               labelText: 'سن',
-                  //               labelStyle: TextStyle(
-                  //                   color: Colors.white,
-                  //               ),
-                  //             ),
-                  //             controller: ageController,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 25,
-                  // ),
-                  Container(
-                    height: 45,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Color(0xFF20BFA9),
-                    ),
-                    child: ArgonButton(
-                      height: 50,
-                      width: 400,
-                      borderRadius: 5.0,
-                      color: Color(0xFF20BFA9),
+                    SizedBox(
+                      height: 25,
                       child: Text(
-                        "تایید",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700
-                        ),
+                        passwordError,
+                        style: TextStyle(color: Colors.red[200]),
                       ),
-                      loader: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SpinKitRing(
-                          color: Colors.white,
-                          lineWidth: 4,
-                        ),
-                      ),
-                      onTap:(startLoading, stopLoading, btnState) async {
-                        bool isQualified = true;
-                        setState(() {
-                          userNameError = passwordError = '';
-                          if (userNameController.text.isEmpty){
-                            userNameError = 'نام کاربری الزامی است';
-                            isQualified = false;
-                          }
-                          if (passwordController.text.isEmpty){
-                            passwordError = 'رمز عبور الزامی است';
-                            isQualified = false;
-                          }
-                          else if (confirmPasswordController.text.isEmpty ||
-                              passwordController.text !=
-                                  confirmPasswordController.text){
-                            passwordError = 'رمز عبور مطابقت ندارد';
-                            isQualified = false;
-                          }
-                        });
-                        if(isQualified){
-                          startLoading();
-                          if(await signUp()) {
-                            stopLoading();
-                            Navigator.pop(context);
-                          }
-                          stopLoading();
-                        }
-                      },
                     ),
-                    // child: TextButton(
-                    //   onPressed: () async {
-                    //     bool isQualified = true;
-                    //     setState(() {
-                    //       userNameError = passwordError = '';
-                    //       if (userNameController.text.isEmpty){
-                    //         userNameError = 'نام کاربری الزامی است';
-                    //         isQualified = false;
-                    //       }
-                    //       if (passwordController.text.isEmpty){
-                    //         passwordError = 'رمز عبور الزامی است';
-                    //         isQualified = false;
-                    //       }
-                    //       else if (confirmPasswordController.text.isEmpty ||
-                    //           passwordController.text !=
-                    //               confirmPasswordController.text){
-                    //         passwordError = 'رمز عبور مطابقت ندارد';
-                    //         isQualified = false;
-                    //       }
-                    //     });
-                    //     if(isQualified)
-                    //       await signUp();
-                    //   },
-                    //   child: Text(
-                    //     'تایید',
-                    //     style: TextStyle(
-                    //       fontSize: 20,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: Colors.white,
-                    //     ),
+                    // IntrinsicHeight(
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //     children: <Widget>[
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.only(left: 4.0),
+                    //           child: TextField(
+                    //             style: TextStyle(color: Colors.white),
+                    //             keyboardType: TextInputType.text,
+                    //             decoration: InputDecoration(
+                    //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    //               border: OutlineInputBorder(),
+                    //               enabledBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               focusedBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               labelText: 'نام',
+                    //               labelStyle: TextStyle(
+                    //                 color: Colors.white,
+                    //               ),
+                    //             ),
+                    //             controller: firstNameController,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.only(right: 4.0),
+                    //           child: TextField(
+                    //             style: TextStyle(color: Colors.white),
+                    //             keyboardType: TextInputType.text,
+                    //             decoration: InputDecoration(
+                    //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    //               border: OutlineInputBorder(),
+                    //               enabledBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               focusedBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               labelText: 'نام خانوادگی',
+                    //               labelStyle: TextStyle(
+                    //                 color: Colors.white,
+                    //               ),
+                    //             ),
+                    //             controller: lastNameController,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
                     //   ),
                     // ),
-                  ),
-                ],
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // IntrinsicHeight(
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //     children: <Widget>[
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    //           child: DropdownButton(
+                    //             dropdownColor: Color(0xFF44434C),
+                    //             value: employmentStatus,
+                    //             style: TextStyle(color: Colors.white),
+                    //             onChanged: (String newValue) {
+                    //               setState(() {
+                    //                 employmentStatus = newValue;
+                    //               });
+                    //               switch(newValue){
+                    //                 case 'شاغل':
+                    //                   isEmployed = true;
+                    //                   break;
+                    //                 case 'جویای کار':
+                    //                   isEmployed = false;
+                    //                   break;
+                    //                 case 'اشتغال':
+                    //                   isEmployed = null;
+                    //               }
+                    //             },
+                    //             items: <String>['اشتغال', 'شاغل', 'جویای کار']
+                    //                 .map<DropdownMenuItem<String>>((String value) {
+                    //               return DropdownMenuItem<String>(
+                    //                 value: value,
+                    //                 child: Text(value),
+                    //               );
+                    //             }).toList(),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.only(right: 4.0),
+                    //           child: TextField(
+                    //             style: TextStyle(color: Colors.white),
+                    //             keyboardType: TextInputType.text,
+                    //             decoration: InputDecoration(
+                    //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    //               border: OutlineInputBorder(),
+                    //               enabledBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               focusedBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               labelText: 'شهر محل سکونت',
+                    //               labelStyle: TextStyle(
+                    //                 color: Colors.white,
+                    //                 fontSize: 14
+                    //               ),
+                    //             ),
+                    //             controller: cityController,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // IntrinsicHeight(
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //     children: <Widget>[
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    //           child: DropdownButton(
+                    //             dropdownColor: Color(0xFF44434C),
+                    //             value: genderString,
+                    //             style: TextStyle(color: Colors.white),
+                    //             onChanged: (String newValue) {
+                    //               setState(() {
+                    //                 genderString = newValue;
+                    //               });
+                    //               switch(newValue){
+                    //                 case 'مذکر':
+                    //                   gender = Gender.Male;
+                    //                   break;
+                    //                 case 'مونث':
+                    //                   gender = Gender.Female;
+                    //                   break;
+                    //                 case 'جنسیت':
+                    //                   gender = Gender.Default;
+                    //                   break;
+                    //               }
+                    //             },
+                    //             items: <String>['جنسیت', 'مذکر', 'مونث']
+                    //                 .map<DropdownMenuItem<String>>((String value) {
+                    //               return DropdownMenuItem<String>(
+                    //                 value: value,
+                    //                 child: Text(value),
+                    //               );
+                    //             }).toList(),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       Expanded(
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.only(right: 4.0),
+                    //           child: TextField(
+                    //             style: TextStyle(color: Colors.white),
+                    //             keyboardType: TextInputType.number,
+                    //             decoration: InputDecoration(
+                    //               contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    //               border: OutlineInputBorder(),
+                    //               enabledBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               focusedBorder: OutlineInputBorder(
+                    //                 borderSide: BorderSide(
+                    //                     color: Colors.white, width: 2.0),
+                    //               ),
+                    //               labelText: 'سن',
+                    //               labelStyle: TextStyle(
+                    //                   color: Colors.white,
+                    //               ),
+                    //             ),
+                    //             controller: ageController,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Color(0xFF20BFA9),
+                      ),
+                      child: ArgonButton(
+                        height: 50,
+                        width: 400,
+                        borderRadius: 5.0,
+                        color: Color(0xFF20BFA9),
+                        child: Text(
+                          "تایید",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700
+                          ),
+                        ),
+                        loader: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SpinKitRing(
+                            color: Colors.white,
+                            lineWidth: 4,
+                          ),
+                        ),
+                        onTap:(startLoading, stopLoading, btnState) async {
+                          bool isQualified = true;
+                          setState(() {
+                            userNameError = passwordError = '';
+                            if (userNameController.text.isEmpty){
+                              userNameError = 'نام کاربری الزامی است';
+                              isQualified = false;
+                            }
+                            if (passwordController.text.isEmpty){
+                              passwordError = 'رمز عبور الزامی است';
+                              isQualified = false;
+                            }
+                            else if (confirmPasswordController.text.isEmpty ||
+                                passwordController.text !=
+                                    confirmPasswordController.text){
+                              passwordError = 'رمز عبور مطابقت ندارد';
+                              isQualified = false;
+                            }
+                          });
+                          if(isQualified){
+                            startLoading();
+                            if(await signUp()) {
+                              stopLoading();
+                              Navigator.pop(context);
+                            }
+                            stopLoading();
+                          }
+                        },
+                      ),
+                      // child: TextButton(
+                      //   onPressed: () async {
+                      //     bool isQualified = true;
+                      //     setState(() {
+                      //       userNameError = passwordError = '';
+                      //       if (userNameController.text.isEmpty){
+                      //         userNameError = 'نام کاربری الزامی است';
+                      //         isQualified = false;
+                      //       }
+                      //       if (passwordController.text.isEmpty){
+                      //         passwordError = 'رمز عبور الزامی است';
+                      //         isQualified = false;
+                      //       }
+                      //       else if (confirmPasswordController.text.isEmpty ||
+                      //           passwordController.text !=
+                      //               confirmPasswordController.text){
+                      //         passwordError = 'رمز عبور مطابقت ندارد';
+                      //         isQualified = false;
+                      //       }
+                      //     });
+                      //     if(isQualified)
+                      //       await signUp();
+                      //   },
+                      //   child: Text(
+                      //     'تایید',
+                      //     style: TextStyle(
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
