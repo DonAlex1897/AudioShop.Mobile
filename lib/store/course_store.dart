@@ -12,6 +12,7 @@ import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/favorite.dart';
 import 'package:mobile/models/in_progress_course.dart';
 import 'package:mobile/models/progress.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/now_playing.dart';
 import 'package:mobile/services/ads_service.dart';
 import 'package:mobile/services/authentication_service.dart';
@@ -36,6 +37,13 @@ class CourseStore extends ChangeNotifier{
   String _userId;
   String _userName;
   String _token;
+  String _firstName;
+  String _lastName;
+  String _phoneNumber;
+  bool _employed;
+  String _city;
+  int _age;
+  int _gender;
   bool _isLoggedIn = false;
   bool _hasPhoneNumber = false;
   String _salespersonCouponCode;
@@ -153,6 +161,14 @@ class CourseStore extends ChangeNotifier{
   Ads get coursePreviewBelowAddToFavoriteBannerAds => _coursePreviewBelowAddToFavoriteBannerAds;
   Ads get homePageTopOfSliderBannerAds => _homePageTopOfSliderBannerAds;
 
+  String get firstName => _firstName;
+  String get lastName => _lastName;
+  String get phoneNumber => _phoneNumber;
+  bool get employed => _employed;
+  String get city => _city;
+  int get age => _age;
+  int get gender => _gender;
+
   setAllCourses(List<Course> allCourses){
     this._courses = allCourses;
   }
@@ -170,15 +186,25 @@ class CourseStore extends ChangeNotifier{
     return _isLoggedIn;
   }
 
-  Future setUserDetails(String receivedToken, bool hasPhoneNumber, String salespersonCouponCode) async{
+  Future setUserDetails(User user) async{
 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(receivedToken);
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(user.token);
 
-    if(receivedToken != ""){
+    if(user.token != null && user.token != ""){
       _userId = decodedToken['nameid'];
       _userName = decodedToken['unique_name'];
       AuthenticationService authService = AuthenticationService();
-      _userEpisodes = await authService.getUserEpisodes(_userId, receivedToken);
+      _userEpisodes = await authService.getUserEpisodes(_userId, user.token);
+      _courses.clear();
+      for(var episode in _userEpisodes) {
+        Course tempCourse = _courses.firstWhere(
+                (course) => course.id == episode.courseId, orElse: () => null);
+        if(tempCourse == null){
+          CourseData courseData = CourseData();
+          tempCourse = await courseData.getCourseById(episode.courseId);
+          _courses.add(tempCourse);
+        }
+      }
     }
     else{
       _userId = '';
@@ -186,10 +212,16 @@ class CourseStore extends ChangeNotifier{
       if(_userEpisodes != null)
           _userEpisodes.clear();
     }
-
-    _salespersonCouponCode = salespersonCouponCode;
-    _hasPhoneNumber = hasPhoneNumber;
-    _token = receivedToken;
+    _firstName = user.firstName;
+    _lastName = user.lastName;
+    _phoneNumber = user.phoneNumber;
+    _age = user.age;
+    _city = user.city;
+    _employed = user.employed;
+    _gender = user.gender;
+    _salespersonCouponCode = user.salespersonCouponCode;
+    _hasPhoneNumber = user.hasPhoneNumber;
+    _token = user.token;
 
   }
 

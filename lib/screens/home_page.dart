@@ -16,12 +16,14 @@ import 'package:async/async.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/about_us.dart';
 import 'package:mobile/screens/category_page.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
+import 'package:mobile/screens/user_information_page.dart';
 import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/services/user_service.dart';
 import 'package:mobile/utilities/Utility.dart';
@@ -738,47 +740,66 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   children: <Widget>[
                     Expanded(
-                      flex: 1,
-                      child: Icon(
-                        Icons.person_pin,
-                        size: 50,
-                        color: Colors.white,
+                      flex: 5,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Icon(
+                              Icons.person_pin,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                              child: Text(courseStore.userName),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Expanded(
-                      flex: courseStore.hasPhoneNumber ? 4 : 3,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                        child: Text(courseStore.userName),
-                      ),
-                    ),
-                    registerPhoneButton(context),
-                    Expanded(
-                      flex: 2,
-                      child: TextButton(
-                          onPressed: () async {
-                            Widget cancelB = cancelButton('خیر');
-                            Widget continueB =
-                            continueButton('بله', Alert.LogOut, null);
-                            AlertDialog alertD = alert('هشدار',
-                                'میخواهید از برنامه خارج شوید؟',
-                                [cancelB, continueB]);
+                      flex: courseStore.hasPhoneNumber ? 2 : 4,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          registerPhoneButton(context),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(4,4,0,4),
+                              child: InkWell(
+                                  onTap: () async {
+                                    Widget cancelB = cancelButton('خیر');
+                                    Widget continueB =
+                                    continueButton('بله', Alert.LogOut, null);
+                                    AlertDialog alertD = alert('هشدار',
+                                        'میخواهید از برنامه خارج شوید؟',
+                                        [cancelB, continueB]);
 
-                            await showBasketAlertDialog(context, alertD);
+                                    await showBasketAlertDialog(context, alertD);
 
-                            if(alertReturn){
-                              await logOut();
-                            }
-                            alertReturn = false;
+                                    if(alertReturn){
+                                      await logOut();
+                                    }
+                                    alertReturn = false;
 
-                            setState(() {
-                              navigationSelect(1);
-                            });
-                          },
-                          child: Card(
-                            color: Colors.red[700],
-                            child: Center(child: Text('خروج')),
-                          )
+                                    setState(() {
+                                      navigationSelect(1);
+                                    });
+                                  },
+                                  child: Card(
+                                    color: Colors.white12,
+                                    child: Center(child: Text('خروج')),
+                                  )
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -786,6 +807,36 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             notRegisteredPhoneNumber(),
+            SizedBox(
+                height: 80,
+                width: width,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context){
+                              return UserInformationPage();
+                            })
+                        );
+                      },
+                      child: Text(
+                          'ویرایش اطلاعات شخصی',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )
+                      ),
+                    )
+                )
+            ),
             Showcase(
               shapeBorder: const CircleBorder(),
               showcaseBackgroundColor: Colors.black,
@@ -1072,24 +1123,24 @@ class _HomePageState extends State<HomePage> {
               key: scrollKey,
               description: 'منوی مورد نظر خود را انتخاب کنید',
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
                 child: HorizontalScrollableMenu(
                     horizontalScrollableButtonNameList,
                     horizontalScrollableButtonFunctionList,
                 ),
               ),
             ),
-            Showcase(
-              showcaseBackgroundColor: Colors.black,
-              shapeBorder: const CircleBorder(),
-              textColor: Colors.white,
-              overlayColor: Colors.white54,
-              key: newCoursesKey,
-              description: 'جدیدترین دوره ها را در اینجا ببینید',
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20, right:10),
-                child: SizedBox(
-                  height: 25,
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right:10),
+              child: SizedBox(
+                height: 25,
+                child: Showcase(
+                  showcaseBackgroundColor: Colors.black,
+                  shapeBorder: const CircleBorder(),
+                  textColor: Colors.white,
+                  overlayColor: Colors.white54,
+                  key: newCoursesKey,
+                  description: 'جدیدترین دوره ها را در اینجا ببینید',
                   child: Text(
                     'جدیدترین دوره ها',
                     style: TextStyle(
@@ -1558,52 +1609,55 @@ class _HomePageState extends State<HomePage> {
     });
     return Expanded(
       flex: 2,
-      child: Showcase(
-        showcaseBackgroundColor: Colors.black,
-        shapeBorder: const CircleBorder(),
-        textColor: Colors.white,
-        overlayColor: Colors.white54,
-        key: registerPhoneNumberKey,
-        description: 'کاربر عزیز. شماره همراه شما در سیستم ثبت نشده است.'
-            ' ورود مجدد به حساب کاربری فقط با شماره همراه ممکن است.'
-            'در صورت تمایل به ثبت شماره همراه، دکمه سبز رنگ را '
-            'از منوی بالا انتخاب کنید',
-        child: TextButton(
-          onPressed: (){
-            if(!courseStore.isAdsEnabled){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) {
-                    return AuthenticationPage(FormName.RegisterPhoneNumber);
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0,4,4,4),
+        child: Showcase(
+          showcaseBackgroundColor: Colors.black,
+          shapeBorder: const CircleBorder(),
+          textColor: Colors.white,
+          overlayColor: Colors.white54,
+          key: registerPhoneNumberKey,
+          description: 'کاربر عزیز. شماره همراه شما در سیستم ثبت نشده است.'
+              ' ورود مجدد به حساب کاربری فقط با شماره همراه ممکن است.'
+              'در صورت تمایل به ثبت شماره همراه، دکمه سبز رنگ را '
+              'از منوی بالا انتخاب کنید',
+          child: InkWell(
+            onTap: (){
+              if(!courseStore.isAdsEnabled){
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return AuthenticationPage(FormName.RegisterPhoneNumber);
+                    }));
+              }
+              else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
+              courseStore.signUpFullAds.isEnabled){
+                if(!courseStore.isPopUpEnabled){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return AdvertisementPage(
+                      navigatedPage: NavigatedPage.RegisterPhoneNumber,
+                      ads: courseStore.signUpFullAds,
+                    );
                   }));
-            }
-            else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
-            courseStore.signUpFullAds.isEnabled){
-              if(!courseStore.isPopUpEnabled){
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return AdvertisementPage(
-                    navigatedPage: NavigatedPage.RegisterPhoneNumber,
-                    ads: courseStore.signUpFullAds,
+                }
+                else{
+                  Utility.showAdsAlertDialog(
+                      context,
+                      NavigatedPage.RegisterPhoneNumber,
+                    courseStore.signUpFullAds
                   );
-                }));
+                }
               }
               else{
-                Utility.showAdsAlertDialog(
-                    context,
-                    NavigatedPage.RegisterPhoneNumber,
-                  courseStore.signUpFullAds
-                );
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return AuthenticationPage(FormName.RegisterPhoneNumber);
+                    }));
               }
-            }
-            else{
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) {
-                    return AuthenticationPage(FormName.RegisterPhoneNumber);
-                  }));
-            }
-          },
-          child: Card(
-            color: Color(0xFF20BFA9),
-            child: Center(child: Text('ثبت همراه')),
+            },
+            child: Card(
+              color: Color(0xFF20BFA9),
+              child: Center(child: Text('ثبت همراه')),
+            ),
           ),
         ),
       ),
@@ -1628,19 +1682,19 @@ class _HomePageState extends State<HomePage> {
     return SizedBox();
   }
 
-  List<Course> getUserCourses() {
-    List<Course> userCourses = [];
-    courseStore.userEpisodes.forEach((episode) {
-      var tempCourse = courseStore.courses
-          .firstWhere((course) => course.id == episode.courseId, orElse: () => null);
-      if(!userCourses.contains(tempCourse))
-        userCourses.add(tempCourse);
-    });
-    return userCourses;
-  }
+  // List<Course> getUserCourses() {
+  //   List<Course> userCourses = [];
+  //   courseStore.userEpisodes.forEach((episode) {
+  //     var tempCourse = courseStore.courses
+  //         .firstWhere((course) => course.id == episode.courseId, orElse: () => null);
+  //     if(!userCourses.contains(tempCourse))
+  //       userCourses.add(tempCourse);
+  //   });
+  //   return userCourses;
+  // }
 
   Widget userCourses(){
-    List<Course> userCourses = getUserCourses();
+    List<Course> userCourses = courseStore.courses;
     return Padding(
       padding: const EdgeInsets.only(left: 5.0, right: 5.0),
       child: ListView.builder(
@@ -1695,9 +1749,37 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future logOut() async{
-    await secureStorage.write(key: 'token', value: '');
-    await secureStorage.write(key: 'hasPhoneNumber', value: 'false');
-    await courseStore.setUserDetails('', false, '');
+    await secureStorage.write(
+        key: 'token',
+        value: '');
+    await secureStorage.write(
+        key: 'hasPhoneNumber',
+        value: 'false');
+    await secureStorage.write(
+        key: 'firstName',
+        value: '');
+    await secureStorage.write(
+        key: 'lastName',
+        value: '');
+    await secureStorage.write(
+        key: 'phoneNumber',
+        value: '');
+    await secureStorage.write(
+        key: 'age',
+        value: '');
+    await secureStorage.write(
+        key: 'city',
+        value: '');
+    await secureStorage.write(
+        key: 'gender',
+        value: '');
+    await secureStorage.write(
+        key: 'employed',
+        value: '0');
+    await secureStorage.write(
+        key: 'salespersonCouponCode',
+        value: '');
+    await courseStore.setUserDetails(User());
   }
 
   Widget cancelButton(String cancelText){
@@ -1747,22 +1829,61 @@ class _HomePageState extends State<HomePage> {
     String token = await secureStorage.read(key: 'token');
     String hasPhoneNumber = await secureStorage.read(key: 'hasPhoneNumber');
     String salespersonCouponCode = await secureStorage.read(key: 'salespersonCouponCode');
-    // String userFavoriteCourseIds = await secureStorage.read(key: 'UserFavoriteCourseIds');
-    // if(userFavoriteCourseIds != null && userFavoriteCourseIds.length > 0){
-    //   List<String> userFavoriteCourseIdList = userFavoriteCourseIds.split(',');
-    //   userFavoriteCourseIdList.forEach((courseId) async {
-    //     if(courseId != null && courseId != '0' && courseId != ''){
-    //       Course userFavoriteCourse = await courseData.getCourseById(int.parse(courseId));
-    //       courseStore.addToUserFavoriteCourses(userFavoriteCourse);
-    //     }
-    //   });
-    // }
+    String firstName = await secureStorage.read(key: 'firstName');
+    String lastName = await secureStorage.read(key: 'lastName');
+    String age = await secureStorage.read(key: 'age');
+    String city = await secureStorage.read(key: 'city');
+    String gender = await secureStorage.read(key: 'gender');
+    String employed = await secureStorage.read(key: 'employed');
+    String phoneNumber = await secureStorage.read(key: 'phoneNumber');
+
+    User user = User(
+      token: token,
+      hasPhoneNumber: hasPhoneNumber == "1" || hasPhoneNumber == "true",
+      salespersonCouponCode: salespersonCouponCode,
+      firstName: firstName,
+      lastName: lastName,
+      age: age != null ? int.parse(age) : 0,
+      city: city,
+      gender: gender != null ? int.parse(gender) : 0,
+      employed: employed == "1" || employed == "true",
+      phoneNumber: phoneNumber,
+    );
+
     if (token != null && token.isNotEmpty && !courseStore.isTokenExpired(token))
-      await courseStore.setUserDetails(token, hasPhoneNumber.toLowerCase() == 'true', salespersonCouponCode);
+      await courseStore.setUserDetails(user);
     else if(courseStore.isTokenExpired(token)){
-      await secureStorage.write(key: 'token', value: '');
-      await secureStorage.write(key: 'hasPhoneNumber', value: 'false');
-      await courseStore.setUserDetails('', false, '');
+      await secureStorage.write(
+          key: 'token',
+          value: '');
+      await secureStorage.write(
+          key: 'hasPhoneNumber',
+          value: 'false');
+      await secureStorage.write(
+          key: 'firstName',
+          value: '');
+      await secureStorage.write(
+          key: 'lastName',
+          value: '');
+      await secureStorage.write(
+          key: 'phoneNumber',
+          value: '');
+      await secureStorage.write(
+          key: 'age',
+          value: '');
+      await secureStorage.write(
+          key: 'city',
+          value: '');
+      await secureStorage.write(
+          key: 'gender',
+          value: '');
+      await secureStorage.write(
+          key: 'employed',
+          value: '0');
+      await secureStorage.write(
+          key: 'salespersonCouponCode',
+          value: '');
+      await courseStore.setUserDetails(User());
     }
 
     UserService userService = UserService();
@@ -1904,8 +2025,6 @@ class _HomePageState extends State<HomePage> {
     courseStore = Provider.of<CourseStore>(context);
     // courseStore.setAllCourses(courseList);
 
-    // if(courseStore.token != null)
-    //   courseStore.setUserDetails(courseStore.token, courseStore.hasPhoneNumber, );
     // FirebaseAdMob.instance
     //     .initialize(appId: "ca-app-pub-6716792328957551~1144830596")
     //     .then((value) => myBanner

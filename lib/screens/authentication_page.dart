@@ -256,16 +256,46 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   Future registerPhoneNumber() async{
-    bool registeredPhone = await authService.registerPhoneNumber(
+    User user = await authService.registerPhoneNumber(
         phoneNumberController.text, verificationCodeController.text, courseStore.userId);
-    if (!registeredPhone)
+    if (user == null)
       Fluttertoast.showToast(
           msg: 'ثبت شماره با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
     else {
       await secureStorage.write(
-          key: 'hasPhoneNumber', value: true.toString());
+          key: 'token',
+          value: user.token);
+      await secureStorage.write(
+          key: 'hasPhoneNumber',
+          value: user.hasPhoneNumber.toString());
+      await secureStorage.write(
+          key: 'firstName',
+          value: user.firstName);
+      await secureStorage.write(
+          key: 'lastName',
+          value: user.lastName);
+      await secureStorage.write(
+          key: 'phoneNumber',
+          value: user.phoneNumber);
+      await secureStorage.write(
+          key: 'age',
+          value: user.age.toString());
+      await secureStorage.write(
+          key: 'city',
+          value: user.city);
+      await secureStorage.write(
+          key: 'gender',
+          value: user.gender.toString());
+      await secureStorage.write(
+          key: 'employed',
+          value: user.employed.toString());
+      await secureStorage.write(
+          key: 'salespersonCouponCode',
+          value: user.salespersonCouponCode);
 
-      await courseStore.setUserDetails(courseStore.token, true, courseStore.salespersonCouponCode);
+      await courseStore.setUserDetails(user);
+
+      setState(() { });
 
       Navigator.pop(context);
     }
@@ -299,10 +329,34 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             key: 'hasPhoneNumber',
             value: registeredUser.hasPhoneNumber.toString());
         await secureStorage.write(
+            key: 'firstName',
+            value: registeredUser.firstName);
+        await secureStorage.write(
+            key: 'lastName',
+            value: registeredUser.lastName);
+        await secureStorage.write(
+            key: 'phoneNumber',
+            value: registeredUser.phoneNumber);
+        await secureStorage.write(
+            key: 'age',
+            value: registeredUser.age.toString());
+        await secureStorage.write(
+            key: 'city',
+            value: registeredUser.city);
+        await secureStorage.write(
+            key: 'gender',
+            value: registeredUser.gender.toString());
+        await secureStorage.write(
+            key: 'employed',
+            value: registeredUser.employed.toString());
+        await secureStorage.write(
             key: 'salespersonCouponCode',
             value: registeredUser.salespersonCouponCode);
 
-        await courseStore.setUserDetails(registeredUser.token, registeredUser.hasPhoneNumber, registeredUser.salespersonCouponCode);
+        await courseStore.setUserDetails(registeredUser);
+
+        setState(() { });
+
         return true;
       }
     }
@@ -323,10 +377,33 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           key: 'hasPhoneNumber',
           value: loggedInUser.hasPhoneNumber.toString());
       await secureStorage.write(
+          key: 'firstName',
+          value: loggedInUser.firstName);
+      await secureStorage.write(
+          key: 'lastName',
+          value: loggedInUser.lastName);
+      await secureStorage.write(
+          key: 'phoneNumber',
+          value: loggedInUser.phoneNumber);
+      await secureStorage.write(
+          key: 'age',
+          value: loggedInUser.age.toString());
+      await secureStorage.write(
+          key: 'city',
+          value: loggedInUser.city);
+      await secureStorage.write(
+          key: 'gender',
+          value: loggedInUser.gender.toString());
+      await secureStorage.write(
+          key: 'employed',
+          value: loggedInUser.employed.toString());
+      await secureStorage.write(
           key: 'salespersonCouponCode',
           value: loggedInUser.salespersonCouponCode);
 
-      await courseStore.setUserDetails(loggedInUser.token, loggedInUser.hasPhoneNumber, loggedInUser.salespersonCouponCode);
+      await courseStore.setUserDetails(loggedInUser);
+
+      setState(() { });
 
       Navigator.pop(context);
     }

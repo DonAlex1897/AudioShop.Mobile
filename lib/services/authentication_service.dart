@@ -6,6 +6,7 @@ import 'package:mobile/models/register.dart';
 import 'dart:convert';
 
 import 'package:mobile/models/user.dart';
+import 'package:mobile/models/user_update.dart';
 import 'package:mobile/shared/global_variables.dart';
 
 class AuthenticationService {
@@ -16,6 +17,7 @@ class AuthenticationService {
   String usernameCheckUrl = GlobalVariables.baseUrl +
       'api/auth/userexists?username=';
   String signUpUrl = GlobalVariables.baseUrl + 'api/auth/register?role=member';
+  String updateUserInfoUrl = GlobalVariables.baseUrl + 'api/auth/updateUser?role=member';
   String verifyTokenUrl = GlobalVariables.baseUrl + 'api/auth/verifytoken';
   String refineUserBasketUrl = GlobalVariables.baseUrl + 'api/user/RefineRepetitiveCourses';
   String getUserEpisodesUrl = GlobalVariables.baseUrl + 'api/member/episodes/';
@@ -92,6 +94,29 @@ class AuthenticationService {
     }
   }
 
+  Future<User> updateUserInfo(UserUpdate userInfo) async {
+    var body = userInfo.toJson();
+
+    http.Response response = await http.post(Uri.encodeFull(updateUserInfoUrl),
+        body: body,
+        headers: {
+          "Accept": "application/json",
+          "content-type": "application/json"
+        });
+    if(response.statusCode == 200){
+      String data = response.body;
+      var userMap = jsonDecode(data);
+
+      User updatedUserInfo = User.fromJson(userMap);
+
+      return updatedUserInfo;
+    }
+    else{
+      print(response.statusCode);
+      return null;
+    }
+  }
+
   Future<User> signIn(String phoneNumber, String authToken) async {
     var body =
       jsonEncode({'phoneNumber': phoneNumber, 'authToken': authToken});
@@ -131,7 +156,7 @@ class AuthenticationService {
     return response.statusCode == 200;
   }
 
-  Future<bool> registerPhoneNumber(String phoneNumber, String authToken, String userId) async {
+  Future<User> registerPhoneNumber(String phoneNumber, String authToken, String userId) async {
     var body =
     jsonEncode({'phoneNumber': phoneNumber, 'authToken': authToken, 'userId': userId});
 
@@ -142,7 +167,16 @@ class AuthenticationService {
           "content-type": "application/json"
         });
 
-    return response.statusCode == 200;
+    if(response.statusCode == 200){
+      String data = response.body;
+      var userMap = jsonDecode(data);
+      User registeredUser = User.fromJson(userMap);
+      return registeredUser;
+    }
+    else{
+      print(response.statusCode);
+      return null;
+    }
   }
 
 

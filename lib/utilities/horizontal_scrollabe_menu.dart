@@ -11,12 +11,12 @@ class HorizontalScrollableMenu extends StatefulWidget {
 
 class _HorizontalScrollableMenuState extends State<HorizontalScrollableMenu> {
   List<Color> colorList = [
-    Colors.red[800],
-    Colors.green[600],
-    Colors.blue[800],
-    Colors.purple[300],
-    Colors.yellow[800],
-    Colors.pink[400],
+    Colors.redAccent[200],
+    Colors.blueAccent[200],
+    Colors.greenAccent[200],
+    Colors.purpleAccent[100],
+    Colors.pinkAccent[200],
+    Colors.yellowAccent[200],
     Colors.grey[600]];
 
   @override
