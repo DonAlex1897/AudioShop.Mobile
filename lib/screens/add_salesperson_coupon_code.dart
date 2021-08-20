@@ -100,6 +100,12 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
       await secureStorage.write(
           key: 'salespersonCouponCode',
           value: user.salespersonCouponCode);
+      await secureStorage.write(
+          key: 'subscriptionExpirationDate',
+          value: user.subscriptionExpirationDate.toString());
+      await secureStorage.write(
+          key: 'subscriptionType',
+          value: user.subscriptionType.toString());
 
       await courseStore.setUserDetails(user);
 

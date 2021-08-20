@@ -11,9 +11,12 @@ class User{
   int age;
   int gender;
   bool employed;
+  int subscriptionType;
+  DateTime subscriptionExpirationDate;
 
   User({this.token, this.hasPhoneNumber, this.salespersonCouponCode, this.firstName,
-    this.age, this.city,this.gender,this.employed, this.phoneNumber, this.lastName});
+    this.age, this.city,this.gender,this.employed, this.phoneNumber, this.lastName,
+    this.subscriptionType, this.subscriptionExpirationDate});
 
   User.fromJson(Map<String, dynamic> json)
       : token = json['token'],
@@ -25,6 +28,9 @@ class User{
         age = json['age'],
         gender = json['gender'],
         employed = json['employed'],
+        subscriptionType = json['subscriptionType'],
+        subscriptionExpirationDate = json['subscriptionExpirationDate'] != null ?
+          DateTime.parse(json['subscriptionExpirationDate']) : null,
         salespersonCouponCode = json['salespersonCouponCode'];
 
   String toJson() => jsonEncode({

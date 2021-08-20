@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,6 +12,7 @@ import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
 import 'package:mobile/models/favorite.dart';
 import 'package:mobile/models/in_progress_course.dart';
+import 'package:mobile/models/message.dart';
 import 'package:mobile/models/progress.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/now_playing.dart';
@@ -50,6 +52,9 @@ class CourseStore extends ChangeNotifier{
   int _salespersonDefaultDiscountPercent = 0;
   String _supportPhoneNumber = '';
   List<Favorite> _favoriteCourses = [];
+  List<Message> _userMessages = [];
+  int _subscriptionType;
+  DateTime _subscriptionExpirationDate;
 
   bool _isAdsEnabled = false;
   bool _isPopUpEnabled = false;
@@ -73,6 +78,9 @@ class CourseStore extends ChangeNotifier{
   bool _coursePreviewFull = false;
   bool _coursePreviewBelowAddToFavoriteBanner = false;
   bool _homePageTopOfSliderBanner = false;
+  int _subscriptionMonthlyFee;
+  int _subscriptionHalfYearlyFee;
+  int _subscriptionYearlyFee;
 
   Ads _homePageFullAds;
   Ads _coursePreviewTopBannerAds;
@@ -116,6 +124,9 @@ class CourseStore extends ChangeNotifier{
   int get salespersonDefaultDiscountPercent => _salespersonDefaultDiscountPercent;
   String get supportPhoneNumber => _supportPhoneNumber;
   List<Favorite> get favoriteCourses => _favoriteCourses;
+  List<Message> get userMessages => _userMessages;
+  int get subscriptionType => _subscriptionType;
+  DateTime get subscriptionExpirationDate => _subscriptionExpirationDate;
 
   bool get isAdsEnabled => _isAdsEnabled;
   bool get isPopUpEnabled => _isPopUpEnabled;
@@ -139,6 +150,9 @@ class CourseStore extends ChangeNotifier{
   bool get coursePreviewFull => _coursePreviewFull;
   bool get coursePreviewBelowAddToFavoriteBanner => _coursePreviewBelowAddToFavoriteBanner;
   bool get homePageTopOfSliderBanner => _homePageTopOfSliderBanner;
+  int get subscriptionMonthlyFee => _subscriptionMonthlyFee;
+  int get subscriptionHalfYearlyFee => _subscriptionHalfYearlyFee;
+  int get subscriptionYearlyFee => _subscriptionYearlyFee;
 
   Ads get homePageFullAds => _homePageFullAds;
   Ads get coursePreviewTopBannerAds => _coursePreviewTopBannerAds;
@@ -222,6 +236,8 @@ class CourseStore extends ChangeNotifier{
     _salespersonCouponCode = user.salespersonCouponCode;
     _hasPhoneNumber = user.hasPhoneNumber;
     _token = user.token;
+    _subscriptionExpirationDate = user.subscriptionExpirationDate;
+    _subscriptionType = user.subscriptionType;
 
   }
 
@@ -229,19 +245,24 @@ class CourseStore extends ChangeNotifier{
     this._playingEpisodeId = episodeId;
   }
 
-  Future setUserBasket(List<CourseEpisode> episodes, Course course) async{
+  Future setUserBasket(List<CourseEpisode> episodes, Course course, int subscribeType) async{
     if(this._basket == null)
       this._basket = Basket();
 
+    if(subscribeType != 0){
+      this._basket.orderType = subscribeType;
+    }
     DiscountService discountService = DiscountService();
     this._basket.userId = this.userId;
     this._basket.salespersonCouponCode = this._salespersonCouponCode;
-    List<int> episodesIds = [];
-    for(var episode in episodes){
-      if(episode.price != 0 && episode.price != null)
-        episodesIds.add(episode.id);
+    if(episodes != null){
+      List<int> episodesIds = [];
+      for(var episode in episodes){
+        if(episode.price != 0 && episode.price != null)
+          episodesIds.add(episode.id);
+      }
+      this._basket.episodeIds = episodesIds;
     }
-    this._basket.episodeIds = episodesIds;
     if(this._salespersonCouponCode != null){
       int salespersonDiscountPercent = await discountService.salespersonDiscountPercent(this._salespersonCouponCode);
       if(salespersonDiscountPercent > 0)
@@ -258,9 +279,19 @@ class CourseStore extends ChangeNotifier{
     }
     else{
       double price = 0;
-      episodes.forEach((episode) {
-        price += episode.price;
-      });
+      if(episodes != null){
+        episodes.forEach((episode) {
+          price += episode.price;
+        });
+      }
+
+      if(subscribeType == 4){
+        price = double.parse(_subscriptionMonthlyFee.toString());
+      } else if (subscribeType == 5){
+        price = double.parse(_subscriptionHalfYearlyFee.toString());
+      } else if (subscribeType == 6){
+        price = double.parse(_subscriptionYearlyFee.toString());
+      }
 
       this._basket.totalPrice = price;
       this._basket.discount = price * this._salespersonDefaultDiscountPercent / 100;
@@ -291,6 +322,15 @@ class CourseStore extends ChangeNotifier{
     config = configs.firstWhere((x) => x.titleEn == 'IsPopUpEnabled', orElse: () => null);
     if(config != null)
       this._isPopUpEnabled = config.value == '1';
+    config = configs.firstWhere((x) => x.titleEn == 'SubscriptionMonthlyFee', orElse: () => null);
+    if(config != null)
+      this._subscriptionMonthlyFee = int.parse(config.value);
+    config = configs.firstWhere((x) => x.titleEn == 'SubscriptionHalfYearlyFee', orElse: () => null);
+    if(config != null)
+      this._subscriptionHalfYearlyFee = int.parse(config.value);
+    config = configs.firstWhere((x) => x.titleEn == 'SubscriptionYearlyFee', orElse: () => null);
+    if(config != null)
+      this._subscriptionYearlyFee = int.parse(config.value);
   }
 
   Future<Progress> setCourseProgress(int courseId, String token) async{
@@ -556,5 +596,9 @@ class CourseStore extends ChangeNotifier{
           break;
       }
     }
+  }
+
+  setUserMessages(List<Message> userMessages){
+    _userMessages = userMessages;
   }
 }

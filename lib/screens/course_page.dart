@@ -210,7 +210,8 @@ class _CoursePageState extends State<CoursePage> {
             isEpisodePurchasedBefore = true;
           }
         });
-        if(!isEpisodePurchasedBefore){
+        if(!isEpisodePurchasedBefore && !(courseStore.subscriptionType != 0 &&
+            courseStore.subscriptionExpirationDate.isAfter(DateTime.now()))){
           List<CourseEpisode> tempEpisodes = [];
           tempEpisodes.add(episode);
           await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
@@ -312,7 +313,8 @@ class _CoursePageState extends State<CoursePage> {
               isEpisodePurchasedBefore = true;
             }
           });
-          if(!isEpisodePurchasedBefore){
+          if(!isEpisodePurchasedBefore && !(courseStore.subscriptionType != 0 &&
+              courseStore.subscriptionExpirationDate.isAfter(DateTime.now()))){
             List<CourseEpisode> tempEpisodes = [];
             tempEpisodes.add(episode);
             await createBasket(PurchaseType.SingleEpisode, tempEpisodes, course);
@@ -512,7 +514,9 @@ class _CoursePageState extends State<CoursePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            (isEpisodePurchasedBefore ||
+                            ((courseStore.subscriptionType != 0 &&
+                                courseStore.subscriptionExpirationDate.isAfter(DateTime.now())) ||
+                                isEpisodePurchasedBefore ||
                                 episode.price == 0 ||
                                 episode.price == null) ?
                             Icon(
@@ -529,7 +533,9 @@ class _CoursePageState extends State<CoursePage> {
                               ),
                             ),
                             Text(
-                              (isEpisodePurchasedBefore ||
+                              ((courseStore.subscriptionType != 0 &&
+                                  courseStore.subscriptionExpirationDate.isAfter(DateTime.now())) ||
+                                  isEpisodePurchasedBefore ||
                                   episode.price == 0 ||
                                   episode.price == null)  ? 'پخش' : 'خرید',
                               style: TextStyle(
@@ -690,7 +696,9 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Widget coursePurchaseButton(List<CourseEpisode> episodes, Course course){
-    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+    if((nonFreeEpisodesCount == purchasedEpisodesCount) ||
+        (courseStore.subscriptionType != 0 &&
+          courseStore.subscriptionExpirationDate.isAfter(DateTime.now())))
       return Text('');
     else
       return IconButton(
@@ -807,7 +815,7 @@ class _CoursePageState extends State<CoursePage> {
             episodesToBePurchased.add(episode);
         }
         List<CourseEpisode> finaleEpisodeIds = await eliminateRepetitiveEpisodes(episodesToBePurchased);
-          await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
+          await courseStore.setUserBasket(finaleEpisodeIds, course, null);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) {
                 return CheckOutPage();
@@ -933,36 +941,13 @@ class _CoursePageState extends State<CoursePage> {
           if (courseStore.userEpisodes.contains(episodes[0]))
             Fluttertoast.showToast(msg: 'این قسمت را قبلا خریداری کرده اید');
           else {
-            await courseStore.setUserBasket(episodes, null);
+            await courseStore.setUserBasket(episodes, null, null);
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return CheckOutPage();
             }));
           }
         }
         else if(!isCancelled){
-          // List<CourseEpisode> episodesToBePurchased = [];
-          // for(var episode in courseEpisodes){
-          //   if(episode.price != null || episode.price != 0)
-          //     episodesToBePurchased.add(episode);
-          // }
-          // List<CourseEpisode> basketEpisodes = List.from(episodes);
-          // List<int> courseEpisodeIds = List<int>();
-          // basketEpisodes.forEach((episode) {
-          //   courseEpisodeIds.add(episode.id);
-          // });
-          // courseStore.userEpisodes.forEach((episode) {
-          //   if(courseEpisodeIds.contains(episode.id)){
-          //     basketEpisodes.removeWhere((ep) => ep.id == episode.id);
-          //     isWholeCourseAvailable = false;
-          //   }
-          // });
-          // basketEpisodes.removeWhere((ep) => ep.price == 0);
-          // await courseStore.setUserBasket(basketEpisodes, widget.courseDetails /*isWholeCourseAvailable ? course : null*/);
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) {
-          //       return CheckOutPage();
-          //     })
-          // );
           List<CourseEpisode> episodes = List<CourseEpisode>();
           CourseEpisodeData courseEpisodeData = CourseEpisodeData();
           episodes = await courseEpisodeData.getCourseEpisodes(course.id);
@@ -984,7 +969,7 @@ class _CoursePageState extends State<CoursePage> {
                 .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
             return;
           }
-          await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
+          await courseStore.setUserBasket(finaleEpisodeIds, course,null);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) {
                 return CheckOutPage();

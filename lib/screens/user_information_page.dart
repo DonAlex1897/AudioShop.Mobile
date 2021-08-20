@@ -507,6 +507,12 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                     await secureStorage.write(
                                         key: 'salespersonCouponCode',
                                         value: updatedUserInfo.salespersonCouponCode);
+                                    await secureStorage.write(
+                                        key: 'subscriptionExpirationDate',
+                                        value: updatedUserInfo.subscriptionExpirationDate.toString());
+                                    await secureStorage.write(
+                                        key: 'subscriptionType',
+                                        value: updatedUserInfo.subscriptionType.toString());
 
                                     await courseStore.setUserDetails(updatedUserInfo);
 

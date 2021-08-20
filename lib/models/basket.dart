@@ -6,6 +6,7 @@ class Basket {
   String salespersonCouponCode;
   String otherCouponCode;
   List<int> episodeIds = [];
+  int orderType;
 
   Basket({
     this.totalPrice,
@@ -14,6 +15,7 @@ class Basket {
     this.userId,
     this.salespersonCouponCode,
     this.otherCouponCode,
+    this.orderType,
     this.episodeIds});
 
 }

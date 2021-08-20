@@ -292,6 +292,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       await secureStorage.write(
           key: 'salespersonCouponCode',
           value: user.salespersonCouponCode);
+      await secureStorage.write(
+          key: 'subscriptionExpirationDate',
+          value: user.subscriptionExpirationDate.toString());
+      await secureStorage.write(
+          key: 'subscriptionType',
+          value: user.subscriptionType.toString());
 
       await courseStore.setUserDetails(user);
 
@@ -352,6 +358,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         await secureStorage.write(
             key: 'salespersonCouponCode',
             value: registeredUser.salespersonCouponCode);
+        await secureStorage.write(
+            key: 'subscriptionExpirationDate',
+            value: registeredUser.subscriptionExpirationDate.toString());
+        await secureStorage.write(
+            key: 'subscriptionType',
+            value: registeredUser.subscriptionType.toString());
 
         await courseStore.setUserDetails(registeredUser);
 
@@ -400,6 +412,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       await secureStorage.write(
           key: 'salespersonCouponCode',
           value: loggedInUser.salespersonCouponCode);
+      await secureStorage.write(
+          key: 'subscriptionExpirationDate',
+          value: loggedInUser.subscriptionExpirationDate.toString());
+      await secureStorage.write(
+          key: 'subscriptionType',
+          value: loggedInUser.subscriptionType.toString());
 
       await courseStore.setUserDetails(loggedInUser);
 

@@ -19,6 +19,7 @@ class PaymentService{
       'otherCouponCode': basket.otherCouponCode,
       'episodeIds': basket.episodeIds,
       'SalespersonCouponCode': basket.salespersonCouponCode,
+      'orderType': basket.orderType != null ? basket.orderType : 0
     });
 
     http.Response response = await http.post(Uri.encodeFull(createOrderUrl),

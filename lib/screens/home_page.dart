@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -13,6 +12,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:async/async.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/configuration.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/slider_item.dart';
@@ -21,9 +21,11 @@ import 'package:mobile/screens/about_us.dart';
 import 'package:mobile/screens/category_page.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/screens/messages_page.dart';
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
 import 'package:mobile/screens/user_information_page.dart';
+import 'package:mobile/services/message_service.dart';
 import 'package:mobile/services/statistics_service.dart';
 import 'package:mobile/services/user_service.dart';
 import 'package:mobile/utilities/Utility.dart';
@@ -41,8 +43,10 @@ import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:provider/provider.dart';
 import 'add_salesperson_coupon_code.dart';
+import 'package:mobile/models/message.dart' as message;
 import 'advertisement_page.dart';
 import 'course_page.dart';
+import 'package:mobile/global.dart' as global;
 import 'psychological_tests_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -123,6 +127,8 @@ class _HomePageState extends State<HomePage> {
   Color tab1Color = Colors.black12;
   Color tab2Color = Color(0xFF202028);
   BuildContext myContext;
+  List<message.Message> userMessages = [];
+  int unSeenMessagesCount = 0;
 
   @override
   void setState(fn) {
@@ -156,6 +162,7 @@ class _HomePageState extends State<HomePage> {
     topClickedCoursesFuture = getTopClickedCoursesFuture();
     topSellerCoursesFuture = getTopSellerCoursesFuture();
     featuredCoursesFuture = getFeaturedCoursesFuture();
+    setUserMessages();
     loginStatement();
     super.initState();
     // courseData = CourseData();
@@ -285,6 +292,20 @@ class _HomePageState extends State<HomePage> {
     }
     setState(() { });
     return featuredCourses;
+  }
+
+  Future setUserMessages() async{
+    MessageService messageService = MessageService();
+    String token  = await secureStorage.read(key: 'token');
+    if(token != null || token != ""){
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      String userId = decodedToken['nameid'];
+      userMessages = await messageService.getPersonalMessages(userId);
+      var unSeenMessages = userMessages.where((element) => !element.isSeen).toList();
+      setState(() {
+        unSeenMessagesCount = unSeenMessages != null ? unSeenMessages.length : 0;
+      });
+    }
   }
 
   Future setFirstTimeFalse() async{
@@ -1779,6 +1800,12 @@ class _HomePageState extends State<HomePage> {
     await secureStorage.write(
         key: 'salespersonCouponCode',
         value: '');
+    await secureStorage.write(
+        key: 'subscriptionExpirationDate',
+        value: '');
+    await secureStorage.write(
+        key: 'subscriptionType',
+        value: '');
     await courseStore.setUserDetails(User());
   }
 
@@ -1836,6 +1863,8 @@ class _HomePageState extends State<HomePage> {
     String gender = await secureStorage.read(key: 'gender');
     String employed = await secureStorage.read(key: 'employed');
     String phoneNumber = await secureStorage.read(key: 'phoneNumber');
+    String subscriptionExpirationDate = await secureStorage.read(key: 'subscriptionExpirationDate');
+    String subscriptionType = await secureStorage.read(key: 'subscriptionType');
 
     User user = User(
       token: token,
@@ -1848,6 +1877,10 @@ class _HomePageState extends State<HomePage> {
       gender: gender != null ? int.parse(gender) : 0,
       employed: employed == "1" || employed == "true",
       phoneNumber: phoneNumber,
+      subscriptionExpirationDate: subscriptionExpirationDate != null ?
+          DateTime.parse(subscriptionExpirationDate) : null,
+      subscriptionType: subscriptionType != null ?
+          int.parse(subscriptionType) : 0,
     );
 
     if (token != null && token.isNotEmpty && !courseStore.isTokenExpired(token))
@@ -2055,11 +2088,14 @@ class _HomePageState extends State<HomePage> {
                                 child: Icon(Icons.mail_outline, color: Colors.white,),
                                 onTap:(){
                                   setState(() {
-                                    //TODO add function for notification button
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      return MessagesPage(userMessages);
+                                    }));
                                   });
                                 } ,
                               ),
                             ),
+                            unSeenMessagesCount > 0 ?
                             Align(
                               alignment: Alignment.topLeft,
                               child: Container(
@@ -2070,7 +2106,7 @@ class _HomePageState extends State<HomePage> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(4),
                                     child: Text(
-                                      '4',
+                                      unSeenMessagesCount.toString(),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.white,
@@ -2079,7 +2115,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                               ),
-                            )
+                            ) : SizedBox(),
                           ],
                         ),
                       ),

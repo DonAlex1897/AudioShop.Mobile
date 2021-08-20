@@ -225,29 +225,185 @@ class _CoursePreviewState extends State<CoursePreview> {
     episodes = await courseEpisodeData.getCourseEpisodes(course.id);
 
     if(courseStore.token != null && courseStore.token != ''){
-        List<CourseEpisode> episodesToBePurchased = [];
-        for(var episode in episodes){
-          if(episode.price != null || episode.price != 0)
-            episodesToBePurchased.add(episode);
-        }
-        List<CourseEpisode> finaleEpisodeIds =
-          await eliminateRepetitiveEpisodes(episodesToBePurchased);
-        if(course.price == 0){
-          Fluttertoast
-              .showToast(msg: 'این دوره رایگان می باشد');
-          return;
-        }
-        else if(finaleEpisodeIds.length == 0){
-          Fluttertoast
-              .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
-          return;
-        }
-        await courseStore.setUserBasket(finaleEpisodeIds, course /*isWholeCourseAvailable ? course : null*/);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return CheckOutPage();
-            })
+      List<CourseEpisode> episodesToBePurchased = [];
+      for(var episode in episodes){
+        if(episode.price != null || episode.price != 0)
+          episodesToBePurchased.add(episode);
+      }
+      List<CourseEpisode> finaleEpisodeIds =
+      await eliminateRepetitiveEpisodes(episodesToBePurchased);
+      if(course.price == 0){
+        Fluttertoast
+            .showToast(msg: 'این دوره رایگان می باشد');
+        return;
+      }
+      else if(finaleEpisodeIds.length == 0){
+        Fluttertoast
+            .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
+        return;
+      }
+      if(courseStore.subscriptionType != 0 &&
+          courseStore.subscriptionExpirationDate.isAfter(DateTime.now())){
+        Fluttertoast
+            .showToast(msg: 'اشتراک شما هنوز به پایان نرسیده است');
+        return;
+      }
+      else{
+        bool goToSubscription = false;
+        AlertDialog alert = AlertDialog(
+          title: Text('توجه'),
+          content: Text('با خرید اشتراک می توانید از کل دوره های موجود در برنامه استفاده کنید'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                width: 400,
+                height: 40,
+                decoration: BoxDecoration(
+                  //border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(5),
+                  color: Color(0xFF20BFA9),
+                ),
+                child: TextButton(
+                  onPressed: (){
+                    goToSubscription = true;
+                    Navigator.of(context).pop();
+                  },
+                  child:
+                  Text(
+                      'خرید اشتراک',
+                      style: TextStyle(color: Colors.white,)
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(5),
+
+              ),
+              child: TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'خرید محصول',
+                    style: TextStyle(color: Colors.white70,)
+                ),
+              ),
+            ),
+          ],
         );
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alert;
+          },
+        );
+        if(goToSubscription){
+          int subscriptionType = 0;
+          AlertDialog alert = AlertDialog(
+            title: Text('توجه'),
+            content: Text('نوع اشتراک خود را مشخص کنید'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: 400,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF20BFA9),
+                    border: Border.all(color: Colors.white70),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: TextButton(
+                    onPressed: (){
+                      subscriptionType = 4;
+                      Navigator.of(context).pop();
+                    },
+                    child:
+                    Text(
+                        'ماهانه',
+                        style: TextStyle(color: Colors.white,)
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: 400,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF20BFA9),
+                    border: Border.all(color: Colors.white70),
+                    borderRadius: BorderRadius.circular(5),
+
+                  ),
+                  child: TextButton(
+                    onPressed: (){
+                      subscriptionType = 5;
+                      Navigator.of(context).pop();
+                    },
+                    child:
+                    Text(
+                        '6 ماهه',
+                        style: TextStyle(color: Colors.white,)
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: 400,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF20BFA9),
+                    border: Border.all(color: Colors.white70),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: TextButton(
+                    onPressed: (){
+                      subscriptionType = 6;
+                      Navigator.of(context).pop();
+                    },
+                    child:
+                    Text(
+                        '1 ساله',
+                        style: TextStyle(color: Colors.white,)
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
+
+          await courseStore.setUserBasket(null, null, subscriptionType);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
+        }else{
+          await courseStore.setUserBasket(finaleEpisodeIds, course, null);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) {
+                return CheckOutPage();
+              })
+          );
+        }
+      }
     }
     else{
       bool goToSignUpPage = false;

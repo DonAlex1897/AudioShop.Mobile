@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/ads.dart';
 import 'package:mobile/models/course.dart';
 import 'package:mobile/models/course_episode.dart';
+import 'package:mobile/models/message.dart';
 import 'package:mobile/screens/advertisement_page.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/utilities/ads_pop_up.dart';
 
 class Utility{
+  static List<Message> popularMessages = [];
+  static List<Message> personalMessages = [];
   static void showAdsAlertDialog(
       BuildContext context,
       NavigatedPage navigatedPage,
