@@ -123,6 +123,7 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Icon(Icons.arrow_back_ios),
         title: Text('ثبت کد معرف'),
       ),
       body: SafeArea(

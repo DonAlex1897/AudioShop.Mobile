@@ -19,11 +19,14 @@ import 'package:mobile/models/slider_item.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/about_us.dart';
 import 'package:mobile/screens/category_page.dart';
+import 'package:mobile/screens/checkout_page.dart';
 import 'package:mobile/screens/course_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/screens/messages_page.dart';
+import 'package:mobile/screens/new_ticket_page.dart';
 import 'package:mobile/screens/search_result_page.dart';
 import 'package:mobile/screens/support_page.dart';
+import 'package:mobile/screens/ticketing_page.dart';
 import 'package:mobile/screens/user_information_page.dart';
 import 'package:mobile/services/message_service.dart';
 import 'package:mobile/services/statistics_service.dart';
@@ -33,6 +36,7 @@ import 'package:mobile/utilities/banner_ads.dart';
 import 'package:mobile/utilities/course_card.dart';
 import 'package:mobile/utilities/horizontal_scrollabe_menu.dart';
 import 'package:mobile/utilities/native_ads.dart';
+import 'package:share/share.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -107,9 +111,10 @@ class _HomePageState extends State<HomePage> {
   List<File> newCoursesPicFiles = [];
   List<String> horizontalScrollableButtonNameList = [
     'با استارشو ستاره شو',
-    'پشتیبانی',
+    'خرید اشتراک',
     'دوره ها',
     'کتاب صوتی',
+    'اشتراک گذاری',
     'تست روانشناسی',
   ];
   List<VoidCallback> horizontalScrollableButtonFunctionList;
@@ -129,6 +134,7 @@ class _HomePageState extends State<HomePage> {
   BuildContext myContext;
   List<message.Message> userMessages = [];
   int unSeenMessagesCount = 0;
+  bool supportButtonExpanded = false;
 
   @override
   void setState(fn) {
@@ -151,9 +157,10 @@ class _HomePageState extends State<HomePage> {
     statisticsService.enteredApplication();
     horizontalScrollableButtonFunctionList = [
       goToAboutUsPage,
-      goToSupportPage,
+      purchaseSubscription,
       goToCourseCategoryPage,
       goToAudioBookCategoryPage,
+      shareApplication,
       goToPsychologicalTestsPage
     ];
     courseData = CourseData();
@@ -191,42 +198,181 @@ class _HomePageState extends State<HomePage> {
     }));
   }
 
+  shareApplication() async {
+    String downloadUrl = await globalService.getDownloadUrl();
+    final String text = 'اپلیکیشن استارشو رو از این لینک میتونی دانلود کنی: $downloadUrl';
+    final RenderBox box = myContext.findRenderObject();
+    Share.share(
+      text,
+      subject: 'اشتراک گذاری اپلیکیشن',
+      sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
+    );
+  }
+
   goToCourseCategoryPage(){
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return CategoryPage(CourseType.Course);
     }));
   }
 
-  goToSupportPage(){
-    if(!courseStore.isAdsEnabled){
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context){
-            return SupportPage();
-          })
+  purchaseSubscription() async {
+    if(courseStore.token == null || courseStore.token == ''){
+      bool goToSignUpPage = false;
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('برای خرید اشتراک، ابتدا باید ثبت نام کنید'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xFF20BFA9),
+              ),
+              child: TextButton(
+                onPressed: (){
+                  goToSignUpPage = true;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'ثبت نام',
+                    style: TextStyle(color: Colors.white,)
+                ),
+              ),
+            ),
+          ),
+          Container(
+            width: 400,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70),
+              borderRadius: BorderRadius.circular(5),
+
+            ),
+            child: TextButton(
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              child:
+              Text(
+                  'انصراف',
+                  style: TextStyle(color: Colors.white70,)
+              ),
+            ),
+          ),
+        ],
       );
-    }
-    else if(courseStore.supportPageFull && courseStore.supportPageFullAds != null
-    && courseStore.supportPageFullAds.isEnabled){
-      if(!courseStore.isPopUpEnabled){
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return AdvertisementPage(
-            navigatedPage: NavigatedPage.SupportPage,
-            ads: courseStore.supportPageFullAds,
-          );
-        }));
-      }
-      else{
-        Utility.showAdsAlertDialog(
-          context,
-          NavigatedPage.SupportPage,
-            courseStore.supportPageFullAds
-        );
-      }
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+      if(goToSignUpPage)
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return AuthenticationPage(FormName.SignUp);
+            }));
     }
     else{
+      if(courseStore.subscriptionType != 0 &&
+          courseStore.subscriptionExpirationDate.isAfter(DateTime.now())){
+        Fluttertoast
+            .showToast(msg: 'اشتراک شما هنوز به پایان نرسیده است');
+        return;
+      }
+      int subscriptionType = 0;
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('نوع اشتراک خود را مشخص کنید'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Color(0xFF20BFA9),
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: TextButton(
+                onPressed: (){
+                  subscriptionType = 4;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    'ماهانه',
+                    style: TextStyle(color: Colors.white,)
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Color(0xFF20BFA9),
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(5),
+
+              ),
+              child: TextButton(
+                onPressed: (){
+                  subscriptionType = 5;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    '6 ماهه',
+                    style: TextStyle(color: Colors.white,)
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Color(0xFF20BFA9),
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: TextButton(
+                onPressed: (){
+                  subscriptionType = 6;
+                  Navigator.of(context).pop();
+                },
+                child:
+                Text(
+                    '1 ساله',
+                    style: TextStyle(color: Colors.white,)
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+
+      await courseStore.setUserBasket(null, null, subscriptionType);
       Navigator.push(context,
-          MaterialPageRoute(builder: (context){
-            return SupportPage();
+          MaterialPageRoute(builder: (context) {
+            return CheckOutPage();
           })
       );
     }
@@ -925,11 +1071,235 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(
+              height: 80,
+              width: width,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                child: TextButton(
+                  onPressed: (){
+                    setState(() {
+                      supportButtonExpanded ?
+                        supportButtonExpanded = false :
+                        supportButtonExpanded = true;
+                    });
+                  },
+                  child: Text(
+                      'پشتیبانی',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      )
+                  ),
+                ),
+              ),
+            ),
+            supportButtonExpanded ?
+            SizedBox(
                 height: 80,
                 width: width,
                 child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: Colors.white10,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                          if(courseStore.token == null || courseStore.token == ''){
+                            bool goToSignUpPage = false;
+                            AlertDialog alert = AlertDialog(
+                              title: Text('توجه'),
+                              content: Text('برای ثبت تیکت، ابتدا باید ثبت نام کنید'),
+                              actions: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Container(
+                                    width: 400,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      //border: Border.all(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Color(0xFF20BFA9),
+                                    ),
+                                    child: TextButton(
+                                      onPressed: (){
+                                        goToSignUpPage = true;
+                                        Navigator.of(context).pop();
+                                      },
+                                      child:
+                                      Text(
+                                          'ثبت نام',
+                                          style: TextStyle(color: Colors.white,)
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 400,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white70),
+                                    borderRadius: BorderRadius.circular(5),
+
+                                  ),
+                                  child: TextButton(
+                                    onPressed: (){
+                                      Navigator.of(context).pop();
+                                    },
+                                    child:
+                                    Text(
+                                        'انصراف',
+                                        style: TextStyle(color: Colors.white70,)
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                            await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return alert;
+                                },
+                            );
+                            if(goToSignUpPage)
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return AuthenticationPage(FormName.SignUp);
+                                    }));
+                          }
+                          else{
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context){
+                                  return NewTicketPage();
+                                })
+                            );
+                          }
+                      },
+                      child: Text(
+                          'ثبت تیکت',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )
+                      ),
+                    )
+                )
+            ) : SizedBox(),
+            supportButtonExpanded ?
+            SizedBox(
+                height: 80,
+                width: width,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        if(courseStore.token == null || courseStore.token == ''){
+                          bool goToSignUpPage = false;
+                          AlertDialog alert = AlertDialog(
+                            title: Text('توجه'),
+                            content: Text('برای مشاهده تیکت ها، ابتدا باید وارد شوید'),
+                            actions: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Container(
+                                  width: 400,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    //border: Border.all(color: Colors.black),
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Color(0xFF20BFA9),
+                                  ),
+                                  child: TextButton(
+                                    onPressed: (){
+                                      goToSignUpPage = true;
+                                      Navigator.of(context).pop();
+                                    },
+                                    child:
+                                    Text(
+                                        'ورود',
+                                        style: TextStyle(color: Colors.white,)
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 400,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white70),
+                                  borderRadius: BorderRadius.circular(5),
+
+                                ),
+                                child: TextButton(
+                                  onPressed: (){
+                                    Navigator.of(context).pop();
+                                  },
+                                  child:
+                                  Text(
+                                      'انصراف',
+                                      style: TextStyle(color: Colors.white70,)
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                          await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return alert;
+                            },
+                          );
+                          if(goToSignUpPage)
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                                  return AuthenticationPage(FormName.SignIn);
+                                }));
+                        }
+                        else{
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context){
+                                return TicketingPage(
+                                    courseStore.userId,
+                                    courseStore.token
+                                );
+                              })
+                          );
+                        }
+                      },
+                      child: Text(
+                          'تیکت های من',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )
+                      ),
+                    )
+                )
+            ) : SizedBox(),
+            supportButtonExpanded ?
+            SizedBox(
+                height: 80,
+                width: width,
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
                       border: Border(
                         bottom: BorderSide(
                           color: Colors.white,
@@ -973,7 +1343,7 @@ class _HomePageState extends State<HomePage> {
                         }
                       },
                       child: Text(
-                          'پشتیبانی',
+                          'تماس با ما',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -981,7 +1351,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     )
                 )
-            ),
+            ) : SizedBox(),
             SizedBox(
                 height: 80,
                 width: width,
@@ -1554,54 +1924,54 @@ class _HomePageState extends State<HomePage> {
                             padding: const EdgeInsets.fromLTRB(8,0,8,0),
                             child: Text(
                               userFavoriteCourses[index].name,
-                              style: TextStyle(fontSize: 19),
+                              style: TextStyle(fontSize: 15),
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            bottomLeft: Radius.circular(15),
-                          ),
-                          child: Container(
-                            color: Colors.red,
-                            child: TextButton(
-                              child: Icon(Icons.delete_outline_sharp,
-                                  size: 25, color: Colors.white),
-                              onPressed: () async {
-                                Widget cancelB = cancelButton('خیر');
-                                Widget continueB =
-                                continueButton('بله', Alert.DeleteFromFavorite, index);
-                                AlertDialog alertD = alert('هشدار',
-                                    'آیا از حذف دوره از علاقه مندی ها مطمئنید؟',
-                                    [cancelB, continueB]);
-                                await showBasketAlertDialog(context, alertD);
-
-                                if(alertReturn){
-                                  // String userFavoriteCourseIds = await secureStorage
-                                  //     .read(key: 'UserFavoriteCourseIds');
-                                  // List<String> favCourseIds = userFavoriteCourseIds.split(',');
-                                  // userFavoriteCourseIds = '';
-                                  // favCourseIds.forEach((element) {
-                                  //   if(element != userFavoriteCourses[index].id.toString())
-                                  //     userFavoriteCourseIds += element + ',';
-                                  // });
-                                  // await secureStorage.write(
-                                  //     key: 'UserFavoriteCourseIds',
-                                  //     value: userFavoriteCourseIds);
-                                  await courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
-                                  setState(() {
-                                    courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
-                                  });
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Expanded(
+                      //   flex: 1,
+                      //   child: ClipRRect(
+                      //     borderRadius: BorderRadius.only(
+                      //       topLeft: Radius.circular(15),
+                      //       bottomLeft: Radius.circular(15),
+                      //     ),
+                      //     child: Container(
+                      //       color: Colors.red,
+                      //       child: TextButton(
+                      //         child: Icon(Icons.delete_outline_sharp,
+                      //             size: 25, color: Colors.white),
+                      //         onPressed: () async {
+                      //           Widget cancelB = cancelButton('خیر');
+                      //           Widget continueB =
+                      //           continueButton('بله', Alert.DeleteFromFavorite, index);
+                      //           AlertDialog alertD = alert('هشدار',
+                      //               'آیا از حذف دوره از علاقه مندی ها مطمئنید؟',
+                      //               [cancelB, continueB]);
+                      //           await showBasketAlertDialog(context, alertD);
+                      //
+                      //           if(alertReturn){
+                      //             // String userFavoriteCourseIds = await secureStorage
+                      //             //     .read(key: 'UserFavoriteCourseIds');
+                      //             // List<String> favCourseIds = userFavoriteCourseIds.split(',');
+                      //             // userFavoriteCourseIds = '';
+                      //             // favCourseIds.forEach((element) {
+                      //             //   if(element != userFavoriteCourses[index].id.toString())
+                      //             //     userFavoriteCourseIds += element + ',';
+                      //             // });
+                      //             // await secureStorage.write(
+                      //             //     key: 'UserFavoriteCourseIds',
+                      //             //     value: userFavoriteCourseIds);
+                      //             await courseStore.addToUserFavoriteCourses(userFavoriteCourses[index]);
+                      //             setState(() {
+                      //               userFavoriteCourses = courseStore.userFavoriteCourses;
+                      //             });
+                      //           }
+                      //         },
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -2081,42 +2451,46 @@ class _HomePageState extends State<HomePage> {
                         overlayColor: Colors.white54,
                         key: messageBoxKey,
                         description: 'صندوق پیام',
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: InkWell(
+                        child: InkWell(onTap:(){
+                          setState(() {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return MessagesPage();
+                            })).then((value) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) => super.widget));
+                            });
+                          });
+                        } ,
+                          child: Stack(
+                            children: [
+                              Center(
                                 child: Icon(Icons.mail_outline, color: Colors.white,),
-                                onTap:(){
-                                  setState(() {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                      return MessagesPage(userMessages);
-                                    }));
-                                  });
-                                } ,
                               ),
-                            ),
-                            unSeenMessagesCount > 0 ?
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:  Colors.redAccent
-                                ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
-                                    child: Text(
-                                      unSeenMessagesCount.toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                              unSeenMessagesCount > 0 ?
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color:  Colors.redAccent
+                                  ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Text(
+                                        unSeenMessagesCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ),
-                            ) : SizedBox(),
-                          ],
+                                ),
+                              ) : SizedBox(),
+                            ],
+                          ),
                         ),
                       ),
                     ),

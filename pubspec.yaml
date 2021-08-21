@@ -9,6 +9,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  share: ^2.0.4
   shamsi_date:
   workmanager:
   showcaseview: ^1.1.0

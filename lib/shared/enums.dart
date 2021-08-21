@@ -42,7 +42,9 @@ enum NavigatedPage{
   SupportPage,
   PsychologicalTests,
   AddToFavorite,
-  AddReview
+  AddReview,
+  NewTicket,
+  Tickets
 }
 
 enum NativeAdsLocation{
@@ -58,4 +60,11 @@ enum CourseType
   None,
   Course,
   AudioBook
+}
+
+enum TicketStatus{
+  Pending,
+  AdminAnswered,
+  MemberAnswered,
+  Finished
 }

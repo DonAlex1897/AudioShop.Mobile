@@ -58,11 +58,10 @@ class MessageService{
   Future<bool> setMessageAsSeen(int messageId, String userId) async{
     try{
       final queryParameters = {
-        'userId': userId,
         'messageId': messageId.toString(),
       };
-      final uri = Uri.https('star-show.ir', 'api/messages/users', queryParameters);
-      http.Response response = await http.put(uri);
+      String url = baseUrl + '/users/$userId' + '?messageId=$messageId';
+      http.Response response = await http.put(url);
       return response.statusCode == 200;
     }
     catch(e){

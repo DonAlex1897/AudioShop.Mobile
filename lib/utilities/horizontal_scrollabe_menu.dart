@@ -16,7 +16,7 @@ class _HorizontalScrollableMenuState extends State<HorizontalScrollableMenu> {
     Colors.greenAccent[200],
     Colors.purpleAccent[100],
     Colors.pinkAccent[200],
-    Colors.yellowAccent[200],
+    Colors.amberAccent[700],
     Colors.grey[600]];
 
   @override

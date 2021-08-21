@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/message.dart';
 import 'package:mobile/services/message_service.dart';
 import 'package:mobile/store/course_store.dart';
@@ -14,8 +17,6 @@ import 'dart:ui' as ui;
 
 
 class MessagesPage extends StatefulWidget {
-  final List<Message> messages;
-  MessagesPage(this.messages);
 
   @override
   _MessagesPageState createState() => _MessagesPageState();
@@ -23,24 +24,37 @@ class MessagesPage extends StatefulWidget {
 
 class _MessagesPageState extends State<MessagesPage> {
   CourseStore courseStore;
+  FlutterSecureStorage secureStorage = FlutterSecureStorage();
   List<Message> privateMessages = [];
   List<Message> publicMessages = [];
+  List<Message> allMessages = [];
+  Future<List<Message>> messagesFuture;
 
   @override
   void initState() {
-    createMessageLists();
+    messagesFuture = createMessageLists();
     super.initState();
   }
 
-  createMessageLists(){
-    setState(() {
-      privateMessages = widget.messages
-          .where((element) => element.messageType == 1 ||
-          element.messageType == 2 || element.messageType == 3 ||
-          element.messageType == 4).toList();
-      publicMessages = widget.messages
-          .where((element) => element.messageType == 0).toList();
-    });
+  Future<List<Message>> createMessageLists() async {
+    MessageService messageService = MessageService();
+    String token  = await secureStorage.read(key: 'token');
+    if(token != null || token != ""){
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      String userId = decodedToken['nameid'];
+      allMessages = await messageService.getPersonalMessages(userId);
+      if(allMessages != null){
+        setState(() {
+          privateMessages = allMessages
+              .where((element) => element.messageType == 1 ||
+              element.messageType == 2 || element.messageType == 3 ||
+              element.messageType == 4).toList();
+          publicMessages = allMessages
+              .where((element) => element.messageType == 0).toList();
+        });
+      }
+    }
+    return allMessages;
   }
 
   Widget privateMessagesTab(){
@@ -63,54 +77,46 @@ class _MessagesPageState extends State<MessagesPage> {
                     hasIcon: true,
                     iconColor: Colors.white,
                   ),
-                  header: InkWell(
-                    onTap: () async{
-                      MessageService messageService = MessageService();
-                      messageService.setMessageAsSeen(
-                          privateMessages[index].id,
-                          courseStore.userId);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 15, top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            privateMessages[index].title,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: [
-                              privateMessages[index].isSeen ? SizedBox():
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Container(
-                                  width: 30,
-                                  height: 16,
-                                  color: Colors.redAccent,
-                                  child: Center(
-                                    child: Text(
-                                      'جدید',
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                  header: Padding(
+                    padding: const EdgeInsets.only(right: 15, top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          privateMessages[index].title,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          children: [
+                            privateMessages[index].isSeen ? SizedBox():
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Container(
+                                width: 30,
+                                height: 16,
+                                color: Colors.redAccent,
+                                child: Center(
+                                  child: Text(
+                                    'جدید',
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
-                              Directionality(
-                                textDirection: ui.TextDirection.ltr,
-                                child: Text(
-                                  privateMessages[index].createdAt.toJalali()
-                                      .toString().substring(7).split(')')[0] +
-                                      '  ' + privateMessages[index].createdAt
-                                      .toString().split(' ')[1].substring(0,5),
-                                ),
+                            ),
+                            Directionality(
+                              textDirection: ui.TextDirection.ltr,
+                              child: Text(
+                                privateMessages[index].createdAt.toJalali()
+                                    .toString().substring(7).split(')')[0] +
+                                    '  ' + privateMessages[index].createdAt
+                                    .toString().split(' ')[1].substring(0,5),
                               ),
-                            ],
-                          )
-                        ],
-                      ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ),
                   collapsed: Padding(
@@ -120,16 +126,52 @@ class _MessagesPageState extends State<MessagesPage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  expanded: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        privateMessages[index].body,
-                        softWrap: true,
-                        maxLines: 20,
+                  expanded: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          privateMessages[index].body,
+                          softWrap: true,
+                          maxLines: 20,
+                        ),
                       ),
-                    ),
+                      privateMessages[index].isSeen ?
+                      SizedBox():
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          width: 100,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            //border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(5),
+                            color: Color(0xFF20BFA9),
+                          ),
+                          child: TextButton(
+                            onPressed: () async {
+                              MessageService messageService = MessageService();
+                              bool isSeen = await messageService.setMessageAsSeen(
+                                  privateMessages[index].id,
+                                  courseStore.userId);
+                              if(isSeen)
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) => super.widget));
+                              else{
+                                Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. مجددا تلاش کنید');
+                              }
+                            },
+                            child:
+                            Text(
+                                'مشاهده شد',
+                                style: TextStyle(color: Colors.white,)
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -158,72 +200,104 @@ class _MessagesPageState extends State<MessagesPage> {
                   hasIcon: true,
                   iconColor: Colors.white,
                 ),
-                header: InkWell(
-                  onTap: () async{
-                    MessageService messageService = MessageService();
-                    messageService.setMessageAsSeen(
-                        publicMessages[index].id,
-                        courseStore.userId);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 15, top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          publicMessages[index].title,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          children: [
-                            publicMessages[index].isSeen ? SizedBox():
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Container(
-                                width: 30,
-                                height: 16,
-                                color: Colors.redAccent,
-                                child: Center(
-                                  child: Text(
-                                    'جدید',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                header: Padding(
+                  padding: const EdgeInsets.only(right: 15, top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        publicMessages[index].title,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          publicMessages[index].isSeen ? SizedBox():
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Container(
+                              width: 30,
+                              height: 16,
+                              color: Colors.redAccent,
+                              child: Center(
+                                child: Text(
+                                  'جدید',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
-                            Directionality(
-                              textDirection: ui.TextDirection.ltr,
-                              child: Text(
-                                publicMessages[index].createdAt.toJalali()
-                                    .toString().substring(7).split(')')[0] +
-                                    '  ' + publicMessages[index].createdAt
-                                    .toString().split(' ')[1].substring(0,5),
-                              ),
+                          ),
+                          Directionality(
+                            textDirection: ui.TextDirection.ltr,
+                            child: Text(
+                              publicMessages[index].createdAt.toJalali()
+                                  .toString().substring(7).split(')')[0] +
+                                  '  ' + publicMessages[index].createdAt
+                                  .toString().split(' ')[1].substring(0,5),
                             ),
-                          ],
-                        )
-                      ],
-                    ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
-                collapsed: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    publicMessages[index].body,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                expanded: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                collapsed: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       publicMessages[index].body,
-                      softWrap: true,
-                      maxLines: 20,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                ),
+                expanded: Center(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          publicMessages[index].body,
+                          softWrap: true,
+                          maxLines: 20,
+                        ),
+                      ),
+                      publicMessages[index].isSeen ?
+                          SizedBox():
+                          Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          width: 100,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            //border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(5),
+                            color: Color(0xFF20BFA9),
+                          ),
+                          child: TextButton(
+                            onPressed: () async {
+                              MessageService messageService = MessageService();
+                              bool isSeen = await messageService.setMessageAsSeen(
+                                  publicMessages[index].id,
+                                  courseStore.userId);
+                              if(isSeen)
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) => super.widget));
+                              else{
+                                Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. مجددا تلاش کنید');
+                              }
+                            },
+                            child:
+                            Text(
+                                'مشاهده شد',
+                                style: TextStyle(color: Colors.white,)
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -241,7 +315,7 @@ class _MessagesPageState extends State<MessagesPage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            leading: Container(),
+            leading: Icon(Icons.arrow_back_ios),
             bottom: TabBar(
               tabs: [
                 Tab(text: 'پیام های عمومی',),

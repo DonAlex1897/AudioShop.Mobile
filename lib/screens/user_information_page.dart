@@ -80,6 +80,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
     width = MediaQuery.of(context).size.width;
     return Scaffold(
               appBar: AppBar(
+                leading: Icon(Icons.arrow_back_ios),
                 title: Text('مشخصات کاربری'),
               ),
               body: SafeArea(
