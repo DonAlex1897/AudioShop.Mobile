@@ -331,50 +331,86 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   navigateToPlayer(CourseEpisode episode, Course course) async{
-    if(courseStore.isEpisodeAccessible(
-        episode.courseId,
-        episode.sort,
-        course.waitingTimeBetweenEpisodes == 1))
-    {
-      bool updatedSuccessfully = true;
-      if(!courseStore.isEpisodePlayedBefore(episode))
-        updatedSuccessfully = await courseStore.updateCourseProgress(
+    if(courseStore.token!= null && courseStore.token != ''){
+      if(courseStore.isEpisodeAccessible(
           episode.courseId,
-          episode.id,
-          episode.sort);
-      if(updatedSuccessfully) {
-        if(!courseStore.isAdsEnabled){
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return NowPlaying(episode, course.photoAddress);
+          episode.sort,
+          course.waitingTimeBetweenEpisodes == 1))
+      {
+        bool updatedSuccessfully = true;
+        if(!courseStore.isEpisodePlayedBefore(episode))
+          updatedSuccessfully = await courseStore.updateCourseProgress(
+              episode.courseId,
+              episode.id,
+              episode.sort);
+        if(updatedSuccessfully) {
+          if(!courseStore.isAdsEnabled){
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return NowPlaying(episode, course.photoAddress);
+                }));
+          }
+          else if(courseStore.nowPlayingFull && courseStore.nowPlayingFullAds != null &&
+              courseStore.nowPlayingFullAds.isEnabled){
+            if(!courseStore.isPopUpEnabled){
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return AdvertisementPage(
+                  navigatedPage: NavigatedPage.PlayEpisode,
+                  ads: courseStore.nowPlayingFullAds,
+                  episodeDetails: episode,
+                  courseCoverUrl: course.photoAddress,
+                );
               }));
-        }
-        else if(courseStore.nowPlayingFull && courseStore.nowPlayingFullAds != null &&
-            courseStore.nowPlayingFullAds.isEnabled){
-          if(!courseStore.isPopUpEnabled){
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AdvertisementPage(
-                navigatedPage: NavigatedPage.PlayEpisode,
-                ads: courseStore.nowPlayingFullAds,
-                episodeDetails: episode,
-                courseCoverUrl: course.photoAddress,
+            }
+            else{
+              Utility.showAdsAlertDialog(
+                  context,
+                  NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
+                  null,null,null,episode,course.photoAddress
               );
-            }));
+            }
           }
           else{
-            Utility.showAdsAlertDialog(
-                context,
-                NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
-                null,null,null,episode,course.photoAddress
-            );
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) {
+                  return NowPlaying(episode, course.photoAddress);
+                }));
           }
         }
-        else{
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return NowPlaying(episode, course.photoAddress);
-              }));
+      }
+    }
+    else{
+      if(!courseStore.isAdsEnabled){
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return NowPlaying(episode, course.photoAddress);
+            }));
+      }
+      else if(courseStore.nowPlayingFull && courseStore.nowPlayingFullAds != null &&
+          courseStore.nowPlayingFullAds.isEnabled){
+        if(!courseStore.isPopUpEnabled){
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AdvertisementPage(
+              navigatedPage: NavigatedPage.PlayEpisode,
+              ads: courseStore.nowPlayingFullAds,
+              episodeDetails: episode,
+              courseCoverUrl: course.photoAddress,
+            );
+          }));
         }
+        else{
+          Utility.showAdsAlertDialog(
+              context,
+              NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
+              null,null,null,episode,course.photoAddress
+          );
+        }
+      }
+      else{
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) {
+              return NowPlaying(episode, course.photoAddress);
+            }));
       }
     }
   }
@@ -514,7 +550,7 @@ class _CoursePageState extends State<CoursePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            ((courseStore.subscriptionType != 0 &&
+                            ((courseStore.subscriptionType != 0 && courseStore.subscriptionExpirationDate != null &&
                                 courseStore.subscriptionExpirationDate.isAfter(DateTime.now())) ||
                                 isEpisodePurchasedBefore ||
                                 episode.price == 0 ||
@@ -533,7 +569,7 @@ class _CoursePageState extends State<CoursePage> {
                               ),
                             ),
                             Text(
-                              ((courseStore.subscriptionType != 0 &&
+                              ((courseStore.subscriptionType != 0 && courseStore.subscriptionExpirationDate != null &&
                                   courseStore.subscriptionExpirationDate.isAfter(DateTime.now())) ||
                                   isEpisodePurchasedBefore ||
                                   episode.price == 0 ||
@@ -697,7 +733,7 @@ class _CoursePageState extends State<CoursePage> {
 
   Widget coursePurchaseButton(List<CourseEpisode> episodes, Course course){
     if((nonFreeEpisodesCount == purchasedEpisodesCount) ||
-        (courseStore.subscriptionType != 0 &&
+        (courseStore.subscriptionType != 0 && courseStore.subscriptionExpirationDate != null &&
           courseStore.subscriptionExpirationDate.isAfter(DateTime.now())))
       return Text('');
     else
