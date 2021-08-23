@@ -9,9 +9,10 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  background_fetch: ^1.0.1
   share: ^2.0.4
   shamsi_date:
-  workmanager:
+#  workmanager:
   showcaseview: ^1.1.0
   visibility_detector: ^0.2.0
   video_player: ^2.1.6

@@ -13,18 +13,18 @@ import 'package:mobile/services/message_service.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:mobile/utilities/Utility.dart';
 import 'package:provider/provider.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 
 FlutterSecureStorage secureStorage;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize();
-  await Workmanager().initialize(callbackDispatcher);
-  await Workmanager().registerPeriodicTask("messageBoxWorker", "messageBoxTask",
-    existingWorkPolicy: ExistingWorkPolicy.replace,
-    frequency: Duration(minutes: 60),
-  );
+  // await Workmanager().initialize(callbackDispatcher);
+  // await Workmanager().registerPeriodicTask("messageBoxWorker", "messageBoxTask",
+  //   existingWorkPolicy: ExistingWorkPolicy.replace,
+  //   frequency: Duration(minutes: 60),
+  // );
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Color(0xFF202028),
     statusBarIconBrightness: Brightness.light,
@@ -60,31 +60,31 @@ void main() async {
   );
 }
 
-void callbackDispatcher(){
-  Workmanager().executeTask((task, inputData) async {
-    MessageService messageService = MessageService();
-    Utility.popularMessages = await messageService.getPopularMessages();
-    secureStorage = FlutterSecureStorage();
-    String token  = await secureStorage.read(key: 'token');
-    if(token != null || token != ""){
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-      String userId = decodedToken['nameid'];
-      List<message.Message> messages = await messageService.getPersonalMessages(userId);
-      List<message.Message> newMessages = messages.where((element) => !element.isSeen).toList();
-
-      int newMessageCount = newMessages != null ? newMessages.length : 0;
-      if(newMessageCount > 0){
-        for(var userMessage in newMessages){
-          int id = userMessage.id;
-          String title = userMessage.title;
-          String body = userMessage.body;
-          showNotification(id, body, title);
-        }
-      }
-    }
-    return Future.value(true);
-  });
-}
+// void callbackDispatcher(){
+//   Workmanager().executeTask((task, inputData) async {
+//     MessageService messageService = MessageService();
+//     Utility.popularMessages = await messageService.getPopularMessages();
+//     secureStorage = FlutterSecureStorage();
+//     String token  = await secureStorage.read(key: 'token');
+//     if(token != null || token != ""){
+//       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+//       String userId = decodedToken['nameid'];
+//       List<message.Message> messages = await messageService.getPersonalMessages(userId);
+//       List<message.Message> newMessages = messages.where((element) => !element.isSeen).toList();
+//
+//       int newMessageCount = newMessages != null ? newMessages.length : 0;
+//       if(newMessageCount > 0){
+//         for(var userMessage in newMessages){
+//           int id = userMessage.id;
+//           String title = userMessage.title;
+//           String body = userMessage.body;
+//           showNotification(id, body, title);
+//         }
+//       }
+//     }
+//     return Future.value(true);
+//   });
+// }
 
 void showNotification(int id, String body, String title) async {
   FlutterLocalNotificationsPlugin localNotificationsPlugin = FlutterLocalNotificationsPlugin();
