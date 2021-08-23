@@ -1,4 +1,4 @@
-
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -58,8 +58,46 @@ void main() async {
       ),
     ),
   );
+
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
+void backgroundFetchHeadlessTask(HeadlessTask task) async {
+  MessageService messageService = MessageService();
+  Utility.popularMessages = await messageService.getPopularMessages();
+  secureStorage = FlutterSecureStorage();
+  String token = await secureStorage.read(key: 'token');
+  if (token != null || token != "") {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    String userId = decodedToken['nameid'];
+    List<message.Message> messages =
+        await messageService.getPersonalMessages(userId);
+    List<message.Message> newMessages =
+        messages.where((element) => !element.isSeen).toList();
+
+    int newMessageCount = newMessages != null ? newMessages.length : 0;
+    if (newMessageCount > 0) {
+      for (var userMessage in newMessages) {
+        int id = userMessage.id;
+        String title = userMessage.title;
+        String body = userMessage.body;
+        showNotification(id, body, title);
+      }
+    }
+  }
+  String taskId = task.taskId;
+  bool isTimeout = task.timeout;
+  if (isTimeout) {
+    // This task has exceeded its allowed running-time.
+    // You must stop what you're doing and immediately .finish(taskId)
+    print("[BackgroundFetch] Headless task timed-out: $taskId");
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+  print('[BackgroundFetch] Headless event received.');
+  // Do your work here...
+  BackgroundFetch.finish(taskId);
+}
 // void callbackDispatcher(){
 //   Workmanager().executeTask((task, inputData) async {
 //     MessageService messageService = MessageService();
@@ -87,8 +125,10 @@ void main() async {
 // }
 
 void showNotification(int id, String body, String title) async {
-  FlutterLocalNotificationsPlugin localNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
+  FlutterLocalNotificationsPlugin localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  var android = AndroidNotificationDetails(
+      'channelId', 'channelName', 'channelDescription');
   var iOS = IOSNotificationDetails();
   var platform = NotificationDetails(android: android, iOS: iOS);
   await localNotificationsPlugin.show(id, title, body, platform);

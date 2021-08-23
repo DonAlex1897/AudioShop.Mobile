@@ -1,20 +1,26 @@
 import 'dart:convert';
 
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/screens/home_page.dart';
 import 'package:mobile/screens/intro_page.dart';
 import 'package:mobile/screens/update_page.dart';
 import 'package:mobile/services/global_service.dart';
+import 'package:mobile/services/message_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:mobile/utilities/Utility.dart';
 import 'package:mobile/utilities/native_ads.dart';
 import 'package:package_info/package_info.dart';
 import 'package:async/async.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/models/message.dart' as message;
 
 class StartPage extends StatefulWidget {
   @override
@@ -79,7 +85,74 @@ class _StartPageState extends State<StartPage> {
   @override
   void initState() {
     startApplication();
+    initPlatformState();
     super.initState();
+  }
+  Future<void> initPlatformState() async {
+    // Configure BackgroundFetch.
+    int status = await BackgroundFetch.configure(BackgroundFetchConfig(
+        minimumFetchInterval: 15,
+        stopOnTerminate: false,
+        enableHeadless: true,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresStorageNotLow: false,
+        requiresDeviceIdle: false,
+        requiredNetworkType: NetworkType.NONE
+    ), (String taskId) async {  // <-- Event handler
+      MessageService messageService = MessageService();
+      Utility.popularMessages = await messageService.getPopularMessages();
+      FlutterSecureStorage secureStorage = FlutterSecureStorage();
+      String token = await secureStorage.read(key: 'token');
+      if (token != null || token != "") {
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        String userId = decodedToken['nameid'];
+        List<message.Message> messages =
+        await messageService.getPersonalMessages(userId);
+        List<message.Message> newMessages =
+        messages.where((element) => !element.isSeen).toList();
+
+        int newMessageCount = newMessages != null ? newMessages.length : 0;
+        if (newMessageCount > 0) {
+          for (var userMessage in newMessages) {
+            int id = userMessage.id;
+            String title = userMessage.title;
+            String body = userMessage.body;
+            showNotification(id, body, title);
+          }
+        }
+      }
+      print("[BackgroundFetch] Event received $taskId");
+      // setState(() {
+      //   _events.insert(0, new DateTime.now());
+      // });
+      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
+      // for taking too long in the background.
+      BackgroundFetch.finish(taskId);
+    }, (String taskId) async {  // <-- Task timeout handler.
+      // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
+      print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
+      BackgroundFetch.finish(taskId);
+    });
+    print('[BackgroundFetch] configure success: $status');
+    // setState(() {
+    //   _status = status;
+    // });
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+  void showNotification(int id, String body, String title) async {
+    FlutterLocalNotificationsPlugin localNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+    var android = AndroidNotificationDetails(
+        'channelId', 'channelName', 'channelDescription');
+    var iOS = IOSNotificationDetails();
+    var platform = NotificationDetails(android: android, iOS: iOS);
+    await localNotificationsPlugin.show(id, title, body, platform);
   }
 
   Future startApplication() async {
