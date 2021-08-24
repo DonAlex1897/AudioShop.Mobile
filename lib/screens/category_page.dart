@@ -27,7 +27,7 @@ class _CategoryPageState extends State<CategoryPage> {
   CourseData courseData;
   double width;
   List<String> horizontalScrollableButtonNameList = [];
-  List<VoidCallback> horizontalScrollableButtonFunctionList = [];
+  List<Future<void> Function()> horizontalScrollableButtonFunctionList = [];
   Future<List<Category>> categoriesFuture;
   List<Category> categoriesList = [];
   Future<dynamic> courses;
@@ -59,17 +59,22 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<List<Category>> getCategories() async {
-    categoriesList = await courseData.getCategories();
-    for(var item in categoriesList){
-      horizontalScrollableButtonNameList.add(item.title);
-      horizontalScrollableButtonFunctionList
-          .add(horizontalScrollFunction(item.id, item.title));
+    try {
+      categoriesList = await courseData.getCategories();
+      for(var item in categoriesList){
+        horizontalScrollableButtonNameList.add(item.title);
+        horizontalScrollableButtonFunctionList
+            .add(horizontalScrollFunction(item.id, item.title));
+      }
+      return categoriesList;
+    } catch (e) {
+      print(e.toString());
+      return categoriesList;
     }
-    return categoriesList;
   }
 
-  VoidCallback horizontalScrollFunction(int categoryId, String categoryTitle){
-    return (){
+  Future<void> Function() horizontalScrollFunction(int categoryId, String categoryTitle) {
+    return  () async{
       setState(() {
         isFirstLoad = false;
       });

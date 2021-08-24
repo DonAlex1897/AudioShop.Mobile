@@ -15,7 +15,12 @@ class _AboutUsState extends State<AboutUs> {
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            leading: Icon(Icons.arrow_back_ios),
+            leading: IconButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(Icons.arrow_back_ios)
+            ),
             title: Text('درباره اِستارشو'),
           ),
           body: SingleChildScrollView(

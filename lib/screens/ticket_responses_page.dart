@@ -54,7 +54,12 @@ class _TicketResponsePageState extends State<TicketResponsePage> {
     return SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            leading: Icon(Icons.arrow_back_ios),
+            leading: IconButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(Icons.arrow_back_ios)
+            ),
             title: Text(widget.ticketTitle),
             actions: [
               ticketStatus == TicketStatus.Finished ?

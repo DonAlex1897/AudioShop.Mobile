@@ -26,7 +26,7 @@ class _IntroPageState extends State<IntroPage> {
         title: "روابط اجتماعی",
         styleTitle: TextStyle(
             color: Color(0xff3da4ab),
-            fontSize: 30.0,
+            fontSize: 25.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'IranSans'),
         description:
@@ -35,7 +35,7 @@ class _IntroPageState extends State<IntroPage> {
             " در روابط اجتماعی و ارتباط با جنس مخالف تهیه شده است.",
         styleDescription: TextStyle(
             color: Color(0xFF20BFA9),
-            fontSize: 20.0,
+            fontSize: 17.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
         pathImage: "assets/images/1.jpg",
@@ -46,7 +46,7 @@ class _IntroPageState extends State<IntroPage> {
         title: "آموزش رایگان",
         styleTitle: TextStyle(
             color: Color(0xff3da4ab),
-            fontSize: 30.0,
+            fontSize: 25.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'IranSans'),
         description:
@@ -57,7 +57,7 @@ class _IntroPageState extends State<IntroPage> {
             " تا محتوای آموزشی رایگان بیشتری برای شما تهیه کنیم.",
         styleDescription: TextStyle(
             color: Color(0xFF20BFA9),
-            fontSize: 20.0,
+            fontSize: 17.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
         pathImage: "assets/images/2.jpg",
@@ -68,7 +68,7 @@ class _IntroPageState extends State<IntroPage> {
         title: "فضای مجازی",
         styleTitle: TextStyle(
             color: Color(0xff3da4ab),
-            fontSize: 30.0,
+            fontSize: 25.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'IranSans'),
         description:
@@ -78,7 +78,7 @@ class _IntroPageState extends State<IntroPage> {
             " ارتباط در فضای مجازی و حقیقی شوید .",
         styleDescription: TextStyle(
             color: Color(0xFF20BFA9),
-            fontSize: 20.0,
+            fontSize: 17.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
         pathImage: "assets/images/3.jpg",
@@ -89,7 +89,7 @@ class _IntroPageState extends State<IntroPage> {
         title: "با ما باشید",
         styleTitle: TextStyle(
             color: Color(0xff3da4ab),
-            fontSize: 30.0,
+            fontSize: 25.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'IranSans'),
         description:
@@ -99,7 +99,7 @@ class _IntroPageState extends State<IntroPage> {
             "حمایت شما انگیزه بخش ادامه این مسیر خواهد بود.",
         styleDescription: TextStyle(
             color: Color(0xFF20BFA9),
-            fontSize: 20.0,
+            fontSize: 17.0,
             //fontStyle: FontStyle.italic,
             fontFamily: 'IranSans'),
         pathImage: "assets/images/4.jpg",
@@ -224,7 +224,7 @@ class _IntroPageState extends State<IntroPage> {
       scrollPhysics: BouncingScrollPhysics(),
 
       // Show or hide status bar
-      shouldHideStatusBar: true,
+      shouldHideStatusBar: false,
 
       // On tab change completed
       onTabChangeCompleted: this.onTabChangeCompleted,

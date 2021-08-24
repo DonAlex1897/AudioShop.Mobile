@@ -421,9 +421,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
       await courseStore.setUserDetails(loggedInUser);
 
-      setState(() { });
-
       Navigator.pop(context);
+
     }
   }
 

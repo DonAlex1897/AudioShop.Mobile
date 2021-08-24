@@ -353,7 +353,12 @@ class _SearchResultPageState extends State<SearchResultPage> {
         if(data.hasData)
           return Scaffold(
             appBar: AppBar(
-                leading: Icon(Icons.arrow_back_ios),
+                leading: IconButton(
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
+                    icon: Icon(Icons.arrow_back_ios)
+                ),
                 centerTitle: true,
                 title: appBarTitle,
                 actions: <Widget>[

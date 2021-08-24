@@ -119,54 +119,60 @@ class _MessagesPageState extends State<MessagesPage> {
                       ],
                     ),
                   ),
-                  collapsed: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      privateMessages[index].body,
-                      overflow: TextOverflow.ellipsis,
+                  collapsed: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        privateMessages[index].body,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                   expanded: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          privateMessages[index].body,
-                          softWrap: true,
-                          maxLines: 20,
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            privateMessages[index].body,
+                            softWrap: true,
+                            maxLines: 20,
+                          ),
                         ),
                       ),
                       privateMessages[index].isSeen ?
                       SizedBox():
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          width: 100,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            //border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color(0xFF20BFA9),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              MessageService messageService = MessageService();
-                              bool isSeen = await messageService.setMessageAsSeen(
-                                  privateMessages[index].id,
-                                  courseStore.userId);
-                              if(isSeen)
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) => super.widget));
-                              else{
-                                Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. مجددا تلاش کنید');
-                              }
-                            },
-                            child:
-                            Text(
-                                'مشاهده شد',
-                                style: TextStyle(color: Colors.white,)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            width: 100,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              //border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color(0xFF20BFA9),
+                            ),
+                            child: TextButton(
+                              onPressed: () async {
+                                MessageService messageService = MessageService();
+                                bool isSeen = await messageService.setMessageAsSeen(
+                                    privateMessages[index].id,
+                                    courseStore.userId);
+                                if(isSeen)
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) => super.widget));
+                                else{
+                                  Fluttertoast.showToast(msg: 'اشکال در ارتباط با سرور. مجددا تلاش کنید');
+                                }
+                              },
+                              child:
+                              Text(
+                                  'مشاهده شد',
+                                  style: TextStyle(color: Colors.white,)
+                              ),
                             ),
                           ),
                         ),
@@ -315,7 +321,12 @@ class _MessagesPageState extends State<MessagesPage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            leading: Icon(Icons.arrow_back_ios),
+            leading: IconButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(Icons.arrow_back_ios)
+            ),
             bottom: TabBar(
               tabs: [
                 Tab(text: 'پیام های عمومی',),

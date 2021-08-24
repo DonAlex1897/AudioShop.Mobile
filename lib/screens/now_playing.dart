@@ -484,7 +484,12 @@ class _NowPlayingState extends State<NowPlaying> {
         if(data.hasData){
           return Scaffold(
             appBar: AppBar(
-              leading: Icon(Icons.arrow_back_ios),
+              leading: IconButton(
+                  onPressed: (){
+                    Navigator.of(context).pop();
+                  },
+                  icon: Icon(Icons.arrow_back_ios)
+              ),
               backgroundColor: Color(0xFF202028),
               title: Text(
                 episode.name,
