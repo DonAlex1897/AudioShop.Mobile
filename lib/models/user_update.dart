@@ -8,7 +8,7 @@ class UserUpdate{
   String city;
   int age;
   int gender;
-  bool employed;
+  int employed;
 
   UserUpdate({this.userId, this.firstName, this.age, this.city,
     this.gender,this.employed, this.phoneNumber, this.lastName});

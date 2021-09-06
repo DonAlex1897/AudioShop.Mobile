@@ -23,8 +23,14 @@ enum UpdateStatus {
 
 enum Gender {
   Default,
-  Male,
   Female,
+  Male,
+}
+
+enum EmploymentStatus {
+  Default,
+  Employed,
+  UnEmployed,
 }
 
 enum NavigatedPage{

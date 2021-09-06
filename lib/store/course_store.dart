@@ -42,7 +42,7 @@ class CourseStore extends ChangeNotifier{
   String _firstName;
   String _lastName;
   String _phoneNumber;
-  bool _employed;
+  int _employed;
   String _city;
   int _age;
   int _gender;
@@ -180,7 +180,7 @@ class CourseStore extends ChangeNotifier{
   String get firstName => _firstName;
   String get lastName => _lastName;
   String get phoneNumber => _phoneNumber;
-  bool get employed => _employed;
+  int get employed => _employed;
   String get city => _city;
   int get age => _age;
   int get gender => _gender;
@@ -502,7 +502,9 @@ class CourseStore extends ChangeNotifier{
         case 'HomePage':
           if(element.isEnabled)
             this._homePageFullAds = await adsService.getAds('HomePage');
-          this._homePageFull = element.isEnabled;
+            this._homePageFull = element.isEnabled;
+            this._homePageNativeAds = await adsService.getAds('HomePage');
+            this._homePageNative = element.isEnabled;
           break;
         case 'CoursePreview-Top':
           if(element.isEnabled)
@@ -524,11 +526,11 @@ class CourseStore extends ChangeNotifier{
             this._libraryNativeAds = await adsService.getAds('Library');
           this._libraryNative = element.isEnabled;
           break;
-        case 'HomePage':
-          if(element.isEnabled)
-            this._homePageNativeAds = await adsService.getAds('HomePage');
-          this._homePageNative = element.isEnabled;
-          break;
+        // case 'HomePage':
+        //   if(element.isEnabled)
+        //     this._homePageNativeAds = await adsService.getAds('HomePage');
+        //     this._homePageNative = element.isEnabled;
+        //   break;
         case 'Loading-down':
           if(element.isEnabled)
             this._loadingDownNativeAds = await adsService.getAds('Loading-down');

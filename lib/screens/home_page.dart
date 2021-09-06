@@ -380,30 +380,42 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future goToPsychologicalTestsPage() async {
-    // if(!courseStore.isAdsEnabled){
-    //   Navigator.push(context,
-    //       MaterialPageRoute(builder: (context){
-    //         return PsychologicalTestsPage();
-    //       })
-    //   );
-    // }
-    // else{
-    //   if(!showAdsInPopUp){
-    //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //       return AdvertisementPage(
-    //         navigatedPage: NavigatedPage.PsychologicalTests,
-    //       );
-    //     }));
-    //   }
-    //   else{
-    //     Utility.showAdsAlertDialog(
-    //       context,
-    //       NavigatedPage.PsychologicalTests,
-    //     );
-    //   }
-    // }
+    if(!courseStore.isAdsEnabled){
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context){
+            return PsychologicalTestsPage();
+          })
+      );
+    }
+    else if(courseStore.psychologicalTestsFull &&
+        courseStore.psychologicalTestsFullAds != null &&
+        courseStore.psychologicalTestsFullAds.isEnabled){
+      if(!showAdsInPopUp){
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AdvertisementPage(
+            navigatedPage: NavigatedPage.PsychologicalTests,
+            ads: courseStore.psychologicalTestsFullAds,
+          );
+        }));
+      }
+      else{
+        Utility.showAdsAlertDialog(
+          context,
+          NavigatedPage.PsychologicalTests,
+          courseStore
+              .psychologicalTestsFullAds
+        );
+      }
+    }
+    else{
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context){
+            return PsychologicalTestsPage();
+          })
+      );
+    }
 
-    Fluttertoast.showToast(msg: 'این قسمت به زودی بارگذاری خواهد شد');
+    // Fluttertoast.showToast(msg: 'این قسمت به زودی بارگذاری خواهد شد');
   }
 
   Future<List<Course>> getTopClickedCoursesFuture() async {
@@ -1032,7 +1044,10 @@ class _HomePageState extends State<HomePage> {
                   overlayColor: Colors.white54,
                   key: couponCodeKey,
                   description:
-                      'در صورتی که کد معرف دارید، آن را در اینجا وارد کنید',
+                      'اگر از طریق نمایندگان ما با مجموعه'
+                          ' استارشو آشنا شده اید ، کد معرف نماینده'
+                          ' را وارد کنید تا از تخفیفات'
+                          ' ویژه استارشو بهره‌مند شوید.',
                   child: SizedBox(
                       height: 80,
                       width: width * 2,
@@ -1376,31 +1391,43 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            // if(!courseStore.isAdsEnabled){
-                            //   Navigator.push(context,
-                            //       MaterialPageRoute(builder: (context){
-                            //         return PsychologicalTestsPage();
-                            //       })
-                            //   );
-                            // }
-                            // else{
-                            //   if(!showAdsInPopUp){
-                            //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-                            //       return AdvertisementPage(
-                            //         navigatedPage: NavigatedPage.PsychologicalTests,
-                            //       );
-                            //     }));
-                            //   }
-                            //   else{
-                            //     Utility.showAdsAlertDialog(
-                            //       context,
-                            //       NavigatedPage.PsychologicalTests,
-                            //     );
-                            //   }
-                            // }
+                            if(!courseStore.isAdsEnabled){
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context){
+                                    return PsychologicalTestsPage();
+                                  })
+                              );
+                            }
+                            else if(courseStore.psychologicalTestsFull &&
+                                courseStore.psychologicalTestsFullAds != null &&
+                                courseStore.psychologicalTestsFullAds.isEnabled){
+                              if(!showAdsInPopUp){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                  return AdvertisementPage(
+                                    navigatedPage: NavigatedPage.PsychologicalTests,
+                                    ads: courseStore.psychologicalTestsFullAds,
+                                  );
+                                }));
+                              }
+                              else{
+                                Utility.showAdsAlertDialog(
+                                    context,
+                                    NavigatedPage.PsychologicalTests,
+                                    courseStore
+                                        .psychologicalTestsFullAds
+                                );
+                              }
+                            }
+                            else{
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context){
+                                    return PsychologicalTestsPage();
+                                  })
+                              );
+                            }
 
-                            Fluttertoast.showToast(
-                                msg: 'این قسمت به زودی بارگذاری خواهد شد');
+                            // Fluttertoast.showToast(
+                            //     msg: 'این قسمت به زودی بارگذاری خواهد شد');
                           },
                           child: Text('تست های روانشناسی',
                               style: TextStyle(
@@ -1427,7 +1454,7 @@ class _HomePageState extends State<HomePage> {
     else
       Fluttertoast.showToast(
           msg: 'لطفا قسمتی از نام '
-              'دوره را وارد کنید');
+              'موضوع را وارد کنید');
   }
 
   Widget home() {
@@ -1517,30 +1544,29 @@ class _HomePageState extends State<HomePage> {
               shapeBorder: const CircleBorder(),
               overlayColor: Colors.white54,
               key: scrollKey,
-              description: 'منوی مورد نظر خود را انتخاب کنید',
+              description: 'با اسکرول کردن به چپ ← یا راست → می‌توانید'
+                  ' دسترسی سریع به قسمت‌های  مختلف برنامه داشته باشید',
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
+                padding: const EdgeInsets.fromLTRB(8, 20, 8, 20),
                 child: HorizontalScrollableMenu(
                   horizontalScrollableButtonNameList,
                   horizontalScrollableButtonFunctionList,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, right: 10),
-              child: SizedBox(
-                height: 25,
-                child: Showcase(
-                  showcaseBackgroundColor: Colors.black,
-                  shapeBorder: const CircleBorder(),
-                  textColor: Colors.white,
-                  overlayColor: Colors.white54,
-                  key: newCoursesKey,
-                  description: 'جدیدترین دوره ها را در اینجا ببینید',
-                  child: Text(
-                    'جدیدترین دوره ها',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+            Showcase(
+              showcaseBackgroundColor: Colors.black,
+              shapeBorder: const CircleBorder(),
+              textColor: Colors.white,
+              overlayColor: Colors.white54,
+              key: newCoursesKey,
+              description: 'دوره های آموزشی جدید مجموعه'
+                  ' استارشو را از این قسمت مشاهده کنید',
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10,5,10,5),
+                child: Text(
+                  'جدیدترین دوره ها',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -1720,7 +1746,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 8),
+                  padding: const EdgeInsets.only(right: 8, top: 8, bottom: 20),
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -1765,7 +1791,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(8,8,8,20),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -1880,7 +1906,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 8, right: 8),
+            padding: const EdgeInsets.fromLTRB(10,20,10,20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -2251,7 +2277,7 @@ class _HomePageState extends State<HomePage> {
       age: age != null ? int.parse(age) : 0,
       city: city,
       gender: gender != null ? int.parse(gender) : 0,
-      employed: employed == "1" || employed == "true",
+      employed: int.parse(employed),
       phoneNumber: phoneNumber,
       subscriptionExpirationDate: subscriptionExpirationDate != null
           ? DateTime.parse(subscriptionExpirationDate)
@@ -2331,7 +2357,8 @@ class _HomePageState extends State<HomePage> {
                 overlayColor: Colors.white54,
                 key: libraryKey,
                 description:
-                    'محصولات خریداری شده و مورد علاقه خود را در اینجا ببینید',
+                    'در قسمت آرشیو میتوانید محصولات'
+                        ' و علاقه مندی های خود را مشاهده کنید',
                 child: Center(
                   child: Column(
                     children: [
@@ -2390,7 +2417,9 @@ class _HomePageState extends State<HomePage> {
                 textColor: Colors.white,
                 overlayColor: Colors.white54,
                 key: profileKey,
-                description: 'اطلاعات کاربری خود را در اینجا ببینید',
+                description: 'اطلاعات کاربری خود را در اینجا ببینید. '
+                    'از منوی پروفایل می توانید به اطلاعات کاربری '
+                    'و بخش پشتیبانی دسترسی پیدا کنید',
                 child: Center(
                   child: Column(
                     children: [
@@ -2438,7 +2467,8 @@ class _HomePageState extends State<HomePage> {
                         textColor: Colors.white,
                         overlayColor: Colors.white54,
                         key: messageBoxKey,
-                        description: 'صندوق پیام',
+                        description: 'پیام ها و درخواست های پشتیبانی و اطلاعیه'
+                            ' محصولات جدید و تخفیف ها را اینجا مشاهده کنید',
                         child: InkWell(
                           onTap: () {
                             setState(() {

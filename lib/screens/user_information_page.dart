@@ -28,8 +28,8 @@ class _UserInformationPageState extends State<UserInformationPage> {
   TextEditingController salespersonCouponCodeController = TextEditingController();
   String genderString = 'جنسیت';
   Gender gender = Gender.Default;
-  bool isEmployed;
-  String employmentStatus = 'اشتغال';
+  EmploymentStatus employmentStatus = EmploymentStatus.Default;
+  String employmentStatusTitle = 'اشتغال';
   bool isFirstLoad = true;
   FlutterSecureStorage secureStorage;
 
@@ -70,10 +70,14 @@ class _UserInformationPageState extends State<UserInformationPage> {
           genderString = 'مونث';
       });
       setState(() {
-        if(courseStore.employed != null && courseStore.employed)
-          employmentStatus = 'شاغل';
-        else if(courseStore.employed != null && !courseStore.employed)
-          employmentStatus = 'جویای کار';
+        if(courseStore.employed != null && courseStore.employed == EmploymentStatus.Employed.index){
+          employmentStatus = EmploymentStatus.Employed;
+          employmentStatusTitle = 'شاغل';
+        }
+        else if(courseStore.employed != null && courseStore.employed == EmploymentStatus.UnEmployed.index){
+          employmentStatus = EmploymentStatus.UnEmployed;
+          employmentStatusTitle = 'جویای کار';
+        }
       });
       // isEmployed = courseStore.employed;
     }
@@ -266,6 +270,14 @@ class _UserInformationPageState extends State<UserInformationPage> {
                           Row(
                             children: [
                               Expanded(
+                                flex: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Text('جنسیت: '),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(
@@ -315,6 +327,14 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                 ),
                               ),
                               Expanded(
+                                flex: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Text('وضعیت اشتغال: '),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(
@@ -332,20 +352,20 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                           icon: Icon(Icons.work),
                                           dropdownColor: Color(0xFF44434C),
                                           style: TextStyle(color: Colors.white),
-                                          value: employmentStatus,
+                                          value: employmentStatusTitle,
                                           onChanged: (String newValue) {
                                             setState(() {
-                                              employmentStatus = newValue;
+                                              employmentStatusTitle = newValue;
                                             });
                                             switch(newValue){
                                               case 'شاغل':
-                                                isEmployed = true;
+                                                employmentStatus = EmploymentStatus.Employed;
                                                 break;
                                               case 'جویای کار':
-                                                isEmployed = false;
+                                                employmentStatus = EmploymentStatus.UnEmployed;
                                                 break;
                                               case 'اشتغال':
-                                                isEmployed = null;
+                                                employmentStatus = EmploymentStatus.Default;
                                             }
                                           },
                                           items: <String>['اشتغال', 'شاغل', 'جویای کار']
@@ -476,13 +496,15 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                       int.parse(replaceFarsiNumber(ageController.text)): 0,
                                     city: cityController.text,
                                     gender: gender.index,
-                                    employed: isEmployed
+                                    employed: employmentStatus.index
                                   ));
 
                                   if (updatedUserInfo == null)
                                     Fluttertoast.showToast(
-                                        msg: 'ثبت شماره با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
+                                        msg: 'ثبت اطلاعات با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
                                   else {
+                                    Fluttertoast.showToast(
+                                        msg: 'تغییرات به موفقیت ثبت شد');
                                     await secureStorage.write(
                                         key: 'token',
                                         value: updatedUserInfo.token);
@@ -521,7 +543,6 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                         value: updatedUserInfo.subscriptionType.toString());
 
                                     await courseStore.setUserDetails(updatedUserInfo);
-
                                     setState(() { });
                                   }
                                   stopLoading();

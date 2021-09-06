@@ -10,7 +10,7 @@ class User{
   String city;
   int age;
   int gender;
-  bool employed;
+  int employed;
   int subscriptionType;
   DateTime subscriptionExpirationDate;
 
