@@ -75,6 +75,18 @@ flutter:
     - assets/images/instagram.png
     - assets/images/phone.png
   #   - images/a_dot_ham.jpeg
+    - assets/images/catology.jpg
+    - assets/images/charm.jpg
+    - assets/images/cinemalogy.jpg
+    - assets/images/depression.jpg
+    - assets/images/destiny.jpg
+    - assets/images/exitement.jpg
+    - assets/images/insideanimal.jpg
+    - assets/images/insidechild.jpg
+    - assets/images/jobsatisfaction.jpg
+    - assets/images/netaddiction.jpg
+    - assets/images/sexual.jpg
+    - assets/images/mierz.png
 
   fonts:
     - family: IranSans

@@ -381,6 +381,58 @@ class _HomePageState extends State<HomePage> {
 
   Future goToPsychologicalTestsPage() async {
     if(!courseStore.isAdsEnabled){
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+            '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xFF20BFA9),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  //TODO add email creating tutorial
+                  Navigator.of(context).pop();
+                },
+                child: Text('آموزش ساخت ایمیل',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+          ),
+          Container(
+            width: 400,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('ادامه',
+                  style: TextStyle(
+                    color: Colors.white70,
+                  )),
+            ),
+          ),
+        ],
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
       Navigator.push(context,
           MaterialPageRoute(builder: (context){
             return PsychologicalTestsPage();
@@ -408,6 +460,58 @@ class _HomePageState extends State<HomePage> {
       }
     }
     else{
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+            '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xFF20BFA9),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  //TODO add email creating tutorial
+                  Navigator.of(context).pop();
+                },
+                child: Text('آموزش ساخت ایمیل',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+          ),
+          Container(
+            width: 400,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('ادامه',
+                  style: TextStyle(
+                    color: Colors.white70,
+                  )),
+            ),
+          ),
+        ],
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
       Navigator.push(context,
           MaterialPageRoute(builder: (context){
             return PsychologicalTestsPage();
@@ -1390,8 +1494,60 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if(!courseStore.isAdsEnabled){
+                              AlertDialog alert = AlertDialog(
+                                title: Text('توجه'),
+                                content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+                                    '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
+                                actions: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Container(
+                                      width: 400,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        //border: Border.all(color: Colors.black),
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Color(0xFF20BFA9),
+                                      ),
+                                      child: TextButton(
+                                        onPressed: () {
+                                          //TODO add email creating tutorial
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('آموزش ساخت ایمیل',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            )),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 400,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white70),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('ادامه',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                          )),
+                                    ),
+                                  ),
+                                ],
+                              );
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return alert;
+                                },
+                              );
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context){
                                     return PsychologicalTestsPage();
@@ -1419,6 +1575,58 @@ class _HomePageState extends State<HomePage> {
                               }
                             }
                             else{
+                              AlertDialog alert = AlertDialog(
+                                title: Text('توجه'),
+                                content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+                                    '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
+                                actions: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Container(
+                                      width: 400,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        //border: Border.all(color: Colors.black),
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Color(0xFF20BFA9),
+                                      ),
+                                      child: TextButton(
+                                        onPressed: () {
+                                          //TODO add email creating tutorial
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('آموزش ساخت ایمیل',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            )),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 400,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white70),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('ادامه',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                          )),
+                                    ),
+                                  ),
+                                ],
+                              );
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return alert;
+                                },
+                              );
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context){
                                     return PsychologicalTestsPage();
