@@ -38,15 +38,14 @@ class _StartPageState extends State<StartPage> {
   bool isTakingMuchTime = false;
   bool shouldRetry = false;
 
-  navigateToNextPage(){
+  navigateToNextPage() {
     UpdateStatus updateStatus = getUpdateStatus();
-    if(availableVersion != null && updateStatus != UpdateStatus.UpToDate) {
+    if (availableVersion != null && updateStatus != UpdateStatus.UpToDate) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return UpdatePage(availableVersion, updateStatus, currentVersion);
       }));
       return;
-    }
-    else if(isFirstTime == null || isFirstTime.toLowerCase() == 'true'){
+    } else if (isFirstTime == null || isFirstTime.toLowerCase() == 'true') {
       // return IntroPage();
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return IntroPage(currentVersion);
@@ -58,7 +57,7 @@ class _StartPageState extends State<StartPage> {
     }));
   }
 
-  UpdateStatus getUpdateStatus(){
+  UpdateStatus getUpdateStatus() {
     List<String> currentVersionParts = currentVersion.split('.');
     List<String> availableVersionParts = availableVersion.split('.');
     int currentVersionMajorPart = int.parse(currentVersionParts[0]);
@@ -68,15 +67,13 @@ class _StartPageState extends State<StartPage> {
     int availableVersionMinorPart = int.parse(availableVersionParts[1]);
     int availableVersionPatchPart = int.parse(availableVersionParts[2]);
 
-    if(availableVersionMajorPart > currentVersionMajorPart)
+    if (availableVersionMajorPart > currentVersionMajorPart)
       return UpdateStatus.UpdateRequired;
-    else if (
-    (availableVersionMajorPart == currentVersionMajorPart &&
-        availableVersionMinorPart > currentVersionMinorPart) ||
+    else if ((availableVersionMajorPart == currentVersionMajorPart &&
+            availableVersionMinorPart > currentVersionMinorPart) ||
         (availableVersionMajorPart == currentVersionMajorPart &&
             availableVersionMinorPart == currentVersionMinorPart &&
-            availableVersionPatchPart > currentVersionPatchPart)
-    )
+            availableVersionPatchPart > currentVersionPatchPart))
       return UpdateStatus.UpdateAvailable;
     else
       return UpdateStatus.UpToDate;
@@ -88,18 +85,20 @@ class _StartPageState extends State<StartPage> {
     initPlatformState();
     super.initState();
   }
+
   Future<void> initPlatformState() async {
     // Configure BackgroundFetch.
-    int status = await BackgroundFetch.configure(BackgroundFetchConfig(
-        minimumFetchInterval: 15,
-        stopOnTerminate: false,
-        enableHeadless: true,
-        requiresBatteryNotLow: false,
-        requiresCharging: false,
-        requiresStorageNotLow: false,
-        requiresDeviceIdle: false,
-        requiredNetworkType: NetworkType.NONE
-    ), (String taskId) async {  // <-- Event handler
+    int status = await BackgroundFetch.configure(
+        BackgroundFetchConfig(
+            minimumFetchInterval: 15,
+            stopOnTerminate: false,
+            enableHeadless: true,
+            requiresBatteryNotLow: false,
+            requiresCharging: false,
+            requiresStorageNotLow: false,
+            requiresDeviceIdle: false,
+            requiredNetworkType: NetworkType.NONE), (String taskId) async {
+      // <-- Event handler
       MessageService messageService = MessageService();
       Utility.popularMessages = await messageService.getPopularMessages();
       FlutterSecureStorage secureStorage = FlutterSecureStorage();
@@ -108,18 +107,22 @@ class _StartPageState extends State<StartPage> {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         String userId = decodedToken['nameid'];
         List<message.Message> messages =
-        await messageService.getPersonalMessages(userId);
-        List<message.Message> newMessages =
-        messages.where((element) => !element.isSeen).toList();
+            await messageService.getPersonalMessages(userId);
+        List<message.Message> newMessages = messages
+            .where((element) => element.sendPush && !element.pushSent)
+            .toList();
 
+        List<int> messageIds = [];
         int newMessageCount = newMessages != null ? newMessages.length : 0;
         if (newMessageCount > 0) {
           for (var userMessage in newMessages) {
             int id = userMessage.id;
+            messageIds.add(id);
             String title = userMessage.title;
             String body = userMessage.body;
             showNotification(id, body, title);
           }
+          await messageService.setMessageAsSeen(userId, messageIds, []);
         }
       }
       print("[BackgroundFetch] Event received $taskId");
@@ -129,7 +132,8 @@ class _StartPageState extends State<StartPage> {
       // IMPORTANT:  You must signal completion of your task or the OS can punish your app
       // for taking too long in the background.
       BackgroundFetch.finish(taskId);
-    }, (String taskId) async {  // <-- Task timeout handler.
+    }, (String taskId) async {
+      // <-- Task timeout handler.
       // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
       print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
       BackgroundFetch.finish(taskId);
@@ -147,7 +151,7 @@ class _StartPageState extends State<StartPage> {
 
   void showNotification(int id, String body, String title) async {
     FlutterLocalNotificationsPlugin localNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+        FlutterLocalNotificationsPlugin();
     var android = AndroidNotificationDetails(
         'channelId', 'channelName', 'channelDescription');
     var iOS = IOSNotificationDetails();
@@ -167,13 +171,14 @@ class _StartPageState extends State<StartPage> {
     RestartableTimer(_timerDuration, setTimerState);
     availableVersion = await globalService.getLatestVersionAvailable();
     courseStore.setAdsSituation();
-    if(availableVersion != null)
+    if (availableVersion != null)
       navigateToNextPage();
     else
       setState(() {
         shouldRetry = true;
       });
   }
+
   setTimerState() {
     setState(() {
       isTakingMuchTime = true;
@@ -196,9 +201,11 @@ class _StartPageState extends State<StartPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     courseStore.isAdsEnabled &&
-                    courseStore.loadingUpNative && courseStore.loadingUpNativeAds != null &&
-                    courseStore.loadingUpNativeAds.isEnabled ?
-                    NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
+                            courseStore.loadingUpNative &&
+                            courseStore.loadingUpNativeAds != null &&
+                            courseStore.loadingUpNativeAds.isEnabled
+                        ? NativeAds(courseStore.loadingUpNativeAds)
+                        : SizedBox(),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -208,7 +215,8 @@ class _StartPageState extends State<StartPage> {
                             'assets/images/appMainIcon.png',
                             width: MediaQuery.of(context).size.width * 0.2,
                           ),
-                        ),Text(
+                        ),
+                        Text(
                           'اِستارشو، اپلیکیشن مهارتهای ارتباطی',
                           style: TextStyle(fontSize: 18),
                         ),
@@ -217,69 +225,66 @@ class _StartPageState extends State<StartPage> {
                           style: TextStyle(fontSize: 18),
                         ),
                         SizedBox(
-                          child: !isTakingMuchTime ?
-                          Text('') :
-                          !shouldRetry ?
-                          SpinKitWave(
-                            type: SpinKitWaveType.center,
-                            color: Color(0xFF20BFA9),
-                            size: 20.0,
-                          ) :
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: InkWell(
-                              onTap: (){
-                                setState(() {
-                                  isTakingMuchTime = false;
-                                  shouldRetry = false;
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) => super.widget));
-                                });
-                              },
-                              child: Card(
-                                color: Color(0xFF20BFA9),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    'تلاش مجدد',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14
-                                    ),),
-                                ),
-                              ),
-                            ),
-                          ),
+                          child: !isTakingMuchTime
+                              ? Text('')
+                              : !shouldRetry
+                                  ? SpinKitWave(
+                                      type: SpinKitWaveType.center,
+                                      color: Color(0xFF20BFA9),
+                                      size: 20.0,
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            isTakingMuchTime = false;
+                                            shouldRetry = false;
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        super.widget));
+                                          });
+                                        },
+                                        child: Card(
+                                          color: Color(0xFF20BFA9),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: Text(
+                                              'تلاش مجدد',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                         ),
                       ],
                     ),
                     courseStore.isAdsEnabled &&
-                        courseStore.loadingDownNative && courseStore.loadingDownNativeAds != null &&
-                        courseStore.loadingDownNativeAds.isEnabled ?
-                    NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
+                            courseStore.loadingDownNative &&
+                            courseStore.loadingDownNativeAds != null &&
+                            courseStore.loadingDownNativeAds.isEnabled
+                        ? NativeAds(courseStore.loadingDownNativeAds)
+                        : SizedBox(),
                   ],
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: currentVersion != null ?
-                  Text(
-                    'نسخه ' + currentVersion,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white70
-                    ),
-                  ) :
-                  Text(
-                    '...',
-                    style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white70
-                    ),
-                  )
-                ,
+                child: currentVersion != null
+                    ? Text(
+                        'نسخه ' + currentVersion,
+                        style: TextStyle(fontSize: 13, color: Colors.white70),
+                      )
+                    : Text(
+                        '...',
+                        style: TextStyle(fontSize: 13, color: Colors.white70),
+                      ),
               )
             ],
           ),

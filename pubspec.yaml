@@ -87,6 +87,9 @@ flutter:
     - assets/images/netaddiction.jpg
     - assets/images/sexual.jpg
     - assets/images/mierz.png
+    - assets/images/noMessage.png
+    - assets/images/noMessage.png
+    - assets/images/circle2.png
 
   fonts:
     - family: IranSans

@@ -107,25 +107,43 @@ class _UserInformationPageState extends State<UserInformationPage> {
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Container(
-                      width: width * 0.35,
-                      height: width * 0.35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: AssetImage('assets/images/appMainIcon.png'),
-                            fit: BoxFit.fill),
+                  // decoration: BoxDecoration(
+                  //   shape: BoxShape.circle,
+                  //   border: Border.all(
+                  //     color: Colors.white,
+                  //     width: 2,
+                  //   ),
+                  // ),
+                  child: Stack(
+                    children:[
+                      Positioned(
+                        top: width * 0.1,
+                        right: width * 0.29,
+                        child: Container(
+                          width: width * 0.35,
+                          height: width * 0.35,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: AssetImage('assets/images/appMainIcon.png'),
+                                fit: BoxFit.fill),
+                          ),
+                        ),
                       ),
-                    ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: width * 0.55,
+                          height: width * 0.55,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: AssetImage('assets/images/circle2.png'),
+                                fit: BoxFit.fill),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

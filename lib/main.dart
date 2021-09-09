@@ -64,7 +64,6 @@ void main() async {
 
 void backgroundFetchHeadlessTask(HeadlessTask task) async {
   MessageService messageService = MessageService();
-  Utility.popularMessages = await messageService.getPopularMessages();
   secureStorage = FlutterSecureStorage();
   String token = await secureStorage.read(key: 'token');
   if (token != null || token != "") {
@@ -72,17 +71,20 @@ void backgroundFetchHeadlessTask(HeadlessTask task) async {
     String userId = decodedToken['nameid'];
     List<message.Message> messages =
         await messageService.getPersonalMessages(userId);
-    List<message.Message> newMessages =
-        messages.where((element) => !element.isSeen).toList();
-
+    List<message.Message> newMessages = messages
+        .where((element) => element.sendPush && !element.pushSent)
+        .toList();
+    List<int> messageIds = [];
     int newMessageCount = newMessages != null ? newMessages.length : 0;
     if (newMessageCount > 0) {
       for (var userMessage in newMessages) {
         int id = userMessage.id;
+        messageIds.add(id);
         String title = userMessage.title;
         String body = userMessage.body;
         showNotification(id, body, title);
       }
+      await messageService.setMessageAsSeen(userId, messageIds, []);
     }
   }
   String taskId = task.taskId;

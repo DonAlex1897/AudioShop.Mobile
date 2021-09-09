@@ -651,7 +651,7 @@ class _HomePageState extends State<HomePage> {
       String userId = decodedToken['nameid'];
       userMessages = await messageService.getPersonalMessages(userId);
       var unSeenMessages =
-          userMessages.where((element) => !element.isSeen).toList();
+          userMessages.where((element) => element.sendInApp && !element.inAppSeen).toList();
       setState(() {
         unSeenMessagesCount =
             unSeenMessages != null ? unSeenMessages.length : 0;
