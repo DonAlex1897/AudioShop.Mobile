@@ -10,7 +10,7 @@ class PaymentService{
   PaymentService();
 
   String createOrderUrl = GlobalVariables.baseUrl + 'api/orders';
-  String payOrderUrl = GlobalVariables.baseUrl + 'api/payment/payorder';
+  String payOrderUrl = GlobalVariables.baseUrl + 'api/payment/payorder?orderId=';
   Future<String> createOrder(Basket basket, String userId, String token) async {
     try {
       var body = jsonEncode({
@@ -50,12 +50,7 @@ class PaymentService{
 
   Future<String> payOrder(String orderJson) async{
     try {
-      http.Response response = await http.post(Uri.encodeFull(payOrderUrl),
-          body: orderJson,
-          headers: {
-            "Accept": "application/json",
-            "content-type": "application/json",
-          });
+      http.Response response = await http.post(payOrderUrl+orderJson);
 
       if(response.statusCode == 302){
         String location = response.headers['location'];

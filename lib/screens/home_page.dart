@@ -117,6 +117,7 @@ class _HomePageState extends State<HomePage> {
   List<String> horizontalScrollableButtonNameList = [
     'با استارشو ستاره شو',
     'خرید اشتراک',
+    'پشتیبانی',
     'دوره ها',
     'کتاب صوتی',
     'اشتراک گذاری',
@@ -167,6 +168,7 @@ class _HomePageState extends State<HomePage> {
     horizontalScrollableButtonFunctionList = [
       goToAboutUsPage,
       purchaseSubscription,
+      goToSupportPage,
       goToCourseCategoryPage,
       goToAudioBookCategoryPage,
       shareApplication,
@@ -379,11 +381,106 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future goToPsychologicalTestsPage() async {
-    if(!courseStore.isAdsEnabled){
+  Future goToSupportPage() async {
+    bool continueToSupportPage = false;
+    if (courseStore.token == null || courseStore.token == '') {
       AlertDialog alert = AlertDialog(
         title: Text('توجه'),
-        content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+        content: Text('شما همواره می توانید از طریق'
+            ' واتسپ، تلگرام، اینستاگرام و تلفن با ما در ارتباط باشید. همچنین '
+            'در صورت ثبت نام می توانید از طریق ثبت تیکت و به طور ناشناس '
+            'با کارشناسان ما صحبت کنید.'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: 400,
+              height: 40,
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(5),
+                color: Color(0xFF20BFA9),
+              ),
+              child: TextButton(
+                onPressed: () async {
+                  await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return AuthenticationPage(FormName.SignUp);
+                  })).then((value) {
+                    setState(() {});
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: Text('ثبت نام',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+          ),
+          Container(
+            width: 400,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white70),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: TextButton(
+              onPressed: () {
+                continueToSupportPage = true;
+                Navigator.of(context).pop();
+              },
+              child: Text('ارتباط با ما',
+                  style: TextStyle(
+                    color: Colors.white70,
+                  )),
+            ),
+          ),
+        ],
+      );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
+    else {
+      continueToSupportPage = true;
+    }
+
+    if(continueToSupportPage){
+      if (!courseStore.isAdsEnabled) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return SupportPage();
+        }));
+      } else if (courseStore.supportPageFull &&
+          courseStore.supportPageFullAds != null &&
+          courseStore.supportPageFullAds.isEnabled) {
+        if (!courseStore.isPopUpEnabled) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AdvertisementPage(
+              navigatedPage: NavigatedPage.SupportPage,
+              ads: courseStore.supportPageFullAds,
+            );
+          }));
+        } else {
+          Utility.showAdsAlertDialog(context, NavigatedPage.SupportPage,
+              courseStore.supportPageFullAds);
+        }
+      } else {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return SupportPage();
+        }));
+      }
+    }
+  }
+
+  Future goToPsychologicalTestsPage() async {
+    if (!courseStore.isAdsEnabled) {
+      AlertDialog alert = AlertDialog(
+        title: Text('توجه'),
+        content: Text(
+            '💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
             '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
         actions: [
           Padding(
@@ -433,36 +530,28 @@ class _HomePageState extends State<HomePage> {
           return alert;
         },
       );
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context){
-            return PsychologicalTestsPage();
-          })
-      );
-    }
-    else if(courseStore.psychologicalTestsFull &&
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return PsychologicalTestsPage();
+      }));
+    } else if (courseStore.psychologicalTestsFull &&
         courseStore.psychologicalTestsFullAds != null &&
-        courseStore.psychologicalTestsFullAds.isEnabled){
-      if(!showAdsInPopUp){
+        courseStore.psychologicalTestsFullAds.isEnabled) {
+      if (!showAdsInPopUp) {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdvertisementPage(
             navigatedPage: NavigatedPage.PsychologicalTests,
             ads: courseStore.psychologicalTestsFullAds,
           );
         }));
+      } else {
+        Utility.showAdsAlertDialog(context, NavigatedPage.PsychologicalTests,
+            courseStore.psychologicalTestsFullAds);
       }
-      else{
-        Utility.showAdsAlertDialog(
-          context,
-          NavigatedPage.PsychologicalTests,
-          courseStore
-              .psychologicalTestsFullAds
-        );
-      }
-    }
-    else{
+    } else {
       AlertDialog alert = AlertDialog(
         title: Text('توجه'),
-        content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+        content: Text(
+            '💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
             '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
         actions: [
           Padding(
@@ -512,11 +601,9 @@ class _HomePageState extends State<HomePage> {
           return alert;
         },
       );
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context){
-            return PsychologicalTestsPage();
-          })
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return PsychologicalTestsPage();
+      }));
     }
 
     // Fluttertoast.showToast(msg: 'این قسمت به زودی بارگذاری خواهد شد');
@@ -1147,11 +1234,10 @@ class _HomePageState extends State<HomePage> {
                   textColor: Colors.white,
                   overlayColor: Colors.white54,
                   key: couponCodeKey,
-                  description:
-                      'اگر از طریق نمایندگان ما با مجموعه'
-                          ' استارشو آشنا شده اید ، کد معرف نماینده'
-                          ' را وارد کنید تا از تخفیفات'
-                          ' ویژه استارشو بهره‌مند شوید.',
+                  description: 'اگر از طریق نمایندگان ما با مجموعه'
+                      ' استارشو آشنا شده اید ، کد معرف نماینده'
+                      ' را وارد کنید تا از تخفیفات'
+                      ' ویژه استارشو بهره‌مند شوید.',
                   child: SizedBox(
                       height: 80,
                       width: width * 2,
@@ -1495,10 +1581,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: TextButton(
                           onPressed: () async {
-                            if(!courseStore.isAdsEnabled){
+                            if (!courseStore.isAdsEnabled) {
                               AlertDialog alert = AlertDialog(
                                 title: Text('توجه'),
-                                content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+                                content: Text(
+                                    '💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
                                     '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
                                 actions: [
                                   Padding(
@@ -1549,35 +1636,33 @@ class _HomePageState extends State<HomePage> {
                                 },
                               );
                               Navigator.push(context,
-                                  MaterialPageRoute(builder: (context){
-                                    return PsychologicalTestsPage();
-                                  })
-                              );
-                            }
-                            else if(courseStore.psychologicalTestsFull &&
+                                  MaterialPageRoute(builder: (context) {
+                                return PsychologicalTestsPage();
+                              }));
+                            } else if (courseStore.psychologicalTestsFull &&
                                 courseStore.psychologicalTestsFullAds != null &&
-                                courseStore.psychologicalTestsFullAds.isEnabled){
-                              if(!showAdsInPopUp){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                courseStore
+                                    .psychologicalTestsFullAds.isEnabled) {
+                              if (!showAdsInPopUp) {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
                                   return AdvertisementPage(
-                                    navigatedPage: NavigatedPage.PsychologicalTests,
+                                    navigatedPage:
+                                        NavigatedPage.PsychologicalTests,
                                     ads: courseStore.psychologicalTestsFullAds,
                                   );
                                 }));
-                              }
-                              else{
+                              } else {
                                 Utility.showAdsAlertDialog(
                                     context,
                                     NavigatedPage.PsychologicalTests,
-                                    courseStore
-                                        .psychologicalTestsFullAds
-                                );
+                                    courseStore.psychologicalTestsFullAds);
                               }
-                            }
-                            else{
+                            } else {
                               AlertDialog alert = AlertDialog(
                                 title: Text('توجه'),
-                                content: Text('💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
+                                content: Text(
+                                    '💢 ایمیل خود را وارد کنید و به سوال های مربوطه پاسخ دهید و نتیجه تست را ببینید'
                                     '⚠️ اگر ایمیل ندارید به بخش آموزش ساخت ایمیل مراجعه کنید'),
                                 actions: [
                                   Padding(
@@ -1628,10 +1713,9 @@ class _HomePageState extends State<HomePage> {
                                 },
                               );
                               Navigator.push(context,
-                                  MaterialPageRoute(builder: (context){
-                                    return PsychologicalTestsPage();
-                                  })
-                              );
+                                  MaterialPageRoute(builder: (context) {
+                                return PsychologicalTestsPage();
+                              }));
                             }
 
                             // Fluttertoast.showToast(
@@ -1771,7 +1855,7 @@ class _HomePageState extends State<HomePage> {
               description: 'دوره های آموزشی جدید مجموعه'
                   ' استارشو را از این قسمت مشاهده کنید',
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(10,5,10,5),
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                 child: Text(
                   'جدیدترین دوره ها',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -1999,7 +2083,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(8,8,8,20),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -2098,6 +2182,24 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 20),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.white24,
+              ),
+              height: 60,
+              width: width * 2,
+              child: TextButton(
+                child: Text(
+                  'پشتیبانی',
+                  style: TextStyle(fontSize: 19, color: Colors.white),
+                ),
+                onPressed: goToSupportPage,
+              ),
+            ),
+          ),
           courseStore.isAdsEnabled &&
                   courseStore.libraryNative &&
                   courseStore.libraryNativeAds != null &&
@@ -2114,7 +2216,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(10,20,10,20),
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -2564,9 +2666,8 @@ class _HomePageState extends State<HomePage> {
                 textColor: Colors.white,
                 overlayColor: Colors.white54,
                 key: libraryKey,
-                description:
-                    'در قسمت آرشیو میتوانید محصولات'
-                        ' و علاقه مندی های خود را مشاهده کنید',
+                description: 'در قسمت آرشیو میتوانید محصولات'
+                    ' و علاقه مندی های خود را مشاهده کنید',
                 child: Center(
                   child: Column(
                     children: [
