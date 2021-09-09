@@ -64,48 +64,85 @@ class _ReviewPageState extends State<ReviewPage> {
 }
 
 Widget reviewListItem({Review review}) {
-  return Card(
-    color: Colors.white10,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                review.userFirstName != null ?
-                review.userFirstName :
-                'کاربر نرم افزار',
-                style: TextStyle(fontSize: 16),
+  return Column(
+    children: [
+      Card(
+        color: Colors.white10,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    review.userFirstName != null ?
+                    review.userFirstName :
+                    'کاربر نرم افزار',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  // Text(
+                  //   courseReviewList[index].date.toLocal().toString(),
+                  //   style: TextStyle(fontSize: 16),
+                  // ),
+                  Directionality(
+                    textDirection: ui.TextDirection.ltr,
+                    child: SmoothStarRating(
+                      size: 15,
+                      allowHalfRating: false,
+                      isReadOnly: true,
+                      rating: double.parse(review.rating.toString()),
+                      color: Colors.yellow,
+                    ),
+                  ),
+                ],
               ),
-              // Text(
-              //   courseReviewList[index].date.toLocal().toString(),
-              //   style: TextStyle(fontSize: 16),
-              // ),
-              Directionality(
-                textDirection: ui.TextDirection.ltr,
-                child: SmoothStarRating(
-                  size: 15,
-                  allowHalfRating: false,
-                  isReadOnly: true,
-                  rating: double.parse(review.rating.toString()),
-                  color: Colors.yellow,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                review.text,
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.justify,
+              ),
+            )
+          ],
+        ),
+      ),
+      review.adminMessage != null ?
+      Padding(
+        padding: const EdgeInsets.only(bottom:8.0),
+        child: Card(
+          color: Colors.white38,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'پاسخ ادمین',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  review.adminMessage,
+                  style: TextStyle(fontSize: 18),
+                  textAlign: TextAlign.justify,
+                ),
+              )
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text(
-            review.text,
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.justify,
-          ),
-        )
-      ],
-    ),
+      ) :
+      SizedBox(),
+    ],
   );
 }
