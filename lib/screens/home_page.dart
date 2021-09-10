@@ -403,7 +403,8 @@ class _HomePageState extends State<HomePage> {
               ),
               child: TextButton(
                 onPressed: () async {
-                  await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
                     return AuthenticationPage(FormName.SignUp);
                   })).then((value) {
                     setState(() {});
@@ -443,12 +444,11 @@ class _HomePageState extends State<HomePage> {
           return alert;
         },
       );
-    }
-    else {
+    } else {
       continueToSupportPage = true;
     }
 
-    if(continueToSupportPage){
+    if (continueToSupportPage) {
       if (!courseStore.isAdsEnabled) {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return SupportPage();
@@ -461,11 +461,16 @@ class _HomePageState extends State<HomePage> {
             return AdvertisementPage(
               navigatedPage: NavigatedPage.SupportPage,
               ads: courseStore.supportPageFullAds,
+              videoAdsWaitingTime: courseStore.videoAdsWaitTime,
             );
           }));
         } else {
-          Utility.showAdsAlertDialog(context, NavigatedPage.SupportPage,
-              courseStore.supportPageFullAds);
+          Utility.showAdsAlertDialog(
+            context,
+            NavigatedPage.SupportPage,
+            courseStore.supportPageFullAds,
+            courseStore.videoAdsWaitTime,
+          );
         }
       } else {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -541,11 +546,16 @@ class _HomePageState extends State<HomePage> {
           return AdvertisementPage(
             navigatedPage: NavigatedPage.PsychologicalTests,
             ads: courseStore.psychologicalTestsFullAds,
+            videoAdsWaitingTime: courseStore.videoAdsWaitTime,
           );
         }));
       } else {
-        Utility.showAdsAlertDialog(context, NavigatedPage.PsychologicalTests,
-            courseStore.psychologicalTestsFullAds);
+        Utility.showAdsAlertDialog(
+          context,
+          NavigatedPage.PsychologicalTests,
+          courseStore.psychologicalTestsFullAds,
+          courseStore.videoAdsWaitTime,
+        );
       }
     } else {
       AlertDialog alert = AlertDialog(
@@ -650,8 +660,9 @@ class _HomePageState extends State<HomePage> {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String userId = decodedToken['nameid'];
       userMessages = await messageService.getPersonalMessages(userId);
-      var unSeenMessages =
-          userMessages.where((element) => element.sendInApp && !element.inAppSeen).toList();
+      var unSeenMessages = userMessages
+          .where((element) => element.sendInApp && !element.inAppSeen)
+          .toList();
       setState(() {
         unSeenMessagesCount =
             unSeenMessages != null ? unSeenMessages.length : 0;
@@ -1018,11 +1029,16 @@ class _HomePageState extends State<HomePage> {
             navigatedPage: NavigatedPage.CoursePreview,
             ads: courseStore.coursePreviewFullAds,
             course: course,
+            videoAdsWaitingTime: courseStore.videoAdsWaitTime,
           );
         }));
       } else {
-        Utility.showAdsAlertDialog(context, NavigatedPage.CoursePreview,
-            courseStore.coursePreviewFullAds, course);
+        Utility.showAdsAlertDialog(
+            context,
+            NavigatedPage.CoursePreview,
+            courseStore.coursePreviewFullAds,
+            courseStore.videoAdsWaitTime,
+            course);
       }
     } else {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -1271,14 +1287,17 @@ class _HomePageState extends State<HomePage> {
                                           .AddSalesPersonCouponCode,
                                       ads: courseStore
                                           .addSalesPersonCouponCodeFullAds,
+                                      videoAdsWaitingTime:
+                                          courseStore.videoAdsWaitTime,
                                     );
                                   }));
                                 } else {
                                   Utility.showAdsAlertDialog(
-                                      context,
-                                      NavigatedPage.AddSalesPersonCouponCode,
-                                      courseStore
-                                          .addSalesPersonCouponCodeFullAds);
+                                    context,
+                                    NavigatedPage.AddSalesPersonCouponCode,
+                                    courseStore.addSalesPersonCouponCodeFullAds,
+                                    courseStore.videoAdsWaitTime,
+                                  );
                                 }
                               } else {
                                 Navigator.push(context,
@@ -1545,13 +1564,17 @@ class _HomePageState extends State<HomePage> {
                                         navigatedPage:
                                             NavigatedPage.SupportPage,
                                         ads: courseStore.supportPageFullAds,
+                                        videoAdsWaitingTime:
+                                            courseStore.videoAdsWaitTime,
                                       );
                                     }));
                                   } else {
                                     Utility.showAdsAlertDialog(
-                                        context,
-                                        NavigatedPage.SupportPage,
-                                        courseStore.supportPageFullAds);
+                                      context,
+                                      NavigatedPage.SupportPage,
+                                      courseStore.supportPageFullAds,
+                                      courseStore.videoAdsWaitTime,
+                                    );
                                   }
                                 } else {
                                   Navigator.push(context,
@@ -1650,13 +1673,17 @@ class _HomePageState extends State<HomePage> {
                                     navigatedPage:
                                         NavigatedPage.PsychologicalTests,
                                     ads: courseStore.psychologicalTestsFullAds,
+                                    videoAdsWaitingTime:
+                                        courseStore.videoAdsWaitTime,
                                   );
                                 }));
                               } else {
                                 Utility.showAdsAlertDialog(
-                                    context,
-                                    NavigatedPage.PsychologicalTests,
-                                    courseStore.psychologicalTestsFullAds);
+                                  context,
+                                  NavigatedPage.PsychologicalTests,
+                                  courseStore.psychologicalTestsFullAds,
+                                  courseStore.videoAdsWaitTime,
+                                );
                               }
                             } else {
                               AlertDialog alert = AlertDialog(
@@ -2111,13 +2138,17 @@ class _HomePageState extends State<HomePage> {
                               return AdvertisementPage(
                                 navigatedPage: NavigatedPage.SignInLibrary,
                                 ads: courseStore.loginFavoritesFullAds,
+                                videoAdsWaitingTime:
+                                    courseStore.videoAdsWaitTime,
                               );
                             }));
                           } else {
                             Utility.showAdsAlertDialog(
-                                context,
-                                NavigatedPage.SignInLibrary,
-                                courseStore.loginFavoritesFullAds);
+                              context,
+                              NavigatedPage.SignInLibrary,
+                              courseStore.loginFavoritesFullAds,
+                              courseStore.videoAdsWaitTime,
+                            );
                           }
                         } else {
                           Navigator.push(context,
@@ -2159,13 +2190,17 @@ class _HomePageState extends State<HomePage> {
                               return AdvertisementPage(
                                 navigatedPage: NavigatedPage.SignUpLibrary,
                                 ads: courseStore.signUpFullAds,
+                                videoAdsWaitingTime:
+                                    courseStore.videoAdsWaitTime,
                               );
                             }));
                           } else {
                             Utility.showAdsAlertDialog(
-                                context,
-                                NavigatedPage.SignUpLibrary,
-                                courseStore.signUpFullAds);
+                              context,
+                              NavigatedPage.SignUpLibrary,
+                              courseStore.signUpFullAds,
+                              courseStore.videoAdsWaitTime,
+                            );
                           }
                         } else {
                           Navigator.push(context,
@@ -2390,13 +2425,16 @@ class _HomePageState extends State<HomePage> {
                     return AdvertisementPage(
                       navigatedPage: NavigatedPage.RegisterPhoneNumber,
                       ads: courseStore.signUpFullAds,
+                      videoAdsWaitingTime: courseStore.videoAdsWaitTime,
                     );
                   }));
                 } else {
                   Utility.showAdsAlertDialog(
-                      context,
-                      NavigatedPage.RegisterPhoneNumber,
-                      courseStore.signUpFullAds);
+                    context,
+                    NavigatedPage.RegisterPhoneNumber,
+                    courseStore.signUpFullAds,
+                    courseStore.videoAdsWaitTime,
+                  );
                 }
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {

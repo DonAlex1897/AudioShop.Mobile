@@ -90,7 +90,7 @@ class _StartPageState extends State<StartPage> {
     // Configure BackgroundFetch.
     int status = await BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 15,
+            minimumFetchInterval: 60,
             stopOnTerminate: false,
             enableHeadless: true,
             requiresBatteryNotLow: false,
@@ -100,7 +100,6 @@ class _StartPageState extends State<StartPage> {
             requiredNetworkType: NetworkType.NONE), (String taskId) async {
       // <-- Event handler
       MessageService messageService = MessageService();
-      Utility.popularMessages = await messageService.getPopularMessages();
       FlutterSecureStorage secureStorage = FlutterSecureStorage();
       String token = await secureStorage.read(key: 'token');
       if (token != null || token != "") {

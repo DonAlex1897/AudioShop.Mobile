@@ -37,6 +37,7 @@ class AdvertisementPage extends StatefulWidget {
   final String noPictureAsset;
   final String courseCoverUrl;
   final CourseEpisode episodeDetails;
+  final int videoAdsWaitingTime;
 
   AdvertisementPage({
     Key key,
@@ -46,7 +47,8 @@ class AdvertisementPage extends StatefulWidget {
     this. courseCover,
     this.noPictureAsset,
     this.courseCoverUrl,
-    this.episodeDetails
+    this.episodeDetails,
+    this.videoAdsWaitingTime
   }): super (key: key);
 
 
@@ -75,6 +77,7 @@ class _AdvertisementPageState extends State<AdvertisementPage> {
   int _timerDuration = 2;
 
   void startTimer() {
+    _timerDuration = widget.videoAdsWaitingTime;
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,

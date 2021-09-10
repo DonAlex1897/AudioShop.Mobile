@@ -290,6 +290,7 @@ class _CoursePageState extends State<CoursePage> {
                 return AdvertisementPage(
                   navigatedPage: NavigatedPage.SignUpPurchase,
                   ads: courseStore.signUpFullAds,
+                  videoAdsWaitingTime: courseStore.videoAdsWaitTime,
                 );
               }));
             }
@@ -297,7 +298,8 @@ class _CoursePageState extends State<CoursePage> {
               Utility.showAdsAlertDialog(
                   context,
                   NavigatedPage.SignUpPurchase,
-                  courseStore.signUpFullAds
+                  courseStore.signUpFullAds,
+                courseStore.videoAdsWaitTime,
               );
             }
           }
@@ -359,6 +361,7 @@ class _CoursePageState extends State<CoursePage> {
                   ads: courseStore.nowPlayingFullAds,
                   episodeDetails: episode,
                   courseCoverUrl: course.photoAddress,
+                  videoAdsWaitingTime: courseStore.videoAdsWaitTime,
                 );
               }));
             }
@@ -366,6 +369,7 @@ class _CoursePageState extends State<CoursePage> {
               Utility.showAdsAlertDialog(
                   context,
                   NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
+                  courseStore.videoAdsWaitTime,
                   null,null,null,episode,course.photoAddress
               );
             }
@@ -395,6 +399,7 @@ class _CoursePageState extends State<CoursePage> {
               ads: courseStore.nowPlayingFullAds,
               episodeDetails: episode,
               courseCoverUrl: course.photoAddress,
+              videoAdsWaitingTime: courseStore.videoAdsWaitTime,
             );
           }));
         }
@@ -402,6 +407,7 @@ class _CoursePageState extends State<CoursePage> {
           Utility.showAdsAlertDialog(
               context,
               NavigatedPage.PlayEpisode,courseStore.nowPlayingFullAds,
+              courseStore.videoAdsWaitTime,
               null,null,null,episode,course.photoAddress
           );
         }
@@ -812,6 +818,7 @@ class _CoursePageState extends State<CoursePage> {
                     return AdvertisementPage(
                       navigatedPage: NavigatedPage.SignUpPurchase,
                       ads: courseStore.signUpFullAds,
+                      videoAdsWaitingTime: courseStore.videoAdsWaitTime,
                     );
                   }));
                 }
@@ -819,7 +826,8 @@ class _CoursePageState extends State<CoursePage> {
                   Utility.showAdsAlertDialog(
                       context,
                       NavigatedPage.SignUpPurchase,
-                      courseStore.signUpFullAds
+                      courseStore.signUpFullAds,
+                    courseStore.videoAdsWaitTime,
                   );
                 }
               }

@@ -18,7 +18,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CheckOutPage extends StatefulWidget {
-
   CheckOutPage();
 
   @override
@@ -37,20 +36,16 @@ class _CheckOutPageState extends State<CheckOutPage> {
   bool isAgree = false;
   StatisticsService statisticsService = StatisticsService();
 
-
   @override
   void setState(fn) {
-    if(mounted) {
+    if (mounted) {
       super.setState(fn);
     }
   }
 
-  Future<String> createOrder() async{
+  Future<String> createOrder() async {
     return await orderService.createOrder(
-        courseStore.basket,
-        courseStore.userId,
-        courseStore.token
-    );
+        courseStore.basket, courseStore.userId, courseStore.token);
   }
 
   Widget verifyCodeButton() {
@@ -63,13 +58,14 @@ class _CheckOutPageState extends State<CheckOutPage> {
         ),
         child: TextButton(
           onPressed: () async {
-            if(!isVerifyButtonPressed){
+            if (!isVerifyButtonPressed) {
               setState(() {
                 isVerifyButtonPressed = true;
               });
               isCouponCodeVerified = await verifyDiscountCode();
-              if(isCouponCodeVerified)
-                courseStore.setOtherCouponCodeInBasket(discountCodeController.text);
+              if (isCouponCodeVerified)
+                courseStore
+                    .setOtherCouponCodeInBasket(discountCodeController.text);
             }
           },
           child: Text(
@@ -85,38 +81,34 @@ class _CheckOutPageState extends State<CheckOutPage> {
     );
   }
 
-  Future<bool> verifyDiscountCode() async{
-    int discountPercent = await discountService
-        .couponDiscountPercent(discountCodeController.text, courseStore.token);
-    if(discountPercent > 0){
+  Future<bool> verifyDiscountCode() async {
+    int discountPercent = await discountService.couponDiscountPercent(
+        discountCodeController.text, courseStore.token);
+    if (discountPercent > 0) {
       setState(() {
         courseStore.applyCouponCodeDiscount(discountPercent);
       });
       Fluttertoast.showToast(msg: 'کد تخفیف با موفقیت اعمال شد');
       return true;
-    }
-    else if(discountPercent == -1){
+    } else if (discountPercent == -1) {
       Fluttertoast.showToast(msg: 'کد وارد شده صحیح نیست');
       setState(() {
         isVerifyButtonPressed = false;
       });
       return false;
-    }
-    else if(discountPercent == -2){
+    } else if (discountPercent == -2) {
       Fluttertoast.showToast(msg: 'زمان اعتبار کد به پایان رسیده است');
       setState(() {
         isVerifyButtonPressed = false;
       });
       return false;
-    }
-    else if(discountPercent == -3){
+    } else if (discountPercent == -3) {
       Fluttertoast.showToast(msg: 'شما قبلا از این کد استفاده کرده اید');
       setState(() {
         isVerifyButtonPressed = false;
       });
       return false;
-    }
-    else{
+    } else {
       Fluttertoast.showToast(msg: 'خطا در اعمال کد تخفیف');
       setState(() {
         isVerifyButtonPressed = false;
@@ -128,7 +120,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
   @override
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
-
 
     return Scaffold(
       // persistentFooterButtons: [
@@ -717,10 +708,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Center(
-                      child: Image.asset(
-                        'assets/images/purchase.png',
-                        width: MediaQuery.of(context).size.width * 0.6,
-                      ),
+                    child: Image.asset(
+                      'assets/images/purchase.png',
+                      width: MediaQuery.of(context).size.width * 0.6,
+                    ),
                   ),
                 ),
                 Column(
@@ -750,46 +741,63 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           //   maxLines: 2,
                           //   overflow: TextOverflow.ellipsis,
                           // ),
-                          expanded: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: verifyCodeButton(),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      height: 40,
-                                      child: TextField(
-                                        style: TextStyle(color: Colors.white),
-                                        keyboardType: TextInputType.text,
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                          border: OutlineInputBorder(),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide:
-                                            BorderSide(color: Colors.white, width: 2.0),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide:
-                                            BorderSide(color: Colors.white, width: 2.0),
-                                          ),
-                                          labelText: 'کد تخفیف',
-                                          labelStyle: TextStyle(
-                                            color: Colors.white,
+                          expanded: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Expanded(
+                                        flex: 1,
+                                        child: verifyCodeButton(),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                          height: 40,
+                                          child: TextField(
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                            keyboardType: TextInputType.text,
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              border: OutlineInputBorder(),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 2.0),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 2.0),
+                                              ),
+                                              labelText: 'کد تخفیف',
+                                              labelStyle: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            controller: discountCodeController,
                                           ),
                                         ),
-                                        controller: discountCodeController,
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                      'در صورت داشتن کد تخفیف،'
+                                          ' آن را اینجا وارد کنید',
+                                    style: TextStyle(color: Colors.white60),
+                                  ))
+                            ],
                           ),
                         ),
                       ),
@@ -850,7 +858,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                       flex: 1,
                                       child: Row(
                                         children: [
-                                          Text(currencyFormat.format(courseStore.basket.totalPrice/10000) + " هزار تومان"),
+                                          Text(currencyFormat.format(courseStore
+                                                      .basket.totalPrice /
+                                                  10000) +
+                                              " هزار تومان"),
                                         ],
                                       ),
                                     ),
@@ -858,7 +869,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                       flex: 1,
                                       child: Row(
                                         children: [
-                                          Text(currencyFormat.format(courseStore.basket.discount/10000) + " هزار تومان"),
+                                          Text(currencyFormat.format(
+                                                  courseStore.basket.discount /
+                                                      10000) +
+                                              " هزار تومان"),
                                         ],
                                       ),
                                     ),
@@ -866,7 +880,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                       flex: 1,
                                       child: Row(
                                         children: [
-                                          Text(currencyFormat.format(courseStore.basket.priceToPay/10000) + " هزار تومان"),
+                                          Text(currencyFormat.format(courseStore
+                                                      .basket.priceToPay /
+                                                  10000) +
+                                              " هزار تومان"),
                                         ],
                                       ),
                                     ),
@@ -901,7 +918,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           lineWidth: 4,
                         ),
                       ),
-                      onTap:(startLoading, stopLoading, btnState) async {
+                      onTap: (startLoading, stopLoading, btnState) async {
                         startLoading();
                         bool payWithPanel = false;
 
@@ -909,15 +926,15 @@ class _CheckOutPageState extends State<CheckOutPage> {
                           backgroundColor: Colors.white70,
                           title: Text(
                             'پرداخت نهایی',
-                            style: TextStyle(color: Colors.black),),
+                            style: TextStyle(color: Colors.black),
+                          ),
                           content: Text(
                             'پرداخت از طریق کارت به کارت و یا ورود به درگاه '
-                                'پرداخت امکان پذیر می باشد.'
-                                'لطفا گزینه مورد نظر خود را انتخاب کنید.',
+                            'پرداخت امکان پذیر می باشد.'
+                            'لطفا گزینه مورد نظر خود را انتخاب کنید.',
                             style: TextStyle(fontSize: 20, color: Colors.black),
                             textAlign: TextAlign.justify,
                           ),
-
                           actions: [
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8),
@@ -927,18 +944,16 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.black),
                                   borderRadius: BorderRadius.circular(5),
-
                                 ),
                                 child: TextButton(
-                                  onPressed: (){
+                                  onPressed: () {
                                     payWithPanel = false;
                                     Navigator.of(context).pop();
                                   },
-                                  child:
-                                  Text(
-                                      'کارت به کارت',
-                                      style: TextStyle(color: Colors.black,)
-                                  ),
+                                  child: Text('کارت به کارت',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      )),
                                 ),
                               ),
                             ),
@@ -948,18 +963,16 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.black),
                                 borderRadius: BorderRadius.circular(5),
-
                               ),
                               child: TextButton(
-                                onPressed: (){
+                                onPressed: () {
                                   payWithPanel = true;
                                   Navigator.of(context).pop();
                                 },
-                                child:
-                                Text(
-                                    'درگاه پرداخت',
-                                    style: TextStyle(color: Colors.black,)
-                                ),
+                                child: Text('درگاه پرداخت',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )),
                               ),
                             ),
                           ],
@@ -970,34 +983,38 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             return alert;
                           },
                         );
-                        if(payWithPanel) {
+                        if (payWithPanel) {
                           AlertDialog alert2 = AlertDialog(
                             scrollable: true,
                             backgroundColor: Colors.white70,
                             title: Text(
                               'درباره زرین پال',
-                              style: TextStyle(color: Colors.black),),
+                              style: TextStyle(color: Colors.black),
+                            ),
                             content: Column(
                               children: [
                                 Text(
                                   'زرین‌پال، اولین پرداخت‌یار پیشگامِ کشور است که'
-                                      ' با سبک و استانداردهای جدید، سرویس‌های'
-                                      ' پرداخت الکترونیک را برای کسب‌ وکارها'
-                                      ' ارائه کرده است. ما هر روزه، میلیاردها'
-                                      ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
-                                      'خطایی به گردش درمی‌آوریم، با این هدف که در'
-                                      ' افزایش سهم تجارت الکترونیکی در تولید'
-                                      ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
-                                      ' وکارها، نقش سازنده و موثری داشته باشیم.',
-                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                  ' با سبک و استانداردهای جدید، سرویس‌های'
+                                  ' پرداخت الکترونیک را برای کسب‌ وکارها'
+                                  ' ارائه کرده است. ما هر روزه، میلیاردها'
+                                  ' تومان را در بستر وبِ کشور، بدون کوچک‌‌‌‌‌ترین '
+                                  'خطایی به گردش درمی‌آوریم، با این هدف که در'
+                                  ' افزایش سهم تجارت الکترونیکی در تولید'
+                                  ' ناخالص ملی و کمک به رشد و توسعه‌ی کسب'
+                                  ' وکارها، نقش سازنده و موثری داشته باشیم.',
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.black),
                                   textAlign: TextAlign.justify,
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 28.0),
                                   child: Container(
-                                      width: MediaQuery.of(context).size.width * 0.25,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.25,
                                       child: InkWell(
-                                        child: Image.asset('assets/images/Etemad.png'),
+                                        child: Image.asset(
+                                            'assets/images/Etemad.png'),
                                         onTap: () async {
                                           // String zarinPalUrl = 'https://www.zarinpal.com/aboutus.html';
                                           // try{
@@ -1008,40 +1025,34 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                           //   Fluttertoast.showToast(msg: 'خطا در ارتباط با سایت');
                                           // }
                                         },
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ],
                             ),
-
                             actions: [
                               Container(
                                 width: 400,
                                 height: 70,
                                 decoration: BoxDecoration(
-                                  //border: Border.all(color: Colors.black),
+                                    //border: Border.all(color: Colors.black),
                                     borderRadius: BorderRadius.circular(5),
-                                    color: Color(0xFF20BFA9)
-                                ),
+                                    color: Color(0xFF20BFA9)),
                                 child: TextButton(
-                                  onPressed: (){
+                                  onPressed: () {
                                     isAgree = true;
                                     Navigator.of(context).pop();
                                   },
-                                  child:
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(20,0,20,0),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(20, 0, 20, 0),
                                     child: Text(
                                       'انتقال به درگاه پرداخت',
                                       style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18
-                                      ),
+                                          color: Colors.white, fontSize: 18),
                                     ),
                                   ),
                                 ),
                               ),
-
                             ],
                           );
                           await showDialog(
@@ -1050,10 +1061,10 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               return alert2;
                             },
                           );
-                          if(isAgree) {
+                          if (isAgree) {
                             orderJson = await createOrder();
                             String paymentPageUrl =
-                            await orderService.payOrder(orderJson);
+                                await orderService.payOrder(orderJson);
                             try {
                               statisticsService.enteredPaymentPage();
                               await launch(paymentPageUrl);
@@ -1065,8 +1076,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                               SystemNavigator.pop();
                             }
                           }
-                        }
-                        else{
+                        } else {
                           orderJson = await createOrder();
                           var orderMap = jsonDecode(orderJson);
 
@@ -1075,47 +1085,55 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             backgroundColor: Colors.white70,
                             title: Text(
                               'پرداخت کارت به کارت',
-                              style: TextStyle(color: Colors.black),),
+                              style: TextStyle(color: Colors.black),
+                            ),
                             content: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
                                   'لطفا پس از پرداخت مبلغ سفارش، '
-                                      'رسید پرداخت و شماره سفارش خود را به پشتیبانی '
-                                      'ارسال کنید.',
-                                  style: TextStyle(fontSize: 18, color: Colors.black),
+                                  'رسید پرداخت و شماره سفارش خود را به پشتیبانی '
+                                  'ارسال کنید.',
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.black),
                                   textAlign: TextAlign.justify,
                                 ),
-                                SizedBox(height: 20,),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       ' شماره سفارش:',
-                                      style: TextStyle(fontSize: 16, color: Colors.black),
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black),
                                       textAlign: TextAlign.justify,
                                     ),
                                     InkWell(
-                                      onTap: (){
-                                        Clipboard.setData(ClipboardData
-                                          (text: orderMap['id'].toString()));
-                                        Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
+                                      onTap: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: orderMap['id'].toString()));
+                                        Fluttertoast.showToast(
+                                            msg: 'شماره سفارش کپی شد');
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.black45),
-                                          borderRadius: BorderRadius.circular(5),
+                                          border:
+                                              Border.all(color: Colors.black45),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                           //color: Color(0xFF403F44),
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 0,
-                                              horizontal: 8
-                                          ),
+                                              vertical: 0, horizontal: 8),
                                           child: Row(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 5.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 5.0),
                                                 child: Icon(
                                                   Icons.copy,
                                                   color: Colors.black45,
@@ -1136,10 +1154,11 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   ],
                                 ),
                                 InkWell(
-                                  onTap: (){
-                                    Clipboard.setData(ClipboardData
-                                      (text: orderMap['id'].toString()));
-                                    Fluttertoast.showToast(msg: 'شماره سفارش کپی شد');
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(
+                                        text: orderMap['id'].toString()));
+                                    Fluttertoast.showToast(
+                                        msg: 'شماره سفارش کپی شد');
                                   },
                                   child: Text(
                                     orderMap['id'].toString(),
@@ -1151,39 +1170,46 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     textAlign: TextAlign.left,
                                   ),
                                 ),
-                                SizedBox(height: 20,),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Divider(
                                   color: Colors.black54,
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'مبلغ قابل پرداخت:',
-                                      style: TextStyle(fontSize: 16, color: Colors.black),
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black),
                                       textAlign: TextAlign.justify,
                                     ),
                                     InkWell(
-                                      onTap: (){
-                                        Clipboard.setData(ClipboardData
-                                          (text: courseStore.basket.priceToPay.toString()));
-                                        Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
+                                      onTap: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: courseStore.basket.priceToPay
+                                                .toString()));
+                                        Fluttertoast.showToast(
+                                            msg: 'مبلغ سفارش کپی شد.');
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.black45),
-                                          borderRadius: BorderRadius.circular(5),
+                                          border:
+                                              Border.all(color: Colors.black45),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                           //color: Color(0xFF403F44),
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 0,
-                                              horizontal: 8
-                                          ),
+                                              vertical: 0, horizontal: 8),
                                           child: Row(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 5.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 5.0),
                                                 child: Icon(
                                                   Icons.copy,
                                                   color: Colors.black45,
@@ -1204,14 +1230,18 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   ],
                                 ),
                                 InkWell(
-                                  onTap: (){
-                                    Clipboard.setData(ClipboardData
-                                      (text: courseStore.basket.priceToPay.toString()));
-                                    Fluttertoast.showToast(msg: 'مبلغ سفارش کپی شد.');
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(
+                                        text: courseStore.basket.priceToPay
+                                            .toString()));
+                                    Fluttertoast.showToast(
+                                        msg: 'مبلغ سفارش کپی شد.');
                                   },
                                   child: Text(
-                                    currencyFormat.format(courseStore.basket.priceToPay/10000)
-                                        + ' هزار تومان',
+                                    currencyFormat.format(
+                                            courseStore.basket.priceToPay /
+                                                10000) +
+                                        ' هزار تومان',
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -1219,39 +1249,45 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     textAlign: TextAlign.left,
                                   ),
                                 ),
-                                SizedBox(height: 20,),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Divider(
                                   color: Colors.black54,
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'شماره کارت (روح الله اکوان):',
-                                      style: TextStyle(fontSize: 16, color: Colors.black),
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black),
                                       textAlign: TextAlign.justify,
                                     ),
                                     InkWell(
-                                      onTap: (){
-                                        Clipboard.setData(ClipboardData
-                                          (text: '5894631561067612'));
-                                        Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
+                                      onTap: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: '5894631561067612'));
+                                        Fluttertoast.showToast(
+                                            msg: 'شماره کارت کپی شد');
                                       },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.black45),
-                                          borderRadius: BorderRadius.circular(5),
+                                          border:
+                                              Border.all(color: Colors.black45),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                           //color: Color(0xFF403F44),
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 0,
-                                              horizontal: 8
-                                          ),
+                                              vertical: 0, horizontal: 8),
                                           child: Row(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 5.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 5.0),
                                                 child: Icon(
                                                   Icons.copy,
                                                   color: Colors.black45,
@@ -1272,10 +1308,11 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                   ],
                                 ),
                                 InkWell(
-                                  onTap: (){
-                                    Clipboard.setData(ClipboardData
-                                      (text: '5894631561067612'));
-                                    Fluttertoast.showToast(msg: 'شماره کارت کپی شد');
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(
+                                        text: '5894631561067612'));
+                                    Fluttertoast.showToast(
+                                        msg: 'شماره کارت کپی شد');
                                   },
                                   child: Text(
                                     '5894-6315-6106-7612',
@@ -1287,7 +1324,9 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     textDirection: ui.TextDirection.ltr,
                                   ),
                                 ),
-                                SizedBox(height: 30,),
+                                SizedBox(
+                                  height: 30,
+                                ),
                                 Center(
                                   child: Text(
                                     'ارتباط با پشتیبانی:',
@@ -1299,14 +1338,15 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     textAlign: TextAlign.right,
                                   ),
                                 ),
-
-                                SizedBox(height: 5,),
+                                SizedBox(
+                                  height: 5,
+                                ),
                                 Container(
                                   padding: const EdgeInsets.all(3.0),
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: Colors.white60)
-                                  ),
+                                      border:
+                                          Border.all(color: Colors.white60)),
                                   child: Row(
                                     children: [
                                       Expanded(
@@ -1314,17 +1354,18 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: TextButton(
-                                            onPressed: () async{
-                                              String chatUrl = 'https://telegram.me/StarShow_ir';
+                                            onPressed: () async {
+                                              String chatUrl =
+                                                  'https://telegram.me/StarShow_ir';
                                               //if (await canLaunch(chatUrl)){
-                                              try{
+                                              try {
                                                 await launch(chatUrl);
-                                              }
-                                              catch(e){
+                                              } catch (e) {
                                                 print(e.toString());
                                               }
                                             },
-                                            child: Image.asset('assets/images/telegram.png'),
+                                            child: Image.asset(
+                                                'assets/images/telegram.png'),
                                           ),
                                         ),
                                       ),
@@ -1333,18 +1374,19 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: TextButton(
-                                            onPressed: () async{
-                                              String chatUrl = 'https://instagram.com/starshow_ir?utm_medium=copy_link';
+                                            onPressed: () async {
+                                              String chatUrl =
+                                                  'https://instagram.com/starshow_ir?utm_medium=copy_link';
                                               //if (await canLaunch(chatUrl)){
-                                              try{
+                                              try {
                                                 await launch(chatUrl);
-                                              }
-                                              catch(e){
+                                              } catch (e) {
                                                 print(e.toString());
                                               }
                                               //}
                                             },
-                                            child: Image.asset('assets/images/instagram.png'),
+                                            child: Image.asset(
+                                                'assets/images/instagram.png'),
                                           ),
                                         ),
                                       ),
@@ -1353,62 +1395,74 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: TextButton(
-                                            onPressed: () async{
-                                              String chatUrl = 'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
+                                            onPressed: () async {
+                                              String chatUrl =
+                                                  'https://api.whatsapp.com/send/?phone=989108860897&text&app_absent=0';
                                               // if (await canLaunch(chatUrl)){
-                                              try{
+                                              try {
                                                 await launch(chatUrl);
-                                              }
-                                              catch(e){
+                                              } catch (e) {
                                                 print(e.toString());
                                               }
                                             },
-                                            child: Image.asset('assets/images/whatsapp.png'),
+                                            child: Image.asset(
+                                                'assets/images/whatsapp.png'),
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: 5,),
+                                SizedBox(
+                                  height: 5,
+                                ),
                                 Container(
                                   padding: const EdgeInsets.all(3.0),
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: Colors.white60)
-                                  ),
+                                      border:
+                                          Border.all(color: Colors.white60)),
                                   child: TextButton(
-                                    onPressed: () async{
-                                      String chatUrl = 'tel://${courseStore.supportPhoneNumber}';
+                                    onPressed: () async {
+                                      String chatUrl =
+                                          'tel://${courseStore.supportPhoneNumber}';
                                       //if (await canLaunch(chatUrl)){
-                                      try{
+                                      try {
                                         await launch(chatUrl);
-                                      }
-                                      catch(e){
+                                      } catch (e) {
                                         print(e.toString());
                                       }
                                       //}
                                     },
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
                                       children: [
                                         Expanded(
                                             flex: 5,
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   'تلفن تماس اِستارشو',
-                                                  style: TextStyle(fontSize: 16, color: Colors.black),),
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black),
+                                                ),
                                                 Text(
-                                                  courseStore.supportPhoneNumber,
-                                                  style: TextStyle(fontSize: 16, color: Colors.black),),
+                                                  courseStore
+                                                      .supportPhoneNumber,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.black),
+                                                ),
                                               ],
-                                            )
-                                        ),
+                                            )),
                                         Expanded(
                                           flex: 1,
-                                          child: Image.asset('assets/images/phone.png'),
+                                          child: Image.asset(
+                                              'assets/images/phone.png'),
                                         ),
                                       ],
                                     ),
@@ -1424,7 +1478,6 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             },
                           );
                         }
-
 
                         stopLoading();
                       },

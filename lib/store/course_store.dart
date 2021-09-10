@@ -82,6 +82,7 @@ class CourseStore extends ChangeNotifier{
   int _subscriptionHalfYearlyFee;
   int _subscriptionYearlyFee;
   String _aboutUs;
+  int _videoAdsWaitTime;
 
   Ads _homePageFullAds;
   Ads _coursePreviewTopBannerAds;
@@ -155,6 +156,7 @@ class CourseStore extends ChangeNotifier{
   int get subscriptionHalfYearlyFee => _subscriptionHalfYearlyFee;
   int get subscriptionYearlyFee => _subscriptionYearlyFee;
   String get aboutUs => _aboutUs;
+  int get videoAdsWaitTime => _videoAdsWaitTime;
 
   Ads get homePageFullAds => _homePageFullAds;
   Ads get coursePreviewTopBannerAds => _coursePreviewTopBannerAds;
@@ -336,6 +338,9 @@ class CourseStore extends ChangeNotifier{
     config = configs.firstWhere((x) => x.titleEn == 'AboutUs', orElse: () => null);
     if(config != null)
       this._aboutUs = config.value;
+    config = configs.firstWhere((x) => x.titleEn == 'VideoAdsWaitTime', orElse: () => null);
+    if(config != null)
+      this._videoAdsWaitTime = int.parse(config.value);
   }
 
   Future<Progress> setCourseProgress(int courseId, String token) async{

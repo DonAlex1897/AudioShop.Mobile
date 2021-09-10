@@ -36,6 +36,7 @@ class AdsPopUp extends StatefulWidget {
   final String noPictureAsset;
   final String courseCoverUrl;
   final CourseEpisode episodeDetails;
+  final int videoAdsWaitingTime;
 
   AdsPopUp({
     Key key,
@@ -45,7 +46,8 @@ class AdsPopUp extends StatefulWidget {
     this. courseCover,
     this.noPictureAsset,
     this.courseCoverUrl,
-    this.episodeDetails
+    this.episodeDetails,
+    this.videoAdsWaitingTime
   }): super (key: key);
 
   @override
@@ -73,6 +75,7 @@ class _AdsPopUpState extends State<AdsPopUp> {
   int _timerDuration = 2;
 
   void startTimer() {
+    _timerDuration = widget.videoAdsWaitingTime;
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,

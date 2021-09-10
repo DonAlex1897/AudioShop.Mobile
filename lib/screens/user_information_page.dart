@@ -27,10 +27,10 @@ class _UserInformationPageState extends State<UserInformationPage> {
   TextEditingController cityController = TextEditingController();
   TextEditingController salespersonCouponCodeController =
       TextEditingController();
-  String genderString = 'جنسیت';
+  String genderString = 'نامشخص';
   Gender gender = Gender.Default;
   EmploymentStatus employmentStatus = EmploymentStatus.Default;
-  String employmentStatusTitle = 'اشتغال';
+  String employmentStatusTitle = 'نامشخص';
   bool isFirstLoad = true;
   FlutterSecureStorage secureStorage;
 
@@ -341,13 +341,13 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                   case 'مونث':
                                     gender = Gender.Female;
                                     break;
-                                  case 'جنسیت':
+                                  case 'نامشخص':
                                     gender = Gender.Default;
                                     break;
                                 }
                               },
                               items: <String>[
-                                'جنسیت',
+                                'نامشخص',
                                 'مذکر',
                                 'مونث'
                               ].map<DropdownMenuItem<String>>((String value) {
@@ -402,12 +402,12 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                     employmentStatus =
                                         EmploymentStatus.UnEmployed;
                                     break;
-                                  case 'اشتغال':
+                                  case 'نامشخص':
                                     employmentStatus = EmploymentStatus.Default;
                                 }
                               },
                               items: <String>[
-                                'اشتغال',
+                                'نامشخص',
                                 'شاغل',
                                 'جویای کار'
                               ].map<DropdownMenuItem<String>>((String value) {

@@ -14,6 +14,7 @@ class Utility{
       BuildContext context,
       NavigatedPage navigatedPage,
       Ads ads,
+      int videoAdsWaitingTime,
       [
         Course course,
         dynamic courseCover,
@@ -37,6 +38,7 @@ class Utility{
                 noPictureAsset: noPictureAsset,
                 episodeDetails: courseEpisode,
                 courseCoverUrl: courseCoverURL,
+                videoAdsWaitingTime: videoAdsWaitingTime,
               ),
             ),
           );

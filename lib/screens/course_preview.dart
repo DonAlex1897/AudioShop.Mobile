@@ -35,9 +35,10 @@ import 'package:http/http.dart' as http;
 import 'advertisement_page.dart';
 
 class CoursePreview extends StatefulWidget {
-
   CoursePreview(this.courseDetails);
+
   final Course courseDetails;
+
   @override
   _CoursePreviewState createState() => _CoursePreviewState();
 }
@@ -74,7 +75,6 @@ class _CoursePreviewState extends State<CoursePreview> {
   bool showLoadingDownAds = false;
   bool showAdsInPopUp = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -83,30 +83,30 @@ class _CoursePreviewState extends State<CoursePreview> {
   }
 
   @override
-  void didChangeDependencies() async{
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     courseStore = Provider.of<CourseStore>(context);
     Progress courseProgress = await courseStore.setCourseProgress(
         widget.courseDetails.id, courseStore.token);
-    if(courseProgress != null && courseProgress.id == 0){
+    if (courseProgress != null && courseProgress.id == 0) {
       Fluttertoast.showToast(msg: 'اشکال در برقراری ارتباط با سرور');
       Navigator.of(context).pop();
     }
   }
 
-  Future<List<Review>> getCourseReviews() async{
-
-    pictureFile = widget.courseDetails.photoAddress != '' ?
-      await DefaultCacheManager().getSingleFile(widget.courseDetails.photoAddress):
-      null;
+  Future<List<Review>> getCourseReviews() async {
+    pictureFile = widget.courseDetails.photoAddress != ''
+        ? await DefaultCacheManager()
+            .getSingleFile(widget.courseDetails.photoAddress)
+        : null;
 
     _timer = RestartableTimer(_timerDuration, setTimerState);
     List reviewsResult =
-      await courseData.getCourseReviews(widget.courseDetails.id);
+        await courseData.getCourseReviews(widget.courseDetails.id);
     totalReviewsCount = reviewsResult[0];
     courseReviewList = reviewsResult[1];
     int allReviewsRateSum = 0;
-    if(courseReviewList != null){
+    if (courseReviewList != null) {
       courseReviewList.forEach((element) {
         allReviewsRateSum += element.rating;
       });
@@ -114,18 +114,17 @@ class _CoursePreviewState extends State<CoursePreview> {
     }
     CourseEpisodeData courseEpisodeData = CourseEpisodeData();
     List<CourseEpisode> courseEpisodes =
-      await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
+        await courseEpisodeData.getCourseEpisodes(widget.courseDetails.id);
 
     courseEpisodes.forEach((episode) {
-      if(episode.price != 0 && episode.price != null){
+      if (episode.price != 0 && episode.price != null) {
         totalEpisodesPrice += episode.price;
         nonFreeEpisodesCount++;
       }
 
-      if(courseStore.userEpisodes != null){
-        for(CourseEpisode tempEpisode in courseStore.userEpisodes){
-          if(tempEpisode.id == episode.id)
-          {
+      if (courseStore.userEpisodes != null) {
+        for (CourseEpisode tempEpisode in courseStore.userEpisodes) {
+          if (tempEpisode.id == episode.id) {
             purchasedEpisodesCount++;
             break;
           }
@@ -135,28 +134,29 @@ class _CoursePreviewState extends State<CoursePreview> {
     return courseReviewList;
   }
 
-  Future postReview() async{
+  Future postReview() async {
     setState(() {
       sendButtonSize = 18;
       sendButtonColor = Color(0xff2afcdd);
     });
     Review review = Review(
-      userId: courseStore.userId,
-      text: reviewController.text,
-      rating: yourRate.toInt(),
-      courseId: widget.courseDetails.id,
-      userFirstName: courseStore.userName
-    );
-    if(courseStore.token != '' && courseStore.token != null){
-      bool sentReview = await courseData.addReviewToCourse(review, courseStore.token);
+        userId: courseStore.userId,
+        text: reviewController.text,
+        rating: yourRate.toInt(),
+        courseId: widget.courseDetails.id,
+        userFirstName: courseStore.userName);
+    if (courseStore.token != '' && courseStore.token != null) {
+      bool sentReview =
+          await courseData.addReviewToCourse(review, courseStore.token);
       setState(() {
         isSendingReview = false;
       });
-      if(sentReview){
+      if (sentReview) {
         Widget cancelB = cancelButton('باشه');
         AlertDialog alert = AlertDialog(
           title: Text('توجه'),
-          content: Text('نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.'),
+          content:
+              Text('نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می شود.'),
           actions: [cancelB],
         );
         await showDialog(
@@ -173,8 +173,7 @@ class _CoursePreviewState extends State<CoursePreview> {
         //   );
         // }
       }
-    }
-    else{
+    } else {
       setState(() {
         isSendingReview = false;
       });
@@ -201,15 +200,15 @@ class _CoursePreviewState extends State<CoursePreview> {
     });
   }
 
-  Future<List<CourseEpisode>> eliminateRepetitiveEpisodes(List<CourseEpisode> episodes) async{
-
+  Future<List<CourseEpisode>> eliminateRepetitiveEpisodes(
+      List<CourseEpisode> episodes) async {
     List<CourseEpisode> basketEpisodes = List.from(episodes);
     List<int> courseEpisodeIds = List<int>();
     basketEpisodes.forEach((episode) {
       courseEpisodeIds.add(episode.id);
     });
     courseStore.userEpisodes.forEach((episode) {
-      if(courseEpisodeIds.contains(episode.id)){
+      if (courseEpisodeIds.contains(episode.id)) {
         basketEpisodes.removeWhere((ep) => ep.id == episode.id);
         isWholeCourseAvailable = false;
       }
@@ -219,40 +218,38 @@ class _CoursePreviewState extends State<CoursePreview> {
     return basketEpisodes;
   }
 
-  Future createBasket(Course course) async{
+  Future createBasket(Course course) async {
     List<CourseEpisode> episodes = List<CourseEpisode>();
     CourseEpisodeData courseEpisodeData = CourseEpisodeData();
     episodes = await courseEpisodeData.getCourseEpisodes(course.id);
 
-    if(courseStore.token != null && courseStore.token != ''){
+    if (courseStore.token != null && courseStore.token != '') {
       List<CourseEpisode> episodesToBePurchased = [];
-      for(var episode in episodes){
-        if(episode.price != null || episode.price != 0)
+      for (var episode in episodes) {
+        if (episode.price != null || episode.price != 0)
           episodesToBePurchased.add(episode);
       }
       List<CourseEpisode> finaleEpisodeIds =
-      await eliminateRepetitiveEpisodes(episodesToBePurchased);
-      if(course.price == 0){
-        Fluttertoast
-            .showToast(msg: 'این دوره رایگان می باشد');
+          await eliminateRepetitiveEpisodes(episodesToBePurchased);
+      if (course.price == 0) {
+        Fluttertoast.showToast(msg: 'این دوره رایگان می باشد');
+        return;
+      } else if (finaleEpisodeIds.length == 0) {
+        Fluttertoast.showToast(
+            msg: 'شما این دوره را به طور کامل خریداری کرده اید');
         return;
       }
-      else if(finaleEpisodeIds.length == 0){
-        Fluttertoast
-            .showToast(msg: 'شما این دوره را به طور کامل خریداری کرده اید');
+      if (courseStore.subscriptionType != 0 &&
+          courseStore.subscriptionExpirationDate.isAfter(DateTime.now())) {
+        Fluttertoast.showToast(msg: 'اشتراک شما هنوز به پایان نرسیده است');
         return;
-      }
-      if(courseStore.subscriptionType != 0 &&
-          courseStore.subscriptionExpirationDate.isAfter(DateTime.now())){
-        Fluttertoast
-            .showToast(msg: 'اشتراک شما هنوز به پایان نرسیده است');
-        return;
-      }
-      else{
+      } else {
         bool goToSubscription = false;
+        bool cancel = true;
         AlertDialog alert = AlertDialog(
           title: Text('توجه'),
-          content: Text('با خرید اشتراک می توانید از کل دوره های موجود در برنامه استفاده کنید'),
+          content: Text(
+              'با خرید اشتراک می توانید از کل دوره های موجود در برنامه استفاده کنید'),
           actions: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
@@ -265,15 +262,15 @@ class _CoursePreviewState extends State<CoursePreview> {
                   color: Color(0xFF20BFA9),
                 ),
                 child: TextButton(
-                  onPressed: (){
+                  onPressed: () {
                     goToSubscription = true;
+                    cancel = false;
                     Navigator.of(context).pop();
                   },
-                  child:
-                  Text(
-                      'خرید اشتراک',
-                      style: TextStyle(color: Colors.white,)
-                  ),
+                  child: Text('خرید اشتراک',
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
                 ),
               ),
             ),
@@ -283,17 +280,16 @@ class _CoursePreviewState extends State<CoursePreview> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white70),
                 borderRadius: BorderRadius.circular(5),
-
               ),
               child: TextButton(
-                onPressed: (){
+                onPressed: () {
+                  cancel = false;
                   Navigator.of(context).pop();
                 },
-                child:
-                Text(
-                    'خرید محصول',
-                    style: TextStyle(color: Colors.white70,)
-                ),
+                child: Text('خرید محصول',
+                    style: TextStyle(
+                      color: Colors.white70,
+                    )),
               ),
             ),
           ],
@@ -304,108 +300,101 @@ class _CoursePreviewState extends State<CoursePreview> {
             return alert;
           },
         );
-        if(goToSubscription){
-          int subscriptionType = 0;
-          AlertDialog alert = AlertDialog(
-            title: Text('توجه'),
-            content: Text('نوع اشتراک خود را مشخص کنید'),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: 400,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF20BFA9),
-                    border: Border.all(color: Colors.white70),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: TextButton(
-                    onPressed: (){
-                      subscriptionType = 4;
-                      Navigator.of(context).pop();
-                    },
-                    child:
-                    Text(
-                        'ماهانه',
-                        style: TextStyle(color: Colors.white,)
+        if (!cancel) {
+          if (goToSubscription) {
+            int subscriptionType = 0;
+            AlertDialog alert = AlertDialog(
+              title: Text('توجه'),
+              content: Text('نوع اشتراک خود را مشخص کنید'),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 400,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF20BFA9),
+                      border: Border.all(color: Colors.white70),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        subscriptionType = 4;
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('ماهانه',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: 400,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF20BFA9),
-                    border: Border.all(color: Colors.white70),
-                    borderRadius: BorderRadius.circular(5),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 400,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF20BFA9),
+                      border: Border.all(color: Colors.white70),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        subscriptionType = 5;
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('6 ماهه',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 400,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF20BFA9),
+                      border: Border.all(color: Colors.white70),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        subscriptionType = 6;
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('1 ساله',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                ),
+              ],
+            );
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              },
+            );
 
-                  ),
-                  child: TextButton(
-                    onPressed: (){
-                      subscriptionType = 5;
-                      Navigator.of(context).pop();
-                    },
-                    child:
-                    Text(
-                        '6 ماهه',
-                        style: TextStyle(color: Colors.white,)
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: 400,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF20BFA9),
-                    border: Border.all(color: Colors.white70),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: TextButton(
-                    onPressed: (){
-                      subscriptionType = 6;
-                      Navigator.of(context).pop();
-                    },
-                    child:
-                    Text(
-                        '1 ساله',
-                        style: TextStyle(color: Colors.white,)
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-          await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return alert;
-            },
-          );
-
-          await courseStore.setUserBasket(null, null, subscriptionType);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return CheckOutPage();
-              })
-          );
-        }else{
-          await courseStore.setUserBasket(finaleEpisodeIds, course, null);
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return CheckOutPage();
-              })
-          );
+            await courseStore.setUserBasket(null, null, subscriptionType);
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            }));
+          } else {
+            await courseStore.setUserBasket(finaleEpisodeIds, course, null);
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CheckOutPage();
+            }));
+          }
         }
       }
-    }
-    else{
+    } else {
       bool goToSignUpPage = false;
       AlertDialog alert = AlertDialog(
         title: Text('توجه'),
@@ -422,15 +411,14 @@ class _CoursePreviewState extends State<CoursePreview> {
                 color: Color(0xFF20BFA9),
               ),
               child: TextButton(
-                onPressed: (){
+                onPressed: () {
                   goToSignUpPage = true;
                   Navigator.of(context).pop();
                 },
-                child:
-                Text(
-                    'ثبت نام',
-                    style: TextStyle(color: Colors.white,)
-                ),
+                child: Text('ثبت نام',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
               ),
             ),
           ),
@@ -440,17 +428,15 @@ class _CoursePreviewState extends State<CoursePreview> {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.white70),
               borderRadius: BorderRadius.circular(5),
-
             ),
             child: TextButton(
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pop();
               },
-              child:
-              Text(
-                  'انصراف',
-                  style: TextStyle(color: Colors.white70,)
-              ),
+              child: Text('انصراف',
+                  style: TextStyle(
+                    color: Colors.white70,
+                  )),
             ),
           ),
         ],
@@ -461,141 +447,142 @@ class _CoursePreviewState extends State<CoursePreview> {
           return alert;
         },
       );
-      if(goToSignUpPage)
-        if(!courseStore.isAdsEnabled){
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return AuthenticationPage(FormName.SignUp);
-              }));
-        }
-        else if(courseStore.signUpFull && courseStore.signUpFullAds != null &&
-            courseStore.signUpFullAds.isEnabled){
-          if(!courseStore.isPopUpEnabled){
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AdvertisementPage(
-                navigatedPage: NavigatedPage.SignUpPurchase,
-                ads: courseStore.signUpFullAds,
-              );
-            }));
-          }
-          else{
-            Utility.showAdsAlertDialog(
-                context,
-                NavigatedPage.SignUpPurchase,
-                courseStore.signUpFullAds
+      if (goToSignUpPage) if (!courseStore.isAdsEnabled) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AuthenticationPage(FormName.SignUp);
+        }));
+      } else if (courseStore.signUpFull &&
+          courseStore.signUpFullAds != null &&
+          courseStore.signUpFullAds.isEnabled) {
+        if (!courseStore.isPopUpEnabled) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AdvertisementPage(
+              navigatedPage: NavigatedPage.SignUpPurchase,
+              ads: courseStore.signUpFullAds,
+              videoAdsWaitingTime: courseStore.videoAdsWaitTime,
             );
-          }
+          }));
+        } else {
+          Utility.showAdsAlertDialog(
+              context, NavigatedPage.SignUpPurchase, courseStore.signUpFullAds,
+            courseStore.videoAdsWaitTime,);
         }
-        else{
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) {
-                return AuthenticationPage(FormName.SignUp);
-              }));
-        }
+      } else {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AuthenticationPage(FormName.SignUp);
+        }));
+      }
     }
   }
 
-  Widget coursePurchaseButton(Course course){
-    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+  Widget coursePurchaseButton(Course course) {
+    if (nonFreeEpisodesCount == purchasedEpisodesCount)
       return SizedBox();
     else
-      return
-        TextButton(
-          onPressed: () async{
-            await createBasket(course);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Icon(
-                  Icons.add_shopping_cart,
-                  color: Colors.white,
+      return TextButton(
+        onPressed: () async {
+          await createBasket(course);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Icon(
+                Icons.add_shopping_cart,
+                color: Colors.white,
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Center(
+                child: Text(
+                  'خریــــد  کــــامل  دوره',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
-              Expanded(
-                flex: 3,
-                child: Center(
-                  child: Text(
-                    'خریــــد  کــــامل  دوره',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        );
+            )
+          ],
+        ),
+      );
   }
 
-  Widget priceTagWidget(){
-    if(nonFreeEpisodesCount == purchasedEpisodesCount)
+  Widget priceTagWidget() {
+    if (nonFreeEpisodesCount == purchasedEpisodesCount)
       return SizedBox();
     else
-      return
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'قیمت دوره کامل:',
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'قیمت دوره (قسمت به قسمت):',
-                      style: TextStyle(color: Colors.red),),
-                  ],
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      currencyFormat.format(widget.courseDetails.price/10000).toString() + " هزار تومان",
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      currencyFormat.format(totalEpisodesPrice/10000).toString() + " هزار تومان",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        );
-          // Column(
-          //   children: [
-          //     Text(
-          //       'قیمت خرید دوره بصورت کامل: ${currencyFormat.format(widget.courseDetails.price)} ریال',
-          //       style: TextStyle(color: Colors.red),
-          //     ),
-          //     Text('قیمت خرید دوره بصورت قسمت به قسمت: ${currencyFormat.format(totalEpisodesPrice)} ریال' )
-          //   ],
-          // );
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'قیمت دوره کامل:',
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    'قیمت دوره (قسمت به قسمت):',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    currencyFormat
+                            .format(widget.courseDetails.price / 10000)
+                            .toString() +
+                        " هزار تومان",
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    currencyFormat
+                            .format(totalEpisodesPrice / 10000)
+                            .toString() +
+                        " هزار تومان",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+    // Column(
+    //   children: [
+    //     Text(
+    //       'قیمت خرید دوره بصورت کامل: ${currencyFormat.format(widget.courseDetails.price)} ریال',
+    //       style: TextStyle(color: Colors.red),
+    //     ),
+    //     Text('قیمت خرید دوره بصورت قسمت به قسمت: ${currencyFormat.format(totalEpisodesPrice)} ریال' )
+    //   ],
+    // );
   }
 
-  Widget cancelButton(String cancelText){
+  Widget cancelButton(String cancelText) {
     return TextButton(
-      child: Text(cancelText, style: TextStyle(color: Colors.white),),
+      child: Text(
+        cancelText,
+        style: TextStyle(color: Colors.white),
+      ),
       onPressed: () {
         Navigator.of(context).pop();
         alertReturn = false;
@@ -603,18 +590,24 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
   }
 
-  Widget continueButton(String continueText, Alert alert, FormName formName){
-    if(alert != null)
+  Widget continueButton(String continueText, Alert alert, FormName formName) {
+    if (alert != null)
       return TextButton(
-        child: Text(continueText, style: TextStyle(color: Colors.white),),
+        child: Text(
+          continueText,
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () {
           Navigator.of(context).pop();
           alertReturn = true;
         },
       );
-    else{
+    else {
       return TextButton(
-        child: Text(continueText, style: TextStyle(color: Colors.white),),
+        child: Text(
+          continueText,
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return AuthenticationPage(formName);
@@ -624,7 +617,8 @@ class _CoursePreviewState extends State<CoursePreview> {
     }
   }
 
-  AlertDialog alert(String titleText, String contentText, List<Widget> actions){
+  AlertDialog alert(
+      String titleText, String contentText, List<Widget> actions) {
     return AlertDialog(
       title: Text(titleText),
       content: Text(contentText),
@@ -641,138 +635,148 @@ class _CoursePreviewState extends State<CoursePreview> {
     );
   }
 
-  Widget spinner(){
+  Widget spinner() {
     return Scaffold(
-        body: !isTakingMuchTime ? Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                courseStore.isAdsEnabled &&
-                    courseStore.loadingUpNative &&  courseStore.loadingUpNativeAds != null &&
-                    courseStore.loadingUpNativeAds.isEnabled ?
-                NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
-                SpinKitWave(
-                  type: SpinKitWaveType.center,
-                  color: Color(0xFF20BFA9),
-                  size: 65.0,
-                ),
-                courseStore.isAdsEnabled &&
-                    courseStore.loadingDownNative &&  courseStore.loadingDownNativeAds != null &&
-                    courseStore.loadingDownNativeAds.isEnabled ?
-                NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
-              ],
-            ),
-          ),
-        ) :
-        Center(
-          child: SingleChildScrollView(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Container(
-                  //     width: MediaQuery.of(context).size.width * 0.7,
-                  //     child: Image.asset('assets/images/internetdown.png')
-                  // ),
-                  courseStore.isAdsEnabled &&
-                      courseStore.loadingUpNative &&  courseStore.loadingUpNativeAds != null &&
-                      courseStore.loadingUpNativeAds.isEnabled ?
-                  NativeAds(courseStore.loadingUpNativeAds) : SizedBox(),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        body: !isTakingMuchTime
+            ? Center(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
+                      courseStore.isAdsEnabled &&
+                              courseStore.loadingUpNative &&
+                              courseStore.loadingUpNativeAds != null &&
+                              courseStore.loadingUpNativeAds.isEnabled
+                          ? NativeAds(courseStore.loadingUpNativeAds)
+                          : SizedBox(),
                       SpinKitWave(
                         type: SpinKitWaveType.center,
                         color: Color(0xFF20BFA9),
                         size: 65.0,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(//!isVpnConnected ?
-                          'لطفا اتصال اینترنت خود را بررسی کنید', //:
-                          //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                        child: Text(//!isVpnConnected ? '' :
-                          'جهت تجربه سرعت بهتر،',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                        child: Text(//!isVpnConnected ? '' :
-                          'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: (){
-                          setState(() {
-                            isTakingMuchTime = false;
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) => super.widget));
-                          });
-                        },
-                        child: Card(
-                          color: Color(0xFF20BFA9),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'تلاش مجدد',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18
-                              ),),
-                          ),
-                        ),
-                      ),
+                      courseStore.isAdsEnabled &&
+                              courseStore.loadingDownNative &&
+                              courseStore.loadingDownNativeAds != null &&
+                              courseStore.loadingDownNativeAds.isEnabled
+                          ? NativeAds(courseStore.loadingDownNativeAds)
+                          : SizedBox(),
                     ],
                   ),
-                  courseStore.isAdsEnabled &&
-                      courseStore.loadingDownNative &&  courseStore.loadingDownNativeAds != null &&
-                      courseStore.loadingDownNativeAds.isEnabled ?
-                  NativeAds(courseStore.loadingDownNativeAds) : SizedBox(),
-                ]
-            ),
-          ),
-        )
-    ) ;
+                ),
+              )
+            : Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Container(
+                        //     width: MediaQuery.of(context).size.width * 0.7,
+                        //     child: Image.asset('assets/images/internetdown.png')
+                        // ),
+                        courseStore.isAdsEnabled &&
+                                courseStore.loadingUpNative &&
+                                courseStore.loadingUpNativeAds != null &&
+                                courseStore.loadingUpNativeAds.isEnabled
+                            ? NativeAds(courseStore.loadingUpNativeAds)
+                            : SizedBox(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SpinKitWave(
+                              type: SpinKitWaveType.center,
+                              color: Color(0xFF20BFA9),
+                              size: 65.0,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                //!isVpnConnected ?
+                                'لطفا اتصال اینترنت خود را بررسی کنید', //:
+                                //'لطفا جهت برخورداری از سرعت بیشتر، فیلتر شکن خود را قطع کنید',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                              child: Text(
+                                //!isVpnConnected ? '' :
+                                'جهت تجربه سرعت بهتر،',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                              child: Text(
+                                //!isVpnConnected ? '' :
+                                'در صورت وصل بودن فیلترشکن، آنرا خاموش کنید',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isTakingMuchTime = false;
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              super.widget));
+                                });
+                              },
+                              child: Card(
+                                color: Color(0xFF20BFA9),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'تلاش مجدد',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        courseStore.isAdsEnabled &&
+                                courseStore.loadingDownNative &&
+                                courseStore.loadingDownNativeAds != null &&
+                                courseStore.loadingDownNativeAds.isEnabled
+                            ? NativeAds(courseStore.loadingDownNativeAds)
+                            : SizedBox(),
+                      ]),
+                ),
+              ));
   }
 
   setTimerState() {
-    if(_timer.isActive)
-    setState(() {
-      isTakingMuchTime = true;
-    });
+    if (_timer.isActive)
+      setState(() {
+        isTakingMuchTime = true;
+      });
     // checkVpnConnection();
   }
 
-  Future checkVpnConnection() async{
+  Future checkVpnConnection() async {
     setState(() {
       isVpnConnected = false;
     });
     try {
-      http.Response response = await http.get('https://api.ipregistry.co?key=tryout');
-      if(response.statusCode == 200 &&
-          json.decode(response.body)['location']['country']['name']
-              .toString().toLowerCase() != 'iran'){
+      http.Response response =
+          await http.get('https://api.ipregistry.co?key=tryout');
+      if (response.statusCode == 200 &&
+          json
+                  .decode(response.body)['location']['country']['name']
+                  .toString()
+                  .toLowerCase() !=
+              'iran') {
         setState(() {
           isVpnConnected = true;
         });
@@ -785,58 +789,60 @@ class _CoursePreviewState extends State<CoursePreview> {
   @override
   Widget build(BuildContext context) {
     Course course = widget.courseDetails;
-    Favorite favorite = courseStore.favoriteCourses.firstWhere((element) =>
-      element.courseId == widget.courseDetails.id, orElse: () => null);
-    if(favorite != null) {
+    Favorite favorite = courseStore.favoriteCourses.firstWhere(
+        (element) => element.courseId == widget.courseDetails.id,
+        orElse: () => null);
+    if (favorite != null) {
       favoriteIcon = Icons.favorite;
       favoriteButtonText = 'حذف دوره از علاقه مندی ها';
-    }
-    else{
+    } else {
       favoriteIcon = Icons.favorite_border;
       favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
     }
 
     return FutureBuilder(
-      future: courseReviews,
-      builder: (context, data){
-        if(data.hasData){
-          return SafeArea(
+        future: courseReviews,
+        builder: (context, data) {
+          if (data.hasData) {
+            return SafeArea(
               child: Scaffold(
                 body: SingleChildScrollView(
                   child: Column(
                     children: [
-                      courseStore.isAdsEnabled?
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child:
-                        courseStore.isAdsEnabled &&
-                            courseStore.coursePreviewTopBanner &&
-                            courseStore.coursePreviewTopBannerAds != null &&
-                            courseStore.coursePreviewTopBannerAds.isEnabled ?
-                        BannerAds(courseStore.coursePreviewTopBannerAds) : SizedBox(),
-                      ) :
-                      SizedBox(),
+                      courseStore.isAdsEnabled
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: courseStore.isAdsEnabled &&
+                                      courseStore.coursePreviewTopBanner &&
+                                      courseStore.coursePreviewTopBannerAds !=
+                                          null &&
+                                      courseStore
+                                          .coursePreviewTopBannerAds.isEnabled
+                                  ? BannerAds(
+                                      courseStore.coursePreviewTopBannerAds)
+                                  : SizedBox(),
+                            )
+                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: Center(
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.width * 0.8,
-                            child:
-                            course.photoAddress != '' ?
-                            Image.file(
-                              pictureFile,
-                              fit: BoxFit.fill,
-                            ):
-                            Image.asset(
-                            'assets/images/noPicture.png',
-                            fit: BoxFit.fill,
-                            ),
+                            child: course.photoAddress != ''
+                                ? Image.file(
+                                    pictureFile,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.asset(
+                                    'assets/images/noPicture.png',
+                                    fit: BoxFit.fill,
+                                  ),
                           ),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(35,20,35,0),
+                        padding: const EdgeInsets.fromLTRB(35, 20, 35, 0),
                         child: Center(
                           child: Text(
                             course.name,
@@ -850,13 +856,12 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.
-                        fromLTRB(35,5,35,20),
+                        padding: const EdgeInsets.fromLTRB(35, 5, 35, 20),
                         child: Center(
                           child: Text(
-                            course.instructor != null ?
-                            'مدرس: ' + course.instructor :
-                            'مدرس: ' + 'اِستارشو',
+                            course.instructor != null
+                                ? 'مدرس: ' + course.instructor
+                                : 'مدرس: ' + 'اِستارشو',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18.0,
@@ -882,69 +887,78 @@ class _CoursePreviewState extends State<CoursePreview> {
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: TextButton(
                             onPressed: () async {
-                              if(!courseStore.isAdsEnabled){
-                                if(pictureFile != null){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              if (!courseStore.isAdsEnabled) {
+                                if (pictureFile != null) {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
                                     return CoursePage(course, pictureFile);
                                   }));
-                                }
-                                else{
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                    return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
+                                } else {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CoursePage.noPhoto(
+                                        course, 'assets/images/noPicture.png');
                                   }));
                                 }
-                              }
-                              else if(courseStore.coursePageFull && courseStore.coursePageFullAds != null &&
-                                  courseStore.coursePageFullAds.isEnabled){
-                                if(!courseStore.isPopUpEnabled){
-                                  if(pictureFile != null){
+                              } else if (courseStore.coursePageFull &&
+                                  courseStore.coursePageFullAds != null &&
+                                  courseStore.coursePageFullAds.isEnabled) {
+                                if (!courseStore.isPopUpEnabled) {
+                                  if (pictureFile != null) {
                                     print('cover: $pictureFile');
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
                                       return AdvertisementPage(
                                         navigatedPage: NavigatedPage.CoursePage,
                                         ads: courseStore.coursePageFullAds,
                                         course: course,
                                         courseCover: pictureFile,
+                                        videoAdsWaitingTime:
+                                            courseStore.videoAdsWaitTime,
                                       );
                                     }));
-                                  }
-                                  else{
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                  } else {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
                                       return AdvertisementPage(
-                                          navigatedPage: NavigatedPage.CoursePage,
-                                          ads: courseStore.coursePageFullAds,
-                                          course: course,
-                                          noPictureAsset: 'assets/images/noPicture.png',
+                                        navigatedPage: NavigatedPage.CoursePage,
+                                        ads: courseStore.coursePageFullAds,
+                                        course: course,
+                                        noPictureAsset:
+                                            'assets/images/noPicture.png',
+                                        videoAdsWaitingTime:
+                                            courseStore.videoAdsWaitTime,
                                       );
                                     }));
                                   }
-                                }
-                                else{
+                                } else {
                                   Utility.showAdsAlertDialog(
                                       context,
                                       NavigatedPage.CoursePage,
                                       courseStore.coursePageFullAds,
+                                      courseStore.videoAdsWaitTime,
                                       course,
                                       pictureFile,
-                                      'assets/images/noPicture.png'
-                                  );
+                                      'assets/images/noPicture.png');
                                 }
-                              }
-                              else{
-                                if(pictureFile != null){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              } else {
+                                if (pictureFile != null) {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
                                     return CoursePage(course, pictureFile);
                                   }));
-                                }
-                                else{
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                    return CoursePage.noPhoto(course, 'assets/images/noPicture.png');
+                                } else {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CoursePage.noPhoto(
+                                        course, 'assets/images/noPicture.png');
                                   }));
                                 }
                               }
                             },
                             child: Padding(
-                              padding: const EdgeInsets.only(left: 20, right: 20),
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 20),
                               child: Text(
                                 'شروع دوره آموزشی (رایگان)',
                                 style: TextStyle(
@@ -959,10 +973,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
-                            left: 40,
-                            top: 20,
-                            right: 40,
-                            bottom: 10),
+                            left: 40, top: 20, right: 40, bottom: 10),
                         child: Center(
                           child: Text(
                             course.description,
@@ -1003,17 +1014,22 @@ class _CoursePreviewState extends State<CoursePreview> {
                             color: Color(0xFF20BFA9),
                             child: TextButton(
                               onPressed: () async {
-                                Favorite favorite = await courseStore.addToUserFavoriteCourses(widget.courseDetails);
-                                courseStore.updateUserFavoriteCourses(widget.courseDetails);
+                                Favorite favorite =
+                                    await courseStore.addToUserFavoriteCourses(
+                                        widget.courseDetails);
+                                courseStore.updateUserFavoriteCourses(
+                                    widget.courseDetails);
 
-                                if(courseStore.favoriteCourses.contains(favorite))
-
+                                if (courseStore.favoriteCourses
+                                    .contains(favorite))
                                   setState(() {
-                                    favoriteButtonText = 'حذف دوره از علاقه مندی ها';
+                                    favoriteButtonText =
+                                        'حذف دوره از علاقه مندی ها';
                                   });
                                 else
                                   setState(() {
-                                    favoriteButtonText = 'افزودن دوره به علاقه مندی ها';
+                                    favoriteButtonText =
+                                        'افزودن دوره به علاقه مندی ها';
                                   });
 
                                 // if(courseStore.isAdsEnabled){
@@ -1024,7 +1040,8 @@ class _CoursePreviewState extends State<CoursePreview> {
                                 // }
                               },
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Expanded(
                                     flex: 1,
@@ -1039,9 +1056,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                                       child: Text(
                                         favoriteButtonText,
                                         style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18
-                                        ),
+                                            color: Colors.white, fontSize: 18),
                                       ),
                                     ),
                                   )
@@ -1051,36 +1066,39 @@ class _CoursePreviewState extends State<CoursePreview> {
                           ),
                         ),
                       ),
-                      courseStore.isAdsEnabled?
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child:
-                        courseStore.isAdsEnabled &&
-                            courseStore.coursePreviewBelowAddToFavoriteBanner &&
-                            courseStore.coursePreviewBelowAddToFavoriteBannerAds != null &&
-                            courseStore.coursePreviewBelowAddToFavoriteBannerAds.isEnabled ?
-                        BannerAds(courseStore.coursePreviewBelowAddToFavoriteBannerAds) : SizedBox(),
-                      ) :
-                      SizedBox(),
+                      courseStore.isAdsEnabled
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: courseStore.isAdsEnabled &&
+                                      courseStore
+                                          .coursePreviewBelowAddToFavoriteBanner &&
+                                      courseStore
+                                              .coursePreviewBelowAddToFavoriteBannerAds !=
+                                          null &&
+                                      courseStore
+                                          .coursePreviewBelowAddToFavoriteBannerAds
+                                          .isEnabled
+                                  ? BannerAds(courseStore
+                                      .coursePreviewBelowAddToFavoriteBannerAds)
+                                  : SizedBox(),
+                            )
+                          : SizedBox(),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        child: Divider(
-                          color: Colors.black
-                        ),
+                        child: Divider(color: Colors.black),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
-                          courseReviewList.length != 0 ?
-                            'نظرات کاربران':'هنوز نظری ثبت نشده است',
-                          style: TextStyle(fontSize: 17),),
+                          courseReviewList.length != 0
+                              ? 'نظرات کاربران'
+                              : 'هنوز نظری ثبت نشده است',
+                          style: TextStyle(fontSize: 17),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
-                            left: 15,
-                            top: 20,
-                            right: 15,
-                            bottom: 5),
+                            left: 15, top: 20, right: 15, bottom: 5),
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
@@ -1092,17 +1110,22 @@ class _CoursePreviewState extends State<CoursePreview> {
                                 Card(
                                   color: Colors.white10,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              courseReviewList[index].userFirstName != null ?
-                                                courseReviewList[index].userFirstName :
-                                              'کاربر نرم افزار',
+                                              courseReviewList[index]
+                                                          .userFirstName !=
+                                                      null
+                                                  ? courseReviewList[index]
+                                                      .userFirstName
+                                                  : 'کاربر نرم افزار',
                                               style: TextStyle(fontSize: 16),
                                             ),
                                             // Text(
@@ -1110,12 +1133,16 @@ class _CoursePreviewState extends State<CoursePreview> {
                                             //   style: TextStyle(fontSize: 16),
                                             // ),
                                             Directionality(
-                                              textDirection: ui.TextDirection.ltr,
+                                              textDirection:
+                                                  ui.TextDirection.ltr,
                                               child: SmoothStarRating(
                                                 size: 15,
                                                 allowHalfRating: false,
                                                 isReadOnly: true,
-                                                rating: double.parse(courseReviewList[index].rating.toString()),
+                                                rating: double.parse(
+                                                    courseReviewList[index]
+                                                        .rating
+                                                        .toString()),
                                                 color: Colors.yellow,
                                               ),
                                             ),
@@ -1133,85 +1160,87 @@ class _CoursePreviewState extends State<CoursePreview> {
                                     ],
                                   ),
                                 ),
-                                courseReviewList[index].adminMessage != null ?
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom:8.0),
-                                  child: Card(
-                                    color: Colors.white38,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                courseReviewList[index].adminMessage != null
+                                    ? Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 8.0),
+                                        child: Card(
+                                          color: Colors.white38,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                'پاسخ ادمین',
-                                                style: TextStyle(fontSize: 16),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      'پاسخ ادمین',
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20.0),
+                                                child: Text(
+                                                  courseReviewList[index]
+                                                      .adminMessage,
+                                                  style:
+                                                      TextStyle(fontSize: 18),
+                                                  textAlign: TextAlign.justify,
+                                                ),
+                                              )
                                             ],
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(20.0),
-                                          child: Text(
-                                            courseReviewList[index].adminMessage,
-                                            style: TextStyle(fontSize: 18),
-                                            textAlign: TextAlign.justify,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ) :
-                                SizedBox(),
+                                      )
+                                    : SizedBox(),
                               ],
                             );
                           },
                         ),
                       ),
-                      totalReviewsCount > 0 ?
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15,
-                                top: 5,
-                                right: 15,
-                                bottom: 15),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white54),
-                                borderRadius: BorderRadius.circular(5),
-                                color: Color(0xFF34333A),
-                              ),
-                              height: 35,
-                              child: TextButton(
-                                onPressed: () async {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) {
-                                        return ReviewPage(widget.courseDetails.id);
-                                      })
-                                  );
-                                },
-                                child: Text(
-                                  'نمایش  تمام نظرات ($totalReviewsCount)',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                      totalReviewsCount > 0
+                          ? Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 15, top: 5, right: 15, bottom: 15),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white54),
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Color(0xFF34333A),
+                                ),
+                                height: 35,
+                                child: TextButton(
+                                  onPressed: () async {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return ReviewPage(
+                                          widget.courseDetails.id);
+                                    }));
+                                  },
+                                  child: Text(
+                                    'نمایش  تمام نظرات ($totalReviewsCount)',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                          :
-                          SizedBox(
-                          ),
+                            )
+                          : SizedBox(),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        child: Divider(
-                            color: Colors.black
-                        ),
+                        child: Divider(color: Colors.black),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -1220,7 +1249,7 @@ class _CoursePreviewState extends State<CoursePreview> {
                           child: SmoothStarRating(
                             spacing: 15,
                             allowHalfRating: false,
-                            onRated: (value){
+                            onRated: (value) {
                               yourRate = value;
                             },
                             color: Colors.yellow,
@@ -1228,22 +1257,25 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, top: 10, bottom: 10),
                         child: TextField(
                           minLines: 1,
                           maxLines: 15,
                           style: TextStyle(
-                              decorationColor: Colors.black, color: Colors.white),
+                              decorationColor: Colors.black,
+                              color: Colors.white),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 10),
                             enabledBorder: OutlineInputBorder(
                               borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
+                                  BorderSide(color: Colors.white, width: 2.0),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
+                                  BorderSide(color: Colors.white, width: 2.0),
                             ),
                             border: OutlineInputBorder(),
                             labelStyle: TextStyle(
@@ -1255,7 +1287,8 @@ class _CoursePreviewState extends State<CoursePreview> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, bottom: 10),
                         child: Row(
                           children: [
                             Expanded(
@@ -1272,28 +1305,31 @@ class _CoursePreviewState extends State<CoursePreview> {
                                       setState(() {
                                         isSendingReview = true;
                                       });
-                                      if (reviewController.text.isNotEmpty && yourRate != 0)
+                                      if (reviewController.text.isNotEmpty &&
+                                          yourRate != 0)
                                         await postReview();
-                                      else if(reviewController.text.isEmpty)
-                                        Fluttertoast.showToast(msg: 'لطفا نظر خود را بنویسید');
+                                      else if (reviewController.text.isEmpty)
+                                        Fluttertoast.showToast(
+                                            msg: 'لطفا نظر خود را بنویسید');
                                       else
-                                        Fluttertoast.showToast(msg: 'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
+                                        Fluttertoast.showToast(
+                                            msg:
+                                                'لطفا امتیاز خود را با انتخاب تعداد ستاره مشخص کنید');
                                       setState(() {
                                         isSendingReview = false;
                                       });
                                     },
-                                    child: !isSendingReview ?
-                                      Text(
-                                        sendButtonText,
-                                        style: TextStyle(
-                                          fontSize: sendButtonSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ) :
-                                      SpinKitRing(
-                                        lineWidth: 5,
-                                        color: Colors.white),
+                                    child: !isSendingReview
+                                        ? Text(
+                                            sendButtonText,
+                                            style: TextStyle(
+                                              fontSize: sendButtonSize,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : SpinKitRing(
+                                            lineWidth: 5, color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -1332,11 +1368,9 @@ class _CoursePreviewState extends State<CoursePreview> {
                   ),
                 ),
               ),
-          );
-        }
-        else
-          return spinner();
-      }
-    );
+            );
+          } else
+            return spinner();
+        });
   }
 }
