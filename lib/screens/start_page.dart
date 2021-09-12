@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/cupertino.dart';
@@ -91,14 +92,18 @@ class _StartPageState extends State<StartPage> {
     int status = await BackgroundFetch.configure(
         BackgroundFetchConfig(
             minimumFetchInterval: 60,
+            startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
             requiresBatteryNotLow: false,
             requiresCharging: false,
             requiresStorageNotLow: false,
             requiresDeviceIdle: false,
-            requiredNetworkType: NetworkType.NONE), (String taskId) async {
+            requiredNetworkType: NetworkType.ANY), (String taskId) async {
       // <-- Event handler
+      // var rng = new Random();
+      // int randomNumber = rng.nextInt(100) + 100;
+      // showNotification(randomNumber, 'نوتیفیکیشن تست در حال اجرا', 'در حال اجرا');
       MessageService messageService = MessageService();
       FlutterSecureStorage secureStorage = FlutterSecureStorage();
       String token = await secureStorage.read(key: 'token');
