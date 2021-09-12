@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -765,9 +766,12 @@ class _HomePageState extends State<HomePage> {
 
   tz.TZDateTime _nextInstanceOfTimeToShowNotification(int hour) {
     try {
+      var rng = new Random();
+      int randomHour = rng.nextInt(3);
+      int randomMinute = rng.nextInt(59);
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 0);
+      tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
+          now.day, hour - randomHour, randomMinute);
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }

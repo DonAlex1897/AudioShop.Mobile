@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -63,6 +65,9 @@ void main() async {
 }
 
 void backgroundFetchHeadlessTask(HeadlessTask task) async {
+  // var rng = new Random();
+  // int randomNumber = rng.nextInt(100) + 121;
+  // showNotification(randomNumber, 'نوتیفیکیشن تست بک گراند', 'بک گراند');
   MessageService messageService = MessageService();
   secureStorage = FlutterSecureStorage();
   String token = await secureStorage.read(key: 'token');
