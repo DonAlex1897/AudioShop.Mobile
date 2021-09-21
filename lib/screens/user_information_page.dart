@@ -9,6 +9,7 @@ import 'package:mobile/models/user_update.dart';
 import 'package:mobile/services/authentication_service.dart';
 import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
+import 'package:mobile/utilities/app_icon.dart';
 import 'package:provider/provider.dart';
 
 class UserInformationPage extends StatefulWidget {
@@ -104,49 +105,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  // decoration: BoxDecoration(
-                  //   shape: BoxShape.circle,
-                  //   border: Border.all(
-                  //     color: Colors.white,
-                  //     width: 2,
-                  //   ),
-                  // ),
-                  child: Stack(
-                    children:[
-                      Positioned(
-                        top: width * 0.1,
-                        right: width * 0.29,
-                        child: Container(
-                          width: width * 0.35,
-                          height: width * 0.35,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                image: AssetImage('assets/images/appMainIcon.png'),
-                                fit: BoxFit.fill),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: width * 0.55,
-                          height: width * 0.55,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                image: AssetImage('assets/images/circle2.png'),
-                                fit: BoxFit.fill),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              AppIcon(),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Container(

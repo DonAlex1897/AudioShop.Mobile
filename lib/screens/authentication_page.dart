@@ -12,6 +12,7 @@ import 'package:mobile/shared/enums.dart';
 import 'package:mobile/store/course_store.dart';
 import 'package:async/async.dart';
 import 'package:mobile/services/authentication_service.dart';
+import 'package:mobile/utilities/app_icon.dart';
 import 'package:provider/provider.dart';
 
 
@@ -59,6 +60,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   String passwordError = '';
   FocusNode focusRepeatPassword = new FocusNode();
   FocusNode focusReceivedCode = FocusNode();
+  double width;
 
   @override
   void setState(fn) {
@@ -438,12 +440,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
-                        style:
-                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.justify,
+                    Container(
+                      child: Stack(
+                        children:[
+                          Positioned(
+                            top: width * 0.07,
+                            right: width * 0.22,
+                            child: Container(
+                              width: width * 0.20,
+                              height: width * 0.20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/appMainIcon.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: width * 0.35,
+                              height: width * 0.35,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/circle2.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: Center(
+                        child: Text(
+                          'برای ورود به حساب کاربری، شماره همراه خود را وارد کنید',
+                          style:
+                              TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.justify,
+                        ),
                       ),
                     ),
                     Padding(
@@ -638,12 +676,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
-                        style:
-                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.justify,
+                    Container(
+                      child: Stack(
+                        children:[
+                          Positioned(
+                            top: width * 0.07,
+                            right: width * 0.22,
+                            child: Container(
+                              width: width * 0.20,
+                              height: width * 0.20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/appMainIcon.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: width * 0.35,
+                              height: width * 0.35,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/circle2.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: Center(
+                        child: Text(
+                          'لطفا شماره همراه خود را جهت بازیابی وارد کنید',
+                          style:
+                              TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.justify,
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -836,12 +910,48 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        'جهت ثبت نام موارد زیر را کامل کنید',
-                        style:
-                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.justify,
+                    Container(
+                      child: Stack(
+                        children:[
+                          Positioned(
+                            top: width * 0.07,
+                            right: width * 0.22,
+                            child: Container(
+                              width: width * 0.20,
+                              height: width * 0.20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/appMainIcon.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: width * 0.35,
+                              height: width * 0.35,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/circle2.png'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: Center(
+                        child: Text(
+                          'جهت ثبت نام موارد زیر را کامل کنید',
+                          style:
+                              TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.justify,
+                        ),
                       ),
                     ),
                     Padding(
@@ -1318,7 +1428,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   @override
   Widget build(BuildContext context) {
     courseStore = Provider.of<CourseStore>(context);
-
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: authForm(formName),
       persistentFooterButtons: formName != FormName.RegisterPhoneNumber ?

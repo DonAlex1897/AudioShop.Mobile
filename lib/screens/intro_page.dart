@@ -123,7 +123,7 @@ class _IntroPageState extends State<IntroPage> {
     return Icon(
       Icons.navigate_next,
       color: Color(0xFF20BFA9),
-      size: 35.0,
+      size: 25.0,
     );
   }
 
@@ -210,7 +210,7 @@ class _IntroPageState extends State<IntroPage> {
 
       // Dot indicator
       colorDot: Color(0xff3da4ab),
-      sizeDot: 13.0,
+      sizeDot: 9.0,
       typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
 
       // Tabs

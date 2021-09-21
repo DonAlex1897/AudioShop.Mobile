@@ -1254,10 +1254,8 @@ class _HomePageState extends State<HomePage> {
                   textColor: Colors.white,
                   overlayColor: Colors.white54,
                   key: couponCodeKey,
-                  description: 'اگر از طریق نمایندگان ما با مجموعه'
-                      ' استارشو آشنا شده اید ، کد معرف نماینده'
-                      ' را وارد کنید تا از تخفیفات'
-                      ' ویژه استارشو بهره‌مند شوید.',
+                  description: 'اگر از طریق نمایندگان ما، با استارشو آشنا'
+                      ' شده اید، جهت دریافت تخفیف، کد معرف خود را وارد کنید',
                   child: SizedBox(
                       height: 80,
                       width: width * 2,
@@ -2086,6 +2084,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 courseStore.userEpisodes != null ? userCourses() : Container(),
+                SizedBox(height: 100,),
                 courseStore.isAdsEnabled &&
                         courseStore.libraryNative &&
                         courseStore.libraryNativeAds != null &&
@@ -2273,6 +2272,7 @@ class _HomePageState extends State<HomePage> {
                   courseStore.userFavoriteCourses.length > 0)
               ? userFavoriteCourses()
               : Container(),
+          SizedBox(height: 100,),
           courseStore.isAdsEnabled &&
                   courseStore.libraryNative &&
                   courseStore.libraryNativeAds != null &&
@@ -2880,7 +2880,7 @@ class _HomePageState extends State<HomePage> {
                           textColor: Colors.white,
                           overlayColor: Colors.white54,
                           key: searchKey,
-                          description: 'دوره مورد نظر خود را اینجا جستجو کنید',
+                          description: 'موضوع مورد نظر خود را اینجا جستجو کنید',
                           child: new IconButton(
                             icon: actionIcon,
                             onPressed: () {
