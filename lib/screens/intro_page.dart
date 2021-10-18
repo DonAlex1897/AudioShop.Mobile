@@ -195,8 +195,8 @@ class _IntroPageState extends State<IntroPage> {
       // slides: this.slides,
 
       // Skip button
-      renderSkipBtn: this.renderSkipBtn(),
-      colorSkipBtn: Color(0x33ffcc5c),
+      renderSkipBtn: SizedBox(),//this.renderSkipBtn(),
+      // colorSkipBtn: Color(0x33ffcc5c),
       highlightColorSkipBtn:  Color(0xff3da4ab),
 
       // Next button

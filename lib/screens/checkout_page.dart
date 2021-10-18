@@ -1077,8 +1077,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                             }
                           }
                         } else {
-                          orderJson = await createOrder();
-                          var orderMap = jsonDecode(orderJson);
+                          String orderId = await createOrder();
 
                           AlertDialog alert3 = AlertDialog(
                             scrollable: true,
@@ -1114,7 +1113,7 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                     InkWell(
                                       onTap: () {
                                         Clipboard.setData(ClipboardData(
-                                            text: orderMap['id'].toString()));
+                                            text: orderId));
                                         Fluttertoast.showToast(
                                             msg: 'شماره سفارش کپی شد');
                                       },
@@ -1156,12 +1155,12 @@ class _CheckOutPageState extends State<CheckOutPage> {
                                 InkWell(
                                   onTap: () {
                                     Clipboard.setData(ClipboardData(
-                                        text: orderMap['id'].toString()));
+                                        text: orderId));
                                     Fluttertoast.showToast(
                                         msg: 'شماره سفارش کپی شد');
                                   },
                                   child: Text(
-                                    orderMap['id'].toString(),
+                                    orderId,
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black,

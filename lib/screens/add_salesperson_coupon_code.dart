@@ -141,8 +141,9 @@ class _AddSalesPersonCouponCodeState extends State<AddSalesPersonCouponCode> {
                 children: [
                   Text(courseStore.salespersonCouponCode == null ||
                        courseStore.salespersonCouponCode == '' ?
-                    'در صورت در اختیار داشتن کد معرف آن را وارد کنید '
-                      'تا از تخفیف ها و مزایای آن بهره مند شوید' : descriptionText,
+                    'اگر از طریق نمایندگان ما، با استارشو آشنا شده اید،'
+                        ' جهت دریافت تخفیف ، کد معرف خود را وارد کنید'
+                      : descriptionText,
                     style: TextStyle(fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
