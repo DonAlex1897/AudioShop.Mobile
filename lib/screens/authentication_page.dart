@@ -445,7 +445,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         children:[
                           Positioned(
                             top: width * 0.07,
-                            right: width * 0.22,
+                            right: width * 0.23,
                             child: Container(
                               width: width * 0.20,
                               height: width * 0.20,
@@ -681,7 +681,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         children:[
                           Positioned(
                             top: width * 0.07,
-                            right: width * 0.22,
+                            right: width * 0.23,
                             child: Container(
                               width: width * 0.20,
                               height: width * 0.20,
@@ -915,7 +915,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                         children:[
                           Positioned(
                             top: width * 0.07,
-                            right: width * 0.22,
+                            right: width * 0.23,
                             child: Container(
                               width: width * 0.20,
                               height: width * 0.20,
